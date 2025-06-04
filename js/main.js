@@ -1,5 +1,8 @@
 import { PatientLogin } from './components/PatientLogin.js';
+import { Dashboard } from './components/Dashboard.js';
+import { SurveySelection } from './components/SurveySelection.js';
 import { Survey } from './components/Survey.js';
+import { CNTSelection } from './components/CNTSelection.js';
 import { CNTTask } from './components/CNTTask.js';
 import { Report } from './components/Report.js';
 import { db } from './firebase/config.js';
@@ -43,12 +46,38 @@ class App {
         this.components.login = new PatientLogin('app');
         break;
         
+      case 'dashboard':
+        if (!this.patientData) {
+          window.location.hash = '#login';
+          return;
+        }
+        this.components.dashboard = new Dashboard('app', this.patientData);
+        break;
+        
+      case 'survey-selection':
+        if (!this.patientData) {
+          window.location.hash = '#login';
+          return;
+        }
+        this.components.surveySelection = new SurveySelection('app', this.patientData);
+        window.surveySelectionInstance = this.components.surveySelection;
+        break;
+        
       case 'survey':
         if (!this.patientData) {
           window.location.hash = '#login';
           return;
         }
         this.components.survey = new Survey('app', this.patientData);
+        break;
+        
+      case 'cnt-selection':
+        if (!this.patientData) {
+          window.location.hash = '#login';
+          return;
+        }
+        this.components.cntSelection = new CNTSelection('app', this.patientData);
+        window.cntSelectionInstance = this.components.cntSelection;
         break;
         
       case 'cnt':

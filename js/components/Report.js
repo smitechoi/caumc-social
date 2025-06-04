@@ -9,20 +9,29 @@ export class Report {
 
   render() {
     this.container.innerHTML = `
-      <div class="report-container">
+      <div class="report-container" id="report-container">
         <div class="report-header">
+          <button onclick="window.location.hash='#dashboard'" class="back-btn">← 뒤로</button>
           <h1>검사 결과 리포트</h1>
-          <div class="patient-info">
-            <p><strong>이름:</strong> ${this.patientData.name}</p>
-            <p><strong>생년월일:</strong> ${this.patientData.birthDate}</p>
-            <p><strong>검사일:</strong> ${new Date().toLocaleDateString('ko-KR')}</p>
-          </div>
         </div>
         
         <div class="report-content" id="report-content">
+          <div class="patient-info-section">
+            <h2>환자 정보</h2>
+            <div class="patient-details">
+              <p><strong>이름:</strong> ${this.patientData.name}</p>
+              <p><strong>생년월일:</strong> ${this.patientData.birthDate}</p>
+              <p><strong>검사일:</strong> ${new Date().toLocaleDateString('ko-KR')}</p>
+              <p><strong>검사 언어:</strong> ${this.getLanguageName(this.patientData.language)}</p>
+            </div>
+          </div>
+          
           <section class="survey-results">
             <h2>임상 척도 검사 결과</h2>
-            <div id="survey-chart"></div>
+            <div class="completion-status">
+              ${this.getCompletionStatus('survey')}
+            </div>
+            <div id="survey-chart" class="chart-container"></div>
             <div class="survey-details">
               ${this.renderSurveyDetails()}
             </div>
@@ -30,7 +39,10 @@ export class Report {
           
           <section class="cnt-results">
             <h2>인지 기능 검사 결과</h2>
-            <div id="cnt-chart"></div>
+            <div class="completion-status">
+              ${this.getCompletionStatus('cnt')}
+            </div>
+            <div id="cnt-chart" class="chart-container"></div>
             <div class="cnt-details">
               ${this.renderCNTDetails()}
             </div>
@@ -42,12 +54,22 @@ export class Report {
               ${this.generateClinicalImpression()}
             </div>
           </section>
+          
+          <div class="report-footer">
+            <p class="disclaimer">본 검사 결과는 참고용이며, 정확한 진단을 위해서는 전문가 상담이 필요합니다.</p>
+            <p class="report-date">리포트 생성일: ${new Date().toLocaleString('ko-KR')}</p>
+          </div>
         </div>
         
         <div class="report-actions">
-          <button onclick="window.reportInstance.saveReport('pdf')">PDF로 저장</button>
-          <button onclick="window.reportInstance.saveReport('jpg')">이미지로 저장</button>
-          <button onclick="window.print()">인쇄</button>
+          <button onclick="window.reportInstance.saveReport()" class="save-btn">
+            <span class="btn-icon">💾</span>
+            구글 드라이브에 저장
+          </button>
+          <button onclick="window.print()" class="print-btn">
+            <span class="btn-icon">🖨️</span>
+            인쇄
+          </button>
         </div>
       </div>
     `;
@@ -60,22 +82,51 @@ export class Report {
     }, 100);
   }
 
+  getCompletionStatus(type) {
+    if (type === 'survey') {
+      const completed = Object.values(this.patientData.survey).filter(s => s.isDone).length;
+      const total = Object.keys(this.patientData.survey).length;
+      return `<p class="status-text">완료된 척도: ${completed}/${total}</p>`;
+    } else {
+      const completed = Object.values(this.patientData.cnt).filter(t => t.isDone).length;
+      const total = Object.keys(this.patientData.cnt).length;
+      return `<p class="status-text">완료된 검사: ${completed}/${total}</p>`;
+    }
+  }
+
   drawCharts() {
-    // D3.js를 사용한 차트 그리기
     this.drawSurveyChart();
     this.drawCNTChart();
   }
 
   drawSurveyChart() {
-    const data = Object.entries(this.patientData.survey).map(([key, value]) => ({
-      scale: this.getScaleName(key),
-      score: value.score,
-      maxScore: value.questions.length * 4 // Likert 0-4
-    }));
+    const data = Object.entries(this.patientData.survey)
+      .filter(([_, value]) => value.isDone)
+      .map(([key, value]) => {
+        const maxScore = value.questions.length * 4;
+        const percentage = (value.score / maxScore) * 100;
+        const avgPercentage = this.getAveragePercentage('survey', key);
+        
+        return {
+          scale: this.getScaleName(key),
+          score: value.score,
+          maxScore: maxScore,
+          percentage: percentage,
+          avgPercentage: avgPercentage
+        };
+      });
 
-    const margin = {top: 20, right: 30, bottom: 40, left: 90};
-    const width = 600 - margin.left - margin.right;
+    if (data.length === 0) {
+      document.getElementById('survey-chart').innerHTML = '<p class="no-data">완료된 척도가 없습니다.</p>';
+      return;
+    }
+
+    const margin = {top: 30, right: 120, bottom: 60, left: 100};
+    const width = 700 - margin.left - margin.right;
     const height = 300 - margin.top - margin.bottom;
+
+    // 기존 차트 제거
+    d3.select("#survey-chart").selectAll("*").remove();
 
     const svg = d3.select("#survey-chart")
       .append("svg")
@@ -84,56 +135,131 @@ export class Report {
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // X축 스케일
-    const x = d3.scaleLinear()
-      .domain([0, d3.max(data, d => d.maxScore)])
-      .range([0, width]);
-
-    // Y축 스케일
+    // Y축 스케일 (척도명)
     const y = d3.scaleBand()
       .range([0, height])
       .domain(data.map(d => d.scale))
-      .padding(0.1);
+      .padding(0.3);
 
-    // 바 그리기
-    svg.selectAll("rect")
+    // X축 스케일 (0-100%)
+    const x = d3.scaleLinear()
+      .domain([0, 100])
+      .range([0, width]);
+
+    // 배경 그리드
+    svg.append("g")
+      .attr("class", "grid")
+      .call(d3.axisBottom(x)
+        .tickSize(height)
+        .tickFormat("")
+      )
+      .style("stroke-dasharray", "3,3")
+      .style("opacity", 0.3);
+
+    // 개인 점수 바
+    svg.selectAll(".bar")
       .data(data)
       .enter()
       .append("rect")
+      .attr("class", "bar")
       .attr("x", 0)
       .attr("y", d => y(d.scale))
-      .attr("width", d => x(d.score))
-      .attr("height", y.bandwidth())
-      .attr("fill", "#2196F3");
+      .attr("width", d => x(d.percentage))
+      .attr("height", y.bandwidth() / 2)
+      .attr("fill", "#2196F3")
+      .attr("rx", 4);
+
+    // 평균 점수 라인
+    svg.selectAll(".avg-line")
+      .data(data)
+      .enter()
+      .append("line")
+      .attr("class", "avg-line")
+      .attr("x1", d => x(d.avgPercentage))
+      .attr("x2", d => x(d.avgPercentage))
+      .attr("y1", d => y(d.scale))
+      .attr("y2", d => y(d.scale) + y.bandwidth())
+      .attr("stroke", "#FF6B6B")
+      .attr("stroke-width", 3)
+      .attr("stroke-dasharray", "5,5");
 
     // 점수 텍스트
     svg.selectAll(".score-text")
       .data(data)
       .enter()
       .append("text")
-      .attr("x", d => x(d.score) + 5)
-      .attr("y", d => y(d.scale) + y.bandwidth() / 2)
+      .attr("x", d => x(d.percentage) + 5)
+      .attr("y", d => y(d.scale) + y.bandwidth() / 4)
       .attr("dy", ".35em")
-      .text(d => `${d.score}/${d.maxScore}`);
+      .text(d => `${Math.round(d.percentage)}%`)
+      .style("font-size", "12px")
+      .style("fill", "#333");
 
-    // 축 추가
+    // 축
+    svg.append("g")
+      .call(d3.axisLeft(y))
+      .style("font-size", "14px");
+
     svg.append("g")
       .attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x));
+      .call(d3.axisBottom(x).tickFormat(d => d + "%"))
+      .style("font-size", "12px");
 
-    svg.append("g")
-      .call(d3.axisLeft(y));
+    // 범례
+    const legend = svg.append("g")
+      .attr("transform", `translate(${width + 10}, 20)`);
+
+    legend.append("rect")
+      .attr("width", 15)
+      .attr("height", 15)
+      .attr("fill", "#2196F3");
+
+    legend.append("text")
+      .attr("x", 20)
+      .attr("y", 12)
+      .text("개인 점수")
+      .style("font-size", "12px");
+
+    legend.append("line")
+      .attr("x1", 0)
+      .attr("x2", 15)
+      .attr("y1", 30)
+      .attr("y2", 30)
+      .attr("stroke", "#FF6B6B")
+      .attr("stroke-width", 3)
+      .attr("stroke-dasharray", "5,5");
+
+    legend.append("text")
+      .attr("x", 20)
+      .attr("y", 35)
+      .text("평균 점수")
+      .style("font-size", "12px");
   }
 
   drawCNTChart() {
-    const data = Object.entries(this.patientData.cnt).map(([key, value]) => ({
-      task: this.getTaskName(key),
-      score: value.score
-    }));
+    const data = Object.entries(this.patientData.cnt)
+      .filter(([_, value]) => value.isDone)
+      .map(([key, value]) => {
+        const avgScore = this.getAverageScore('cnt', key);
+        
+        return {
+          task: this.getTaskName(key),
+          score: value.score,
+          avgScore: avgScore
+        };
+      });
 
-    const margin = {top: 20, right: 30, bottom: 60, left: 40};
-    const width = 600 - margin.left - margin.right;
+    if (data.length === 0) {
+      document.getElementById('cnt-chart').innerHTML = '<p class="no-data">완료된 검사가 없습니다.</p>';
+      return;
+    }
+
+    const margin = {top: 30, right: 120, bottom: 80, left: 60};
+    const width = 700 - margin.left - margin.right;
     const height = 300 - margin.top - margin.bottom;
+
+    // 기존 차트 제거
+    d3.select("#cnt-chart").selectAll("*").remove();
 
     const svg = d3.select("#cnt-chart")
       .append("svg")
@@ -146,23 +272,45 @@ export class Report {
     const x = d3.scaleBand()
       .range([0, width])
       .domain(data.map(d => d.task))
-      .padding(0.1);
+      .padding(0.3);
 
-    // Y축 스케일
+    // Y축 스케일 (0-100점)
     const y = d3.scaleLinear()
       .domain([0, 100])
       .range([height, 0]);
 
-    // 바 그리기
-    svg.selectAll("rect")
+    // 배경 그리드
+    svg.append("g")
+      .attr("class", "grid")
+      .call(d3.axisLeft(y)
+        .tickSize(-width)
+        .tickFormat("")
+      )
+      .style("stroke-dasharray", "3,3")
+      .style("opacity", 0.3);
+
+    // 개인 점수 바
+    svg.selectAll(".bar")
       .data(data)
       .enter()
       .append("rect")
+      .attr("class", "bar")
       .attr("x", d => x(d.task))
       .attr("y", d => y(d.score))
       .attr("width", x.bandwidth())
       .attr("height", d => height - y(d.score))
-      .attr("fill", "#4CAF50");
+      .attr("fill", "#4CAF50")
+      .attr("rx", 4);
+
+    // 평균 점수 마커
+    svg.selectAll(".avg-marker")
+      .data(data)
+      .enter()
+      .append("circle")
+      .attr("cx", d => x(d.task) + x.bandwidth() / 2)
+      .attr("cy", d => y(d.avgScore))
+      .attr("r", 5)
+      .attr("fill", "#FF6B6B");
 
     // 점수 텍스트
     svg.selectAll(".score-text")
@@ -172,18 +320,22 @@ export class Report {
       .attr("x", d => x(d.task) + x.bandwidth() / 2)
       .attr("y", d => y(d.score) - 5)
       .attr("text-anchor", "middle")
-      .text(d => d.score);
+      .text(d => d.score)
+      .style("font-size", "14px")
+      .style("font-weight", "bold");
 
-    // 축 추가
+    // 축
     svg.append("g")
       .attr("transform", `translate(0,${height})`)
       .call(d3.axisBottom(x))
       .selectAll("text")
       .attr("transform", "rotate(-45)")
-      .style("text-anchor", "end");
+      .style("text-anchor", "end")
+      .style("font-size", "12px");
 
     svg.append("g")
-      .call(d3.axisLeft(y));
+      .call(d3.axisLeft(y))
+      .style("font-size", "12px");
 
     // Y축 라벨
     svg.append("text")
@@ -193,24 +345,59 @@ export class Report {
       .attr("dy", "1em")
       .style("text-anchor", "middle")
       .text("점수");
+
+    // 범례
+    const legend = svg.append("g")
+      .attr("transform", `translate(${width + 10}, 20)`);
+
+    legend.append("rect")
+      .attr("width", 15)
+      .attr("height", 15)
+      .attr("fill", "#4CAF50");
+
+    legend.append("text")
+      .attr("x", 20)
+      .attr("y", 12)
+      .text("개인 점수")
+      .style("font-size", "12px");
+
+    legend.append("circle")
+      .attr("cx", 7)
+      .attr("cy", 30)
+      .attr("r", 5)
+      .attr("fill", "#FF6B6B");
+
+    legend.append("text")
+      .attr("x", 20)
+      .attr("y", 35)
+      .text("평균 점수")
+      .style("font-size", "12px");
   }
 
   renderSurveyDetails() {
     let html = '<table class="results-table">';
-    html += '<tr><th>척도</th><th>점수</th><th>해석</th></tr>';
+    html += '<tr><th>척도</th><th>점수</th><th>백분율</th><th>해석</th></tr>';
     
     Object.entries(this.patientData.survey).forEach(([key, value]) => {
       if (value.isDone) {
+        const maxScore = value.questions.length * 4;
+        const percentage = Math.round((value.score / maxScore) * 100);
         const interpretation = this.interpretSurveyScore(key, value.score, value.questions.length);
+        
         html += `
           <tr>
             <td>${this.getScaleName(key)}</td>
-            <td>${value.score}/${value.questions.length * 4}</td>
-            <td>${interpretation}</td>
+            <td>${value.score}/${maxScore}</td>
+            <td>${percentage}%</td>
+            <td class="${interpretation.level}">${interpretation.text}</td>
           </tr>
         `;
       }
     });
+    
+    if (Object.values(this.patientData.survey).every(s => !s.isDone)) {
+      html += '<tr><td colspan="4" class="no-data">완료된 척도가 없습니다.</td></tr>';
+    }
     
     html += '</table>';
     return html;
@@ -218,20 +405,27 @@ export class Report {
 
   renderCNTDetails() {
     let html = '<table class="results-table">';
-    html += '<tr><th>검사</th><th>점수</th><th>수행 수준</th></tr>';
+    html += '<tr><th>검사</th><th>점수</th><th>수행 수준</th><th>해석</th></tr>';
     
     Object.entries(this.patientData.cnt).forEach(([key, value]) => {
       if (value.isDone) {
         const level = this.interpretCNTScore(value.score);
+        const interpretation = this.getCNTInterpretation(key, value.score);
+        
         html += `
           <tr>
             <td>${this.getTaskName(key)}</td>
-            <td>${value.score}</td>
-            <td>${level}</td>
+            <td>${value.score}/100</td>
+            <td class="${level.class}">${level.text}</td>
+            <td>${interpretation}</td>
           </tr>
         `;
       }
     });
+    
+    if (Object.values(this.patientData.cnt).every(t => !t.isDone)) {
+      html += '<tr><td colspan="4" class="no-data">완료된 검사가 없습니다.</td></tr>';
+    }
     
     html += '</table>';
     return html;
@@ -239,39 +433,176 @@ export class Report {
 
   interpretSurveyScore(scale, score, questionCount) {
     const percentage = (score / (questionCount * 4)) * 100;
-    if (percentage < 25) return '낮음';
-    if (percentage < 50) return '경도';
-    if (percentage < 75) return '중등도';
-    return '높음';
+    
+    if (percentage < 25) {
+      return { level: 'level-low', text: '낮음' };
+    } else if (percentage < 50) {
+      return { level: 'level-mild', text: '경도' };
+    } else if (percentage < 75) {
+      return { level: 'level-moderate', text: '중등도' };
+    } else {
+      return { level: 'level-high', text: '높음' };
+    }
   }
 
   interpretCNTScore(score) {
-    if (score >= 90) return '매우 우수';
-    if (score >= 75) return '우수';
-    if (score >= 50) return '평균';
-    if (score >= 25) return '경계선';
-    return '손상 의심';
+    if (score >= 90) {
+      return { class: 'score-excellent', text: '매우 우수' };
+    } else if (score >= 75) {
+      return { class: 'score-good', text: '우수' };
+    } else if (score >= 50) {
+      return { class: 'score-average', text: '평균' };
+    } else if (score >= 25) {
+      return { class: 'score-below', text: '평균 이하' };
+    } else {
+      return { class: 'score-impaired', text: '손상 의심' };
+    }
+  }
+
+  getCNTInterpretation(task, score) {
+    const interpretations = {
+      task1: { // Stroop
+        high: '억제 통제 능력이 우수합니다.',
+        average: '정상적인 인지 통제 능력을 보입니다.',
+        low: '주의력 및 억제 기능 저하가 의심됩니다.'
+      },
+      task2: { // N-Back
+        high: '작업 기억 능력이 매우 좋습니다.',
+        average: '평균적인 작업 기억 수준입니다.',
+        low: '작업 기억 훈련이 필요할 수 있습니다.'
+      },
+      task3: { // Go/No-Go
+        high: '충동 조절 능력이 뛰어납니다.',
+        average: '정상적인 반응 억제 능력입니다.',
+        low: '충동성 조절에 어려움이 있을 수 있습니다.'
+      },
+      task4: { // Trail Making
+        high: '시공간 처리와 인지 유연성이 우수합니다.',
+        average: '평균적인 실행 기능을 보입니다.',
+        low: '처리 속도나 주의 전환에 어려움이 있습니다.'
+      },
+      task5: { // Digit Span
+        high: '단기 기억력이 매우 좋습니다.',
+        average: '정상적인 기억 폭을 가지고 있습니다.',
+        low: '단기 기억 용량이 제한적일 수 있습니다.'
+      }
+    };
+    
+    const taskInterpretations = interpretations[task] || interpretations.task1;
+    
+    if (score >= 75) return taskInterpretations.high;
+    else if (score >= 40) return taskInterpretations.average;
+    else return taskInterpretations.low;
   }
 
   generateClinicalImpression() {
-    const surveyScores = Object.values(this.patientData.survey)
-      .filter(s => s.isDone)
-      .map(s => s.score);
-    const cntScores = Object.values(this.patientData.cnt)
-      .filter(t => t.isDone)
-      .map(t => t.score);
+    const completedSurveys = Object.values(this.patientData.survey).filter(s => s.isDone);
+    const completedCNTs = Object.values(this.patientData.cnt).filter(t => t.isDone);
     
-    const avgSurvey = surveyScores.reduce((a, b) => a + b, 0) / surveyScores.length || 0;
-    const avgCNT = cntScores.reduce((a, b) => a + b, 0) / cntScores.length || 0;
+    if (completedSurveys.length === 0 && completedCNTs.length === 0) {
+      return '<p>완료된 검사가 없어 종합 소견을 제공할 수 없습니다.</p>';
+    }
     
-    return `
-      <p>검사 결과를 종합적으로 분석한 결과입니다:</p>
-      <ul>
-        <li>임상 척도 평균: ${avgSurvey.toFixed(1)}점</li>
-        <li>인지 기능 평균: ${avgCNT.toFixed(1)}점</li>
-      </ul>
-      <p>상세한 해석을 위해서는 전문가와 상담하시기 바랍니다.</p>
-    `;
+    let impression = '<div class="impression-content">';
+    
+    // 완료율
+    const surveyCompletion = Math.round((completedSurveys.length / Object.keys(this.patientData.survey).length) * 100);
+    const cntCompletion = Math.round((completedCNTs.length / Object.keys(this.patientData.cnt).length) * 100);
+    
+    impression += `<h3>검사 완료율</h3>`;
+    impression += `<ul>`;
+    impression += `<li>임상 척도: ${surveyCompletion}% (${completedSurveys.length}/${Object.keys(this.patientData.survey).length})</li>`;
+    impression += `<li>인지 기능: ${cntCompletion}% (${completedCNTs.length}/${Object.keys(this.patientData.cnt).length})</li>`;
+    impression += `</ul>`;
+    
+    // 주요 발견사항
+    if (completedSurveys.length > 0) {
+      const avgSurveyScore = completedSurveys.reduce((sum, s) => {
+        const maxScore = s.questions.length * 4;
+        return sum + (s.score / maxScore) * 100;
+      }, 0) / completedSurveys.length;
+      
+      impression += `<h3>임상 척도 요약</h3>`;
+      impression += `<p>완료된 척도들의 평균 점수는 ${Math.round(avgSurveyScore)}%입니다. `;
+      
+      if (avgSurveyScore >= 75) {
+        impression += '전반적으로 높은 증상 수준을 보고하고 있습니다.</p>';
+      } else if (avgSurveyScore >= 50) {
+        impression += '중간 정도의 증상 수준을 나타내고 있습니다.</p>';
+      } else if (avgSurveyScore >= 25) {
+        impression += '경미한 증상 수준을 보이고 있습니다.</p>';
+      } else {
+        impression += '증상 수준이 낮은 편입니다.</p>';
+      }
+    }
+    
+    if (completedCNTs.length > 0) {
+      const avgCNTScore = completedCNTs.reduce((sum, t) => sum + t.score, 0) / completedCNTs.length;
+      
+      impression += `<h3>인지 기능 요약</h3>`;
+      impression += `<p>완료된 인지 검사의 평균 점수는 ${Math.round(avgCNTScore)}점입니다. `;
+      
+      if (avgCNTScore >= 75) {
+        impression += '전반적으로 우수한 인지 기능을 보이고 있습니다.</p>';
+      } else if (avgCNTScore >= 50) {
+        impression += '평균 범위의 인지 기능을 나타내고 있습니다.</p>';
+      } else {
+        impression += '일부 인지 영역에서 어려움이 관찰됩니다.</p>';
+      }
+    }
+    
+    impression += `<h3>권장사항</h3>`;
+    impression += `<ul>`;
+    
+    if (surveyCompletion < 100 || cntCompletion < 100) {
+      impression += `<li>모든 검사를 완료하여 더 정확한 평가를 받으시기 바랍니다.</li>`;
+    }
+    
+    impression += `<li>본 결과는 선별 검사 목적으로만 사용되어야 합니다.</li>`;
+    impression += `<li>정확한 진단을 위해 전문가와 상담하시기 바랍니다.</li>`;
+    impression += `</ul>`;
+    
+    impression += '</div>';
+    
+    return impression;
+  }
+
+  // 평균 점수 데이터 (임시 - 실제로는 데이터베이스에서 가져와야 함)
+  getAveragePercentage(type, key) {
+    const avgData = {
+      survey: {
+        scale1: 45, // 우울 척도 평균 45%
+        scale2: 50, // 불안 척도 평균 50%
+        scale3: 55, // 스트레스 척도 평균 55%
+        scale4: 60  // 삶의 질 평균 60%
+      }
+    };
+    
+    return avgData[type]?.[key] || 50;
+  }
+
+  getAverageScore(type, key) {
+    const avgData = {
+      cnt: {
+        task1: 70, // Stroop 평균 70점
+        task2: 65, // N-Back 평균 65점
+        task3: 75, // Go/No-Go 평균 75점
+        task4: 68, // Trail Making 평균 68점
+        task5: 72  // Digit Span 평균 72점
+      }
+    };
+    
+    return avgData[type]?.[key] || 70;
+  }
+
+  getLanguageName(code) {
+    const languages = {
+      ko: '한국어',
+      en: 'English',
+      ja: '日本語',
+      zh: '中文'
+    };
+    return languages[code] || code;
   }
 
   getScaleName(key) {
@@ -295,31 +626,61 @@ export class Report {
     return names[key] || key;
   }
 
-  async saveReport(format) {
+  async saveReport() {
     try {
+      // 저장 버튼 비활성화
+      const saveBtn = document.querySelector('.save-btn');
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<span class="btn-icon">⏳</span> 저장 중...';
+      
       const reportElement = document.getElementById('report-content');
       
-      if (format === 'pdf') {
-        // PDF 생성 (html2pdf.js 사용 예정)
-        await this.generatePDF(reportElement);
-      } else if (format === 'jpg') {
-        // JPG 생성 (html2canvas 사용 예정)
-        await this.generateImage(reportElement);
-      }
+      // 동시에 PDF와 JPG 생성
+      await Promise.all([
+        this.generatePDF(reportElement),
+        this.generateImage(reportElement)
+      ]);
+      
+      // 저장 버튼 복원
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<span class="btn-icon">✓</span> 저장 완료!';
+      
+      // 3초 후 버튼 텍스트 원래대로
+      setTimeout(() => {
+        saveBtn.innerHTML = '<span class="btn-icon">💾</span> 구글 드라이브에 저장';
+      }, 3000);
       
     } catch (error) {
       console.error('리포트 저장 오류:', error);
       alert('리포트 저장 중 오류가 발생했습니다.');
+      
+      const saveBtn = document.querySelector('.save-btn');
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<span class="btn-icon">💾</span> 구글 드라이브에 저장';
     }
   }
 
   async generatePDF(element) {
-    // html2pdf.js 라이브러리 사용
+    // Apps Script 엔드포인트로 PDF 생성 요청
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
     const fileName = `${this.patientData.name}_${this.patientData.birthDate.replace(/-/g, '')}_${timestamp}.pdf`;
     
-    // PDF 생성 로직 (실제 구현 시 html2pdf.js 필요)
-    console.log('PDF 생성:', fileName);
+    // HTML 콘텐츠를 Apps Script로 전송
+    const htmlContent = element.outerHTML;
+    
+    // 실제 구현 시 Apps Script URL과 연동
+    console.log('PDF 생성 요청:', fileName);
+    
+    // TODO: Apps Script 연동
+    // const response = await fetch(APPS_SCRIPT_URL, {
+    //   method: 'POST',
+    //   body: JSON.stringify({
+    //     action: 'generatePDF',
+    //     html: htmlContent,
+    //     fileName: fileName,
+    //     patientId: this.patientData.id
+    //   })
+    // });
     
     // Firebase에 파일명 기록
     await generateReportRecord(
@@ -328,25 +689,32 @@ export class Report {
       fileName
     );
     
-    alert(`리포트가 생성되었습니다: ${fileName}`);
+    console.log(`PDF 생성 완료: ${fileName}`);
   }
 
   async generateImage(element) {
-    // html2canvas 라이브러리 사용
+    // Apps Script 엔드포인트로 이미지 생성 요청
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
     const fileName = `${this.patientData.name}_${this.patientData.birthDate.replace(/-/g, '')}_${timestamp}.jpg`;
     
-    // 이미지 생성 로직 (실제 구현 시 html2canvas 필요)
-    console.log('이미지 생성:', fileName);
+    // HTML 콘텐츠를 Apps Script로 전송
+    const htmlContent = element.outerHTML;
     
-    // Firebase에 파일명 기록
-    await generateReportRecord(
-      this.patientData.name,
-      this.patientData.birthDate,
-      fileName
-    );
+    // 실제 구현 시 Apps Script URL과 연동
+    console.log('이미지 생성 요청:', fileName);
     
-    alert(`리포트가 생성되었습니다: ${fileName}`);
+    // TODO: Apps Script 연동
+    // const response = await fetch(APPS_SCRIPT_URL, {
+    //   method: 'POST',
+    //   body: JSON.stringify({
+    //     action: 'generateImage',
+    //     html: htmlContent,
+    //     fileName: fileName,
+    //     patientId: this.patientData.id
+    //   })
+    // });
+    
+    console.log(`이미지 생성 완료: ${fileName}`);
   }
 }
 
@@ -354,47 +722,109 @@ export class Report {
 const style = document.createElement('style');
 style.textContent = `
   .report-container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 20px auto;
     padding: 30px;
     background: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   }
   
   .report-header {
-    border-bottom: 2px solid #333;
+    position: relative;
+    border-bottom: 3px solid #1976d2;
     padding-bottom: 20px;
     margin-bottom: 30px;
   }
   
-  .patient-info {
-    display: flex;
-    gap: 30px;
+  .back-btn {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 8px 16px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .back-btn:hover {
+    background: #e0e0e0;
+  }
+  
+  .report-header h1 {
+    text-align: center;
+    color: #1976d2;
+    margin-bottom: 20px;
+  }
+  
+  .patient-info-section {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+  }
+  
+  .patient-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
     margin-top: 15px;
   }
   
-  .patient-info p {
+  .patient-details p {
     margin: 5px 0;
+  }
+  
+  .completion-status {
+    background: #e3f2fd;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+  }
+  
+  .status-text {
+    margin: 0;
+    color: #1976d2;
+    font-weight: 500;
   }
   
   section {
     margin-bottom: 40px;
+    page-break-inside: avoid;
   }
   
   section h2 {
     color: #1976d2;
     margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+  
+  .chart-container {
+    margin: 20px 0;
+    padding: 20px;
+    background: #fafafa;
+    border-radius: 8px;
+  }
+  
+  .no-data {
+    text-align: center;
+    color: #999;
+    padding: 40px;
+    font-style: italic;
   }
   
   .results-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
   
   .results-table th,
   .results-table td {
-    border: 1px solid #ddd;
+    border: 1px solid #e0e0e0;
     padding: 12px;
     text-align: left;
   }
@@ -402,37 +832,136 @@ style.textContent = `
   .results-table th {
     background: #f5f5f5;
     font-weight: bold;
+    color: #333;
   }
   
-  .clinical-impression {
+  .results-table tr:nth-child(even) {
     background: #f9f9f9;
-    padding: 20px;
+  }
+  
+  /* 수준별 색상 */
+  .level-low { color: #4CAF50; }
+  .level-mild { color: #FF9800; }
+  .level-moderate { color: #FF5722; }
+  .level-high { color: #F44336; }
+  
+  .score-excellent { color: #4CAF50; font-weight: bold; }
+  .score-good { color: #8BC34A; }
+  .score-average { color: #FFC107; }
+  .score-below { color: #FF9800; }
+  .score-impaired { color: #F44336; font-weight: bold; }
+  
+  .clinical-impression {
+    background: #f0f7ff;
+    padding: 25px;
     border-radius: 8px;
+    border-left: 4px solid #1976d2;
+  }
+  
+  .impression-content h3 {
+    color: #1565c0;
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .impression-content h3:first-child {
+    margin-top: 0;
+  }
+  
+  .impression-content ul {
+    margin-left: 20px;
+  }
+  
+  .impression-content li {
+    margin: 8px 0;
+    line-height: 1.6;
+  }
+  
+  .report-footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+    text-align: center;
+  }
+  
+  .disclaimer {
+    color: #666;
+    font-size: 14px;
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+  
+  .report-date {
+    color: #999;
+    font-size: 12px;
   }
   
   .report-actions {
-    margin-top: 40px;
+    margin-top: 30px;
     text-align: center;
     display: flex;
-    gap: 10px;
+    gap: 15px;
     justify-content: center;
+    padding: 20px;
+    background: #f5f5f5;
+    border-radius: 8px;
   }
   
   .report-actions button {
-    padding: 12px 24px;
+    padding: 12px 30px;
     font-size: 16px;
     border: none;
     border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+  }
+  
+  .save-btn {
+    background: #4CAF50;
+    color: white;
+  }
+  
+  .save-btn:hover:not(:disabled) {
+    background: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  
+  .save-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .print-btn {
     background: #2196F3;
     color: white;
   }
   
-  .report-actions button:hover {
+  .print-btn:hover {
     background: #1976D2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  
+  .btn-icon {
+    font-size: 20px;
+  }
+  
+  /* D3 차트 스타일 */
+  .grid line {
+    stroke: #e0e0e0;
+  }
+  
+  .grid path {
+    stroke-width: 0;
   }
   
   @media print {
-    .report-actions {
+    .report-actions,
+    .back-btn {
       display: none;
     }
     
@@ -440,6 +969,10 @@ style.textContent = `
       box-shadow: none;
       margin: 0;
       padding: 20px;
+    }
+    
+    section {
+      page-break-inside: avoid;
     }
   }
 `;

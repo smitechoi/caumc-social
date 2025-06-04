@@ -7,6 +7,15 @@ export class Survey {
     this.currentScaleIndex = 0;
     this.scales = ['scale1', 'scale2', 'scale3', 'scale4'];
     
+    // 선택된 scale만 처리
+    if (window.selectedScale) {
+      this.currentScale = window.selectedScale;
+      this.scales = [window.selectedScale];
+    } else {
+      // 전체 진행 모드 (기존 방식)
+      this.findNextIncompleteScale();
+    }
+    
     // 각 Scale의 질문 수 (예시)
     this.scaleConfigs = {
       scale1: { name: 'Depression Scale', questions: 20 },
@@ -46,6 +55,10 @@ export class Survey {
       <div class="survey-container">
         <div class="survey-header">
           <h2>임상 척도 검사 - ${this.getLocalizedScaleName(currentScale)}</h2>
+          <div class="current-scale-info">
+            <span class="scale-badge">${currentScale.replace('scale', 'Scale ')}</span>
+            <span class="scale-name">${this.getLocalizedScaleName(currentScale)}</span>
+          </div>
           <div class="progress">
             <div class="progress-text">
               전체 진행률: ${this.currentScaleIndex}/${this.scales.length} 완료
@@ -97,10 +110,12 @@ export class Survey {
     let html = '<div class="likert-options">';
     
     for (let value = 0; value <= 4; value++) {
+      const isChecked = this.currentResponses[questionIndex] === value;
       html += `
-        <label class="likert-label">
+        <label class="likert-label ${isChecked ? 'selected' : ''}">
           <input type="radio" name="q${questionIndex}" value="${value}" 
-                 onchange="window.surveyInstance.updateResponse(${questionIndex}, ${value})">
+                 onchange="window.surveyInstance.updateResponse(${questionIndex}, ${value})"
+                 ${isChecked ? 'checked' : ''}>
           <span>${value}</span>
           <small>${labels[value]}</small>
         </label>
@@ -113,6 +128,16 @@ export class Survey {
 
   updateResponse(questionIndex, value) {
     this.currentResponses[questionIndex] = parseInt(value);
+    
+    // 선택된 항목 시각적 업데이트
+    const allLabels = document.querySelectorAll(`input[name="q${questionIndex}"]`).forEach(input => {
+      const label = input.closest('.likert-label');
+      if (input.value == value) {
+        label.classList.add('selected');
+      } else {
+        label.classList.remove('selected');
+      }
+    });
   }
 
   async submitScale() {
@@ -169,14 +194,14 @@ export class Survey {
   renderComplete() {
     this.container.innerHTML = `
       <div class="survey-complete">
-        <h2>임상 척도 검사 완료!</h2>
-        <p>모든 척도 검사를 완료하셨습니다.</p>
+        <h2>${this.getLocalizedScaleName(this.currentScale)} 완료!</h2>
+        <p>척도 검사를 완료하셨습니다.</p>
         <div class="score-summary">
-          <h3>점수 요약</h3>
-          ${this.renderScoreSummary()}
+          <h3>점수</h3>
+          <p>${this.patientData.survey[this.currentScale].score}점</p>
         </div>
-        <button onclick="window.location.hash='#cnt'">
-          CNT 검사 시작하기
+        <button onclick="window.location.hash='#survey-selection'">
+          다른 척도 선택하기
         </button>
       </div>
     `;
@@ -244,6 +269,31 @@ style.textContent = `
     margin-bottom: 30px;
   }
   
+  .current-scale-info {
+    margin: 15px 0;
+    padding: 15px;
+    background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  }
+  
+  .scale-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 14px;
+  }
+  
+  .scale-name {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
   .progress {
     margin-top: 10px;
   }
@@ -288,39 +338,66 @@ style.textContent = `
     border-radius: 4px;
     cursor: pointer;
     transition: all 0.2s;
+    background: white;
+    position: relative;
   }
   
   .likert-label:hover {
     background: #e3f2fd;
+    border-color: #90CAF9;
+    transform: translateY(-2px);
   }
   
   .likert-label input[type="radio"] {
     display: none;
   }
   
+  .likert-label input[type="radio"]:checked ~ * {
+    color: white;
+  }
+  
+  .likert-label:has(input[type="radio"]:checked) {
+    background: #2196F3;
+    border-color: #1976d2;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+  }
+  
   .likert-label input[type="radio"]:checked + span {
     font-weight: bold;
+    color: white;
   }
   
   .likert-label input[type="radio"]:checked ~ small {
-    color: #1976d2;
+    color: white;
+    font-weight: 500;
   }
   
-  .likert-label input[type="radio"]:checked {
-    background: #bbdefb;
-    border-color: #1976d2;
+  .likert-label.selected {
+    background: #2196F3 !important;
+    border-color: #1976d2 !important;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+  }
+  
+  .likert-label.selected span,
+  .likert-label.selected small {
+    color: white !important;
+    font-weight: bold;
   }
   
   .likert-label span {
     display: block;
-    font-size: 18px;
+    font-size: 20px;
     margin-bottom: 5px;
+    font-weight: 600;
   }
   
   .likert-label small {
     display: block;
-    font-size: 12px;
+    font-size: 13px;
     color: #666;
+    line-height: 1.2;
   }
   
   .button-container {

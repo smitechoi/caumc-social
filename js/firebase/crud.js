@@ -1,12 +1,12 @@
 import { 
-    collection, 
-    doc, 
-    getDoc, 
-    setDoc, 
-    updateDoc, 
-    serverTimestamp 
-  } from 'firebase/firestore';
-  import { db } from './config.js';
+  collection, 
+  doc, 
+  getDoc, 
+  setDoc, 
+  updateDoc, 
+  serverTimestamp 
+} from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js';
+import { db } from './config.js';
   
   // 재시도 래퍼 함수
   async function withRetry(fn, maxRetries = 3) {
