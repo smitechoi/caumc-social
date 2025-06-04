@@ -1,0 +1,145 @@
+import { PatientLogin } from './components/PatientLogin.js';
+import { Survey } from './components/Survey.js';
+import { CNTTask } from './components/CNTTask.js';
+import { Report } from './components/Report.js';
+import { db } from './firebase/config.js';
+
+// 앱 상태 관리
+class App {
+  constructor() {
+    this.currentView = 'login';
+    this.patientData = null;
+    this.components = {};
+    
+    this.init();
+  }
+
+  init() {
+    // URL 해시 기반 라우팅
+    window.addEventListener('hashchange', () => this.handleRoute());
+    
+    // 초기 라우트 처리
+    this.handleRoute();
+  }
+
+  handleRoute() {
+    const hash = window.location.hash.slice(1) || 'login';
+    this.renderView(hash);
+  }
+
+  renderView(view) {
+    const mainContainer = document.getElementById('app');
+    
+    // 기존 컴포넌트 정리
+    if (this.components[this.currentView]) {
+      // cleanup if needed
+    }
+    
+    this.currentView = view;
+    mainContainer.innerHTML = '';
+    
+    switch(view) {
+      case 'login':
+        this.components.login = new PatientLogin('app');
+        break;
+        
+      case 'survey':
+        if (!this.patientData) {
+          window.location.hash = '#login';
+          return;
+        }
+        this.components.survey = new Survey('app', this.patientData);
+        break;
+        
+      case 'cnt':
+        if (!this.patientData) {
+          window.location.hash = '#login';
+          return;
+        }
+        this.components.cnt = new CNTTask('app', this.patientData);
+        break;
+        
+      case 'report':
+        if (!this.patientData) {
+          window.location.hash = '#login';
+          return;
+        }
+        this.components.report = new Report('app', this.patientData);
+        break;
+        
+      default:
+        window.location.hash = '#login';
+    }
+  }
+
+  setPatientData(data) {
+    this.patientData = data;
+    window.currentPatient = data; // 전역 접근용
+  }
+}
+
+// 전역 앱 인스턴스
+window.app = new App();
+
+// 환자 로그인 성공 이벤트 리스너
+document.addEventListener('patientLoginSuccess', (event) => {
+  window.app.setPatientData(event.detail);
+});
+
+// 전역 스타일
+const globalStyles = `
+  * {
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f5f5f5;
+    color: #333;
+  }
+  
+  #app {
+    min-height: 100vh;
+  }
+  
+  button {
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  
+  .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-size: 24px;
+    color: #666;
+  }
+  
+  .error {
+    color: #f44336;
+    padding: 10px;
+    background: #ffebee;
+    border-radius: 4px;
+    margin: 10px 0;
+  }
+  
+  .success {
+    color: #4caf50;
+    padding: 10px;
+    background: #e8f5e9;
+    border-radius: 4px;
+    margin: 10px 0;
+  }
+`;
+
+const styleElement = document.createElement('style');
+styleElement.textContent = globalStyles;
+document.head.appendChild(styleElement);
