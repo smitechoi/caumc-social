@@ -1,0 +1,263 @@
+export class BaseTask {
+    constructor(container, patientData, onComplete, onExit) {
+      this.container = container;
+      this.patientData = patientData;
+      this.onComplete = onComplete;
+      this.onExit = onExit;
+      
+      this.p5Instance = null;
+      this.taskStartTime = null;
+      this.taskData = {
+        responses: [],
+        events: []
+      };
+      
+      this.tutorialShown = false;
+    }
+  
+    start() {
+      this.showTutorial();
+    }
+  
+    showTutorial() {
+      const tutorial = this.getTutorial();
+      
+      this.container.innerHTML = `
+        <div class="tutorial-container">
+          <h3>${tutorial.title}</h3>
+          ${tutorial.content}
+          <div class="tutorial-buttons">
+            <button onclick="window.currentTask.startActualTask()" class="tutorial-start-btn">
+              시작하기
+            </button>
+            <button onclick="window.currentTask.exitTask()" class="tutorial-exit-btn">
+              나가기
+            </button>
+          </div>
+        </div>
+      `;
+      
+      window.currentTask = this;
+    }
+  
+    startActualTask() {
+      this.taskStartTime = Date.now();
+      this.container.innerHTML = '';
+      
+      const canvasContainer = document.createElement('div');
+      canvasContainer.id = 'task-canvas';
+      canvasContainer.style.cssText = `
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      `;
+      this.container.appendChild(canvasContainer);
+      
+      this.createP5Sketch();
+    }
+  
+    createP5Sketch() {
+      const sketch = (p) => {
+        let state = {};
+        
+        p.setup = () => {
+          const canvas = p.createCanvas(window.innerWidth, window.innerHeight);
+          canvas.parent('task-canvas');
+          p.textAlign(p.CENTER, p.CENTER);
+          
+          // 태스크별 초기화
+          this.initializeState(state, p);
+        };
+        
+        p.draw = () => {
+          p.background(240);
+          
+          // 종료 버튼
+          this.drawExitButton(p);
+          
+          // 태스크별 렌더링
+          this.render(state, p);
+        };
+        
+        p.mousePressed = () => {
+          // 종료 버튼 체크
+          if (p.mouseX >= p.width - 80 && p.mouseX <= p.width - 20 &&
+              p.mouseY >= 20 && p.mouseY <= 50) {
+            if (confirm('검사를 종료하시겠습니까?')) {
+              this.exitTask();
+              return;
+            }
+          }
+          
+          this.handleMousePress(state, p.mouseX, p.mouseY, p);
+        };
+        
+        p.touchStarted = () => {
+          if (p.touches.length > 0) {
+            const touch = p.touches[0];
+            
+            // 종료 버튼 체크
+            if (touch.x >= p.width - 80 && touch.x <= p.width - 20 &&
+                touch.y >= 20 && touch.y <= 50) {
+              if (confirm('검사를 종료하시겠습니까?')) {
+                this.exitTask();
+                return false;
+              }
+            }
+            
+            this.handleMousePress(state, touch.x, touch.y, p);
+          }
+          return false;
+        };
+        
+        p.keyPressed = () => {
+          this.handleKeyPress(state, p.key, p);
+        };
+        
+        p.windowResized = () => {
+          p.resizeCanvas(window.innerWidth, window.innerHeight);
+        };
+      };
+      
+      this.p5Instance = new p5(sketch);
+    }
+  
+    drawExitButton(p) {
+      p.push();
+      p.fill(255, 0, 0);
+      p.noStroke();
+      p.rect(p.width - 80, 20, 60, 30, 5);
+      p.fill(255);
+      p.textSize(16);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.text('종료', p.width - 50, 35);
+      p.pop();
+    }
+  
+    completeTask() {
+      const taskData = {
+        taskName: this.getTaskName(),
+        score: this.calculateScore(),
+        isDone: true,
+        fullLog: {
+          startTime: this.taskStartTime,
+          endTime: Date.now(),
+          duration: Date.now() - this.taskStartTime,
+          ...this.taskData
+        }
+      };
+      
+      this.cleanup();
+      this.onComplete(taskData);
+    }
+  
+    exitTask() {
+      this.cleanup();
+      this.onExit();
+    }
+  
+    cleanup() {
+      if (this.p5Instance) {
+        this.p5Instance.remove();
+        this.p5Instance = null;
+      }
+    }
+  
+    // 하위 클래스에서 구현해야 할 메서드들
+    getTutorial() {
+      throw new Error('getTutorial must be implemented');
+    }
+  
+    getTaskName() {
+      throw new Error('getTaskName must be implemented');
+    }
+  
+    initializeState(state, p) {
+      throw new Error('initializeState must be implemented');
+    }
+  
+    render(state, p) {
+      throw new Error('render must be implemented');
+    }
+  
+    handleMousePress(state, x, y, p) {
+      // 기본적으로 아무것도 하지 않음
+    }
+  
+    handleKeyPress(state, key, p) {
+      // 기본적으로 아무것도 하지 않음
+    }
+  
+    calculateScore() {
+      throw new Error('calculateScore must be implemented');
+    }
+  }
+  
+  // 공통 스타일
+  const style = document.createElement('style');
+  style.textContent = `
+    .tutorial-container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 40px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+    
+    .tutorial-container h3 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+      font-size: 24px;
+    }
+    
+    .tutorial-container p {
+      margin: 15px 0;
+      line-height: 1.6;
+      font-size: 16px;
+    }
+    
+    .tutorial-buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 40px;
+    }
+    
+    .tutorial-start-btn {
+      padding: 15px 40px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .tutorial-start-btn:hover {
+      background: #45a049;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .tutorial-exit-btn {
+      padding: 15px 40px;
+      background: #666;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .tutorial-exit-btn:hover {
+      background: #555;
+    }
+  `;
+  document.head.appendChild(style);
