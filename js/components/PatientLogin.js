@@ -68,7 +68,7 @@ export class PatientLogin {
         <div id="success-message" style="display: none; color: green;"></div>
       </div>
     `;
-  
+
     window.loginInstance = this;
     this.attachEventListeners();
     this.populateDateDropdowns();
@@ -148,42 +148,39 @@ export class PatientLogin {
     document.getElementById('birthYear').addEventListener('change', () => this.updateDays());
   }
 
-  
-async checkRegistrationNumber(registrationNumber) {
-  this.showLoading(true);
-  this.showError('');
-  
-  try {
-    // 등록번호로 환자 조회
-    const patientData = await getPatientByRegistrationNumber(registrationNumber);
-    
-    if (patientData) {
-      // 개인정보를 표시하지 않고, 단지 등록번호가 존재한다는 것만 확인
-      this.matchedPatientData = patientData;
-      this.showLoading(false);
-      
-      // 자동으로 필드를 채우지 않음 - 보안상 중요!
-      // 사용자가 직접 본인의 정보를 입력해야 함
-      
-      // 성공 메시지만 표시
-      this.showSuccess('등록번호가 확인되었습니다. 본인 확인을 위해 정보를 입력해주세요.');
-      
-      // 필드는 활성화 상태로 유지
-      this.enableOtherFields(true);
-      
-    } else {
-      // 찾지 못하면 다른 필드 활성화
+
+  async checkRegistrationNumber(registrationNumber) {
+    this.showLoading(true);
+    this.showError('');
+
+    try {
+      // 등록번호로 환자 조회
+      const patientData = await getPatientByRegistrationNumber(registrationNumber);
+
+      if (patientData) {
+        // 환자를 찾으면 데이터 저장하지만 폼에는 채우지 않음
+        this.matchedPatientData = patientData;
+        this.showLoading(false);
+
+        // 다른 필드들을 비활성화하여 입력 불필요함을 표시
+        this.enableOtherFields(false);
+
+        // 성공 메시지 표시
+        this.showSuccess('등록번호가 확인되었습니다. 시작하기 버튼을 눌러주세요.');
+
+      } else {
+        // 찾지 못하면 다른 필드 활성화
+        this.showLoading(false);
+        this.enableOtherFields(true);
+        this.matchedPatientData = null;
+      }
+    } catch (error) {
+      console.error('등록번호 확인 오류:', error);
       this.showLoading(false);
       this.enableOtherFields(true);
       this.matchedPatientData = null;
     }
-  } catch (error) {
-    console.error('등록번호 확인 오류:', error);
-    this.showLoading(false);
-    this.enableOtherFields(true);
-    this.matchedPatientData = null;
   }
-}
 
 
   enableOtherFields(enable) {
@@ -202,78 +199,81 @@ async checkRegistrationNumber(registrationNumber) {
   async handleSubmit() {
     this.showLoading(true);
     this.showError('');
-  
+
     try {
       const registrationNumber = document.getElementById('registration').value.trim();
+
+      // 이미 매칭된 환자 데이터가 있으면 바로 로그인
+      if (this.matchedPatientData && registrationNumber) {
+        this.patientData = this.matchedPatientData;
+        this.showLoading(false);
+        this.onLoginSuccess(this.patientData);
+        return;
+      }
+
+      // 등록번호가 있지만 매칭되지 않은 경우 다시 확인
+      if (registrationNumber && !this.matchedPatientData) {
+        const patientData = await getPatientByRegistrationNumber(registrationNumber);
+        if (patientData) {
+          this.patientData = patientData;
+          this.showLoading(false);
+          this.onLoginSuccess(patientData);
+          return;
+        }
+      }
+
+      // 일반 로그인 처리 (등록번호 없이 이름+생년월일로 로그인)
       const name = document.getElementById('name').value.trim();
       const year = document.getElementById('birthYear').value;
       const month = document.getElementById('birthMonth').value;
       const day = document.getElementById('birthDay').value;
       const language = document.getElementById('language').value;
-  
-      // 모든 필드가 입력되었는지 확인
+
       if (!name || !year || !month || !day || !language) {
         throw new Error('모든 필드를 입력해주세요.');
       }
-  
+
       const birthDate = `${year}-${month}-${day}`;
-      
-      // 등록번호로 매칭된 환자가 있는 경우
-      if (this.matchedPatientData && registrationNumber) {
-        // 입력한 정보와 저장된 정보가 일치하는지 확인 (본인 확인)
-        if (this.matchedPatientData.name !== name || 
-            this.matchedPatientData.birthDate !== birthDate) {
-          throw new Error('입력하신 정보가 등록번호와 일치하지 않습니다.');
-        }
-        
-        // 본인 확인 성공
-        this.patientData = this.matchedPatientData;
-        
-        // 언어 설정이 다른 경우 업데이트 여부 확인
+
+      // 환자 존재 여부 확인
+      const exists = await checkPatientExists(name, birthDate);
+
+      if (exists) {
+        // 기존 환자 데이터 조회
+        this.patientData = await getPatient(name, birthDate);
+
+        // 언어 설정이 다른 경우 알림
         if (this.patientData.language !== language) {
           const confirmChange = confirm(
             `이전에 ${this.getLanguageName(this.patientData.language)}로 진행하셨습니다. ` +
             `${this.getLanguageName(language)}로 변경하시겠습니까?`
           );
-          
-          if (confirmChange) {
-            // 언어 변경 처리
-            await updatePatientLanguage(this.patientData.id, language);
-            this.patientData.language = language;
+
+          if (!confirmChange) {
+            document.getElementById('language').value = this.patientData.language;
+            this.showLoading(false);
+            return;
           }
         }
       } else {
-        // 등록번호가 없거나 매칭되지 않은 경우 - 일반 로그인/회원가입 처리
-        const exists = await checkPatientExists(name, birthDate);
-        
-        if (exists) {
-          // 기존 환자
-          this.patientData = await getPatient(name, birthDate);
-          
-          // 등록번호가 입력되었지만 다른 환자의 등록번호인 경우
-          if (registrationNumber && registrationNumber !== this.patientData.registrationNumber) {
-            throw new Error('입력하신 등록번호가 이미 다른 환자에게 사용 중입니다.');
-          }
-        } else {
-          // 신규 환자 - 등록번호 필수
-          if (!registrationNumber) {
-            throw new Error('신규 환자는 등록번호를 입력해야 합니다.');
-          }
-          
-          // 등록번호 중복 체크
-          const existingPatient = await getPatientByRegistrationNumber(registrationNumber);
-          if (existingPatient) {
-            throw new Error('이미 사용 중인 등록번호입니다.');
-          }
-          
-          // 새 환자 생성
-          this.patientData = await createPatient(name, birthDate, language, registrationNumber);
+        // 신규 환자 - 등록번호 필수
+        if (!registrationNumber) {
+          throw new Error('신규 환자는 등록번호를 입력해야 합니다.');
         }
+
+        // 등록번호 중복 체크
+        const existingPatient = await getPatientByRegistrationNumber(registrationNumber);
+        if (existingPatient) {
+          throw new Error('이미 사용 중인 등록번호입니다.');
+        }
+
+        // 새 환자 생성
+        this.patientData = await createPatient(name, birthDate, language, registrationNumber);
       }
-  
+
       this.showLoading(false);
       this.onLoginSuccess(this.patientData);
-      
+
     } catch (error) {
       console.error('오류 발생:', error);
       this.showError(error.message || '처리 중 오류가 발생했습니다. 다시 시도해주세요.');
