@@ -10,6 +10,7 @@ export class SurveyManager {
     this.container = document.getElementById(containerId);
     this.patientData = patientData;
     this.currentScaleIndex = 0;
+    // 순서를 명시적으로 정의
     this.scales = ['scale1', 'scale2', 'scale3', 'scale4'];
     
     // 선택된 scale 처리

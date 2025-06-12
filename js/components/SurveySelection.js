@@ -1,12 +1,12 @@
 export class SurveySelection {
-    constructor(containerId, patientData) {
-      this.container = document.getElementById(containerId);
-      this.patientData = patientData;
-      this.render();
-    }
-  
-    render() {
-      this.container.innerHTML = `
+  constructor(containerId, patientData) {
+    this.container = document.getElementById(containerId);
+    this.patientData = patientData;
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = `
         <div class="selection-container">
           <div class="selection-header">
             <button onclick="window.location.hash='#dashboard'" class="back-btn">← 뒤로</button>
@@ -18,70 +18,87 @@ export class SurveySelection {
           </div>
         </div>
       `;
-    }
-  
-    renderScales() {
-      const scales = Object.entries(this.patientData.survey || {});
-      
-      return scales.map(([key, scale], index) => {
-        const isCompleted = scale.isDone;
-        const scaleNumber = index + 1;
-        
-        return `
+  }
+
+  renderScales() {
+    // 순서를 보장하기 위해 키를 명시적으로 정의
+    const scaleOrder = ['scale1', 'scale2', 'scale3', 'scale4'];
+    const patientSurvey = this.patientData.survey || {};
+
+    return scaleOrder.map((key, index) => {
+      const scale = patientSurvey[key];
+      if (!scale) return ''; // 데이터가 없으면 스킵
+
+      const isCompleted = scale.isDone;
+      const scaleNumber = index + 1;
+
+      return `
           <div class="scale-card ${isCompleted ? 'completed' : ''}" 
                ${!isCompleted ? `onclick="window.surveySelectionInstance.selectScale('${key}')"` : ''}>
             <div class="scale-number">${scaleNumber}</div>
             <h3>${this.getScaleName(key)}</h3>
             <div class="scale-info">
               <p>문항 수: ${this.getQuestionCount(key)}개</p>
-              ${isCompleted ? 
-                `<p class="score">점수: ${scale.score}점</p>` : 
-                '<p class="status">미완료</p>'
-              }
+              <p class="age-requirement">${this.getAgeRequirement(key)}</p>
+              ${isCompleted ?
+          `<p class="score">점수: ${scale.score}점</p>` :
+          '<p class="status">미완료</p>'
+        }
             </div>
             <div class="scale-status">
-              ${isCompleted ? 
-                '<span class="completed-badge">✓ 완료됨</span>' : 
-                '<button class="start-btn">시작하기</button>'
-              }
+              ${isCompleted ?
+          '<span class="completed-badge">✓ 완료됨</span>' :
+          '<button class="start-btn">시작하기</button>'
+        }
             </div>
           </div>
         `;
-      }).join('');
-    }
-  
-    selectScale(scaleKey) {
-      window.selectedScale = scaleKey;
-      window.location.hash = '#survey';
-    }
-  
-    getScaleName(key) {
-      const names = {
-        scale1: '아동 우울 척도 (CES-DC) - 12세 이상',
-        scale2: '벡 불안 척도 (BAI) - 12세 이상', 
-        scale3: '공격성 질문지 (K-AQ) - 6세 이상',
-        scale4: 'ADHD 평가척도 (K-ARS) - 6세 이상'
-      };
-      return names[key] || key;
-    }
-  
-    getQuestionCount(key) {
-      const counts = {
-        scale1: 20,
-        scale2: 21,
-        scale3: 27,
-        scale4: 18
-      };
-      return counts[key] || 10;
-    }
+    }).join('');
   }
-  
-  // 전역 인스턴스
-  window.surveySelectionInstance = null;
-  
-  // CSS 스타일
-  const style = document.createElement('style');
-  style.textContent = `
+
+  // 연령 요구사항을 별도 메서드로 분리
+  getAgeRequirement(key) {
+    const requirements = {
+      scale1: '12세 이상',
+      scale2: '12세 이상',
+      scale3: '6세 이상',
+      scale4: '6세 이상'
+    };
+    return requirements[key] || '';
+  }
+
+  selectScale(scaleKey) {
+    window.selectedScale = scaleKey;
+    window.location.hash = '#survey';
+  }
+
+  getScaleName(key) {
+    const names = {
+      scale1: '아동 우울 척도 (CES-DC)',
+      scale2: '벡 불안 척도 (BAI)',
+      scale3: '공격성 질문지 (K-AQ)',
+      scale4: 'ADHD 평가척도 (K-ARS)'
+    };
+    return names[key] || key;
+  }
+
+  getQuestionCount(key) {
+    const counts = {
+      scale1: 20,
+      scale2: 21,
+      scale3: 27,
+      scale4: 18
+    };
+    return counts[key] || 10;
+  }
+}
+
+// 전역 인스턴스
+window.surveySelectionInstance = null;
+
+// CSS 스타일
+const style = document.createElement('style');
+style.textContent = `
     .selection-container {
       max-width: 800px;
       margin: 20px auto;
@@ -174,15 +191,19 @@ export class SurveySelection {
     }
     
     .scale-info {
-      margin-bottom: 20px;
-      color: #666;
-      font-size: 14px;
+      margin: 15px 0;
     }
     
     .scale-info p {
       margin: 5px 0;
     }
-    
+  
+    .age-requirement {
+      font-size: 14px;
+      color: #666;
+      font-style: italic;
+    }
+  
     .score {
       color: #4CAF50;
       font-weight: bold;
@@ -218,4 +239,4 @@ export class SurveySelection {
       background: #1976D2;
     }
   `;
-  document.head.appendChild(style);
+document.head.appendChild(style);

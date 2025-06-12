@@ -109,13 +109,21 @@ export class Dashboard {
   }
 
   renderScaleList() {
-    const scales = Object.entries(this.patientData.survey || {});
-    return scales.map(([key, scale]) => `
-      <div class="item-status ${scale.isDone ? 'completed' : 'pending'}">
-        <span>${this.getScaleName(key)}</span>
-        <span>${scale.isDone ? '✓' : '○'}</span>
-      </div>
-    `).join('');
+    // 순서를 보장하기 위해 키를 명시적으로 정의
+    const scaleOrder = ['scale1', 'scale2', 'scale3', 'scale4'];
+    const patientSurvey = this.patientData.survey || {};
+    
+    return scaleOrder.map(key => {
+      const scale = patientSurvey[key];
+      if (!scale) return ''; // 데이터가 없으면 스킵
+      
+      return `
+        <div class="item-status ${scale.isDone ? 'completed' : 'pending'}">
+          <span>${this.getScaleName(key)}</span>
+          <span>${scale.isDone ? '✓' : '○'}</span>
+        </div>
+      `;
+    }).join('');
   }
 
   renderTaskList() {
