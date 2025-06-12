@@ -48,16 +48,6 @@ export class SurveyRenderer {
       <div class="survey-header">
         <h2>${scale.name}</h2>
         <p class="scale-description">${scale.description || ''}</p>
-        <div class="progress">
-          <div class="progress-text">
-            ${this.manager.currentScaleIndex + 1} / ${this.manager.scales.length}
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" 
-                 style="width: ${((this.manager.currentScaleIndex + 1) / this.manager.scales.length) * 100}%">
-            </div>
-          </div>
-        </div>
       </div>
     `;
   }
@@ -224,7 +214,7 @@ export class SurveyRenderer {
 
   renderProgressIndicator(progress) {
     const lang = this.manager.patientData.language;
-    
+
     const answeredTexts = {
       ko: `답변: ${progress.answered}/${progress.totalQuestions}`,
       en: `Answered: ${progress.answered}/${progress.totalQuestions}`,
@@ -233,7 +223,7 @@ export class SurveyRenderer {
       vn: `Đã trả lời: ${progress.answered}/${progress.totalQuestions}`,
       th: `ตอบแล้ว: ${progress.answered}/${progress.totalQuestions}`
     };
-    
+
     return `
       <div class="progress-indicator">
         <span class="answered-count">${answeredTexts[lang] || answeredTexts.ko}</span>
@@ -500,5 +490,80 @@ const additionalStyles = `
   border-radius: 4px;
   font-size: 11px;
   margin-left: 8px;
+}
+.button-container {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.submit-btn {
+  min-width: 200px;
+  padding: 16px 48px;
+  background: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
+}
+
+.submit-btn:hover {
+  background: #1976D2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+}
+
+.submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+.survey-navigation {
+  margin: 30px 0;
+  padding: 20px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.progress-indicator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.answered-count {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2196F3;
+}
+
+.question-dots {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.dot.answered {
+  background: #4CAF50;
+}
+
+.dot:hover {
+  transform: scale(1.2);
 }
 `;
