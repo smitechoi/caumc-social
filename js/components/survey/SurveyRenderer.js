@@ -591,5 +591,5 @@ const additionalStyles = `
 }
 `;
 const styleElement = document.createElement('style');
-styleElement.textContent = surveyStyles;
+styleElement.textContent = additionalStyles;
 document.head.appendChild(styleElement);
