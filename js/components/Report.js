@@ -103,7 +103,8 @@ export class Report {
     const data = Object.entries(this.patientData.survey)
       .filter(([_, value]) => value.isDone)
       .map(([key, value]) => {
-        const maxScore = value.questions.length * 4;
+        // maxScore 계산 수정
+        const maxScore = this.getMaxScore(key);
         const percentage = (value.score / maxScore) * 100;
         const avgPercentage = this.getAveragePercentage('survey', key);
         
@@ -376,22 +377,29 @@ export class Report {
 
   renderSurveyDetails() {
     let html = '<table class="results-table">';
-    html += '<tr><th>척도</th><th>점수</th><th>백분율</th><th>해석</th></tr>';
+    html += '<tr><th>척도</th><th>점수</th><th>수준</th><th>해석</th></tr>';
     
     Object.entries(this.patientData.survey).forEach(([key, value]) => {
       if (value.isDone) {
-        const maxScore = value.questions.length * 4;
-        const percentage = Math.round((value.score / maxScore) * 100);
-        const interpretation = this.interpretSurveyScore(key, value.score, value.questions.length);
+        // interpretation이 이미 저장되어 있으면 사용, 없으면 기존 방식 사용
+        const interpretation = value.interpretation || 
+          this.getDefaultInterpretation(key, value.score);
+        
+        const maxScore = this.getMaxScore(key);
         
         html += `
           <tr>
             <td>${this.getScaleName(key)}</td>
             <td>${value.score}/${maxScore}</td>
-            <td>${percentage}%</td>
-            <td class="${interpretation.level}">${interpretation.text}</td>
+            <td class="level-${interpretation.level || 'normal'}">${interpretation.label || interpretation.text}</td>
+            <td>${interpretation.description || ''}</td>
           </tr>
         `;
+        
+        // 하위척도 분석 결과가 있으면 추가
+        if (value.analysis) {
+          html += this.renderSubscaleAnalysis(key, value.analysis);
+        }
       }
     });
     
@@ -495,78 +503,6 @@ export class Report {
     else return taskInterpretations.low;
   }
 
-  generateClinicalImpression() {
-    const completedSurveys = Object.values(this.patientData.survey).filter(s => s.isDone);
-    const completedCNTs = Object.values(this.patientData.cnt).filter(t => t.isDone);
-    
-    if (completedSurveys.length === 0 && completedCNTs.length === 0) {
-      return '<p>완료된 검사가 없어 종합 소견을 제공할 수 없습니다.</p>';
-    }
-    
-    let impression = '<div class="impression-content">';
-    
-    // 완료율
-    const surveyCompletion = Math.round((completedSurveys.length / Object.keys(this.patientData.survey).length) * 100);
-    const cntCompletion = Math.round((completedCNTs.length / Object.keys(this.patientData.cnt).length) * 100);
-    
-    impression += `<h3>검사 완료율</h3>`;
-    impression += `<ul>`;
-    impression += `<li>임상 척도: ${surveyCompletion}% (${completedSurveys.length}/${Object.keys(this.patientData.survey).length})</li>`;
-    impression += `<li>인지 기능: ${cntCompletion}% (${completedCNTs.length}/${Object.keys(this.patientData.cnt).length})</li>`;
-    impression += `</ul>`;
-    
-    // 주요 발견사항
-    if (completedSurveys.length > 0) {
-      const avgSurveyScore = completedSurveys.reduce((sum, s) => {
-        const maxScore = s.questions.length * 4;
-        return sum + (s.score / maxScore) * 100;
-      }, 0) / completedSurveys.length;
-      
-      impression += `<h3>임상 척도 요약</h3>`;
-      impression += `<p>완료된 척도들의 평균 점수는 ${Math.round(avgSurveyScore)}%입니다. `;
-      
-      if (avgSurveyScore >= 75) {
-        impression += '전반적으로 높은 증상 수준을 보고하고 있습니다.</p>';
-      } else if (avgSurveyScore >= 50) {
-        impression += '중간 정도의 증상 수준을 나타내고 있습니다.</p>';
-      } else if (avgSurveyScore >= 25) {
-        impression += '경미한 증상 수준을 보이고 있습니다.</p>';
-      } else {
-        impression += '증상 수준이 낮은 편입니다.</p>';
-      }
-    }
-    
-    if (completedCNTs.length > 0) {
-      const avgCNTScore = completedCNTs.reduce((sum, t) => sum + t.score, 0) / completedCNTs.length;
-      
-      impression += `<h3>인지 기능 요약</h3>`;
-      impression += `<p>완료된 인지 검사의 평균 점수는 ${Math.round(avgCNTScore)}점입니다. `;
-      
-      if (avgCNTScore >= 75) {
-        impression += '전반적으로 우수한 인지 기능을 보이고 있습니다.</p>';
-      } else if (avgCNTScore >= 50) {
-        impression += '평균 범위의 인지 기능을 나타내고 있습니다.</p>';
-      } else {
-        impression += '일부 인지 영역에서 어려움이 관찰됩니다.</p>';
-      }
-    }
-    
-    impression += `<h3>권장사항</h3>`;
-    impression += `<ul>`;
-    
-    if (surveyCompletion < 100 || cntCompletion < 100) {
-      impression += `<li>모든 검사를 완료하여 더 정확한 평가를 받으시기 바랍니다.</li>`;
-    }
-    
-    impression += `<li>본 결과는 선별 검사 목적으로만 사용되어야 합니다.</li>`;
-    impression += `<li>정확한 진단을 위해 전문가와 상담하시기 바랍니다.</li>`;
-    impression += `</ul>`;
-    
-    impression += '</div>';
-    
-    return impression;
-  }
-
   // 평균 점수 데이터 (임시 - 실제로는 데이터베이스에서 가져와야 함)
   getAveragePercentage(type, key) {
     const avgData = {
@@ -607,10 +543,10 @@ export class Report {
 
   getScaleName(key) {
     const names = {
-      scale1: '우울 척도',
-      scale2: '불안 척도',
-      scale3: '스트레스 척도',
-      scale4: '삶의 질'
+      scale1: '아동 우울 척도 (CES-DC)',
+      scale2: '벡 불안 척도 (BAI)', 
+      scale3: '한국판 공격성 질문지 (K-AQ)',
+      scale4: '한국형 ADHD 평가척도 (K-ARS)'
     };
     return names[key] || key;
   }
@@ -716,6 +652,218 @@ export class Report {
     
     console.log(`이미지 생성 완료: ${fileName}`);
   }
+
+  renderSubscaleAnalysis(scale, analysis) {
+    let html = '';
+    
+    // K-ARS의 경우 하위척도 점수 표시
+    if (scale === 'scale4' && analysis.subscales) {
+      html += `
+        <tr class="subscale-row">
+          <td colspan="4" style="padding-left: 30px; background: #f9f9f9;">
+            <strong>하위척도 분석:</strong><br>
+            • 부주의: ${analysis.subscales.inattention.score}점 
+              ${analysis.subscales.inattention.exceeded ? '(기준 초과 ⚠️)' : ''}<br>
+            • 과잉행동-충동성: ${analysis.subscales.hyperactivity.score}점 
+              ${analysis.subscales.hyperactivity.exceeded ? '(기준 초과 ⚠️)' : ''}
+          </td>
+        </tr>
+      `;
+    }
+    
+    // K-AQ의 경우 하위척도 표시
+    if (scale === 'scale3' && analysis.subscales) {
+      html += `<tr class="subscale-row"><td colspan="4" style="padding-left: 30px; background: #f9f9f9;">
+        <strong>하위척도:</strong><br>`;
+      
+      Object.entries(analysis.subscales).forEach(([key, subscale]) => {
+        html += `• ${subscale.name}: ${subscale.score}점<br>`;
+      });
+      
+      html += `</td></tr>`;
+    }
+    
+    // CES-DC의 경우 카테고리별 점수
+    if (scale === 'scale1' && analysis.factors) {
+      html += `<tr class="subscale-row"><td colspan="4" style="padding-left: 30px; background: #f9f9f9;">
+        <strong>영역별 분석:</strong><br>`;
+      
+      const factorNames = {
+        depressed_affect: '우울 정서',
+        positive_affect: '긍정 정서',
+        somatic: '신체화 증상',
+        interpersonal: '대인관계 문제'
+      };
+      
+      Object.entries(analysis.factors).forEach(([key, factor]) => {
+        if (factor.percentage !== undefined) {
+          html += `• ${factorNames[key] || key}: ${factor.percentage}%<br>`;
+        }
+      });
+      
+      html += `</td></tr>`;
+    }
+    
+    return html;
+  }
+  getMaxScore(scale) {
+    const maxScores = {
+      'scale1': 60,  // CES-DC: 20문항 × 3
+      'scale2': 63,  // BAI: 21문항 × 3
+      'scale3': 135, // K-AQ: 27문항 × 5
+      'scale4': 54   // K-ARS: 18문항 × 3
+    };
+    return maxScores[scale] || 100;
+  }
+  getDefaultInterpretation(scale, score) {
+    const interpretations = {
+      scale1: { // CES-DC
+        ranges: [
+          { max: 15, level: 'normal', label: '정상', description: '우울 증상이 거의 없습니다.' },
+          { max: 24, level: 'mild', label: '경도 우울', description: '가벼운 우울 증상이 있습니다.' },
+          { max: 60, level: 'severe', label: '중증 우울', description: '심각한 우울 증상입니다. 전문가 상담이 필요합니다.' }
+        ]
+      },
+      scale2: { // BAI
+        ranges: [
+          { max: 9, level: 'minimal', label: '정상', description: '불안이 정상 수준입니다.' },
+          { max: 18, level: 'mild', label: '경한 불안', description: '경미한 불안 증상이 있습니다.' },
+          { max: 29, level: 'moderate', label: '중등도 불안', description: '치료를 고려해야 할 수준입니다.' },
+          { max: 63, level: 'severe', label: '심한 불안', description: '즉각적인 치료가 필요합니다.' }
+        ]
+      },
+      scale3: { // K-AQ
+        ranges: [
+          { max: 54, level: 'low', label: '낮은 공격성', description: '평균 이하의 공격성입니다.' },
+          { max: 74, level: 'average', label: '평균 공격성', description: '일반적인 수준입니다.' },
+          { max: 94, level: 'high', label: '높은 공격성', description: '평균 이상의 공격성입니다.' },
+          { max: 135, level: 'very_high', label: '매우 높은 공격성', description: '전문가 상담을 권장합니다.' }
+        ]
+      },
+      scale4: { // K-ARS
+        ranges: [
+          { max: 18, level: 'normal', label: '정상', description: 'ADHD 가능성이 낮습니다.' },
+          { max: 28, level: 'mild', label: '경도', description: 'ADHD가 의심됩니다. 추가 평가가 필요합니다.' },
+          { max: 41, level: 'moderate', label: '중등도', description: 'ADHD 가능성이 높습니다.' },
+          { max: 54, level: 'severe', label: '중증', description: '심각한 ADHD 증상입니다.' }
+        ]
+      }
+    };
+    
+    const scaleRanges = interpretations[scale]?.ranges;
+    if (!scaleRanges) {
+      return { level: 'unknown', label: '평가 불가', description: '해석 정보가 없습니다.' };
+    }
+    
+    for (const range of scaleRanges) {
+      if (score <= range.max) {
+        return range;
+      }
+    }
+    
+    return scaleRanges[scaleRanges.length - 1];
+  }
+  generateClinicalImpression() {
+    const completedSurveys = Object.entries(this.patientData.survey)
+      .filter(([key, value]) => value.isDone);
+    const completedCNTs = Object.values(this.patientData.cnt)
+      .filter(t => t.isDone);
+    
+    if (completedSurveys.length === 0 && completedCNTs.length === 0) {
+      return '<p>완료된 검사가 없어 종합 소견을 제공할 수 없습니다.</p>';
+    }
+    
+    let impression = '<div class="impression-content">';
+    
+    // 완료율
+    const surveyCompletion = Math.round((completedSurveys.length / Object.keys(this.patientData.survey).length) * 100);
+    const cntCompletion = Math.round((completedCNTs.length / Object.keys(this.patientData.cnt).length) * 100);
+    
+    impression += `<h3>검사 완료율</h3>`;
+    impression += `<ul>`;
+    impression += `<li>임상 척도: ${surveyCompletion}% (${completedSurveys.length}/${Object.keys(this.patientData.survey).length})</li>`;
+    impression += `<li>인지 기능: ${cntCompletion}% (${completedCNTs.length}/${Object.keys(this.patientData.cnt).length})</li>`;
+    impression += `</ul>`;
+    
+    // 임상적으로 유의한 결과 강조
+    const significantFindings = [];
+    
+    completedSurveys.forEach(([key, value]) => {
+      const interpretation = value.interpretation || this.getDefaultInterpretation(key, value.score);
+      
+      // 중등도 이상인 경우만 주요 소견에 포함
+      if (['moderate', 'severe', 'high', 'very_high'].includes(interpretation.level)) {
+        significantFindings.push({
+          scale: this.getScaleName(key),
+          level: interpretation.label,
+          score: value.score,
+          maxScore: this.getMaxScore(key),
+          description: interpretation.description
+        });
+      }
+      
+      // K-ARS의 경우 하위척도도 확인
+      if (key === 'scale4' && value.analysis?.subscales) {
+        if (value.analysis.subscales.inattention.exceeded || 
+            value.analysis.subscales.hyperactivity.exceeded) {
+          significantFindings.push({
+            scale: this.getScaleName(key) + ' (하위척도)',
+            level: '기준 초과',
+            description: '부주의 또는 과잉행동-충동성 증상이 임상적 기준을 초과했습니다.'
+          });
+        }
+      }
+    });
+    
+    if (significantFindings.length > 0) {
+      impression += `<h3>주요 소견</h3>`;
+      impression += `<ul>`;
+      significantFindings.forEach(finding => {
+        impression += `<li><strong>${finding.scale}</strong>: ${finding.level}`;
+        if (finding.score !== undefined) {
+          impression += ` (${finding.score}/${finding.maxScore}점)`;
+        }
+        impression += `</li>`;
+      });
+      impression += `</ul>`;
+    }
+    
+    // 인지 기능 요약
+    if (completedCNTs.length > 0) {
+      const avgCNTScore = completedCNTs.reduce((sum, t) => sum + t.score, 0) / completedCNTs.length;
+      
+      impression += `<h3>인지 기능 요약</h3>`;
+      impression += `<p>완료된 인지 검사의 평균 점수는 ${Math.round(avgCNTScore)}점입니다. `;
+      
+      if (avgCNTScore >= 75) {
+        impression += '전반적으로 우수한 인지 기능을 보이고 있습니다.</p>';
+      } else if (avgCNTScore >= 50) {
+        impression += '평균 범위의 인지 기능을 나타내고 있습니다.</p>';
+      } else {
+        impression += '일부 인지 영역에서 어려움이 관찰됩니다.</p>';
+      }
+    }
+    
+    // 권장사항
+    impression += `<h3>권장사항</h3>`;
+    impression += `<ul>`;
+    
+    if (significantFindings.length > 0) {
+      impression += `<li>임상적으로 유의한 증상이 관찰되었습니다. 정신건강 전문가와의 상담을 권장합니다.</li>`;
+    }
+    
+    if (surveyCompletion < 100 || cntCompletion < 100) {
+      impression += `<li>모든 검사를 완료하여 더 정확한 평가를 받으시기 바랍니다.</li>`;
+    }
+    
+    impression += `<li>본 결과는 선별 검사 목적으로만 사용되어야 합니다.</li>`;
+    impression += `<li>정확한 진단을 위해서는 전문가의 종합적인 평가가 필요합니다.</li>`;
+    impression += `</ul>`;
+    
+    impression += '</div>';
+    
+    return impression;
+  }      
 }
 
 // CSS 스타일
@@ -844,7 +992,21 @@ style.textContent = `
   .level-mild { color: #FF9800; }
   .level-moderate { color: #FF5722; }
   .level-high { color: #F44336; }
-  
+  .level-normal { color: #4CAF50; font-weight: bold; }
+  .level-minimal { color: #4CAF50; font-weight: bold; }
+  .level-low { color: #4CAF50; font-weight: bold; }
+  .level-mild { color: #FFC107; font-weight: bold; }
+  .level-average { color: #2196F3; font-weight: bold; }
+  .level-moderate { color: #FF9800; font-weight: bold; }
+  .level-high { color: #FF5722; font-weight: bold; }
+  .level-severe { color: #F44336; font-weight: bold; }
+  .level-very_high { color: #D32F2F; font-weight: bold; }
+
+  .subscale-row td {
+    background-color: #f9f9f9;
+    font-size: 14px;
+    line-height: 1.6;
+  }
   .score-excellent { color: #4CAF50; font-weight: bold; }
   .score-good { color: #8BC34A; }
   .score-average { color: #FFC107; }
@@ -975,5 +1137,6 @@ style.textContent = `
       page-break-inside: avoid;
     }
   }
+  
 `;
 document.head.appendChild(style);

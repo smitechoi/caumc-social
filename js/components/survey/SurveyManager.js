@@ -60,7 +60,7 @@ export class SurveyManager {
 
   async submitScale() {
     const currentScale = this.scales[this.currentScaleIndex];
-    const config = surveyConfig.scales[currentScale];
+    const config = this.getScaleConfig();
     
     // 유효성 검사
     const validation = this.validator.validateResponses(
@@ -76,10 +76,12 @@ export class SurveyManager {
       return;
     }
     
-    // 점수 계산
-    const scoreData = this.scoreCalculator.calculate(
+    // 점수 계산 (언어 정보 전달)
+    const language = this.patientData.language || 'ko';
+    const scoreData = await this.scoreCalculator.calculate(
       currentScale, 
-      this.currentResponses
+      this.currentResponses,
+      language
     );
     
     try {
@@ -89,7 +91,9 @@ export class SurveyManager {
         score: scoreData.total,
         isDone: true,
         questions: [...this.currentResponses],
-        analysis: scoreData.analysis
+        responses: [...this.currentResponses], // Report에서 사용
+        analysis: scoreData.analysis,
+        interpretation: scoreData.interpretation
       };
       
       await updateSurveyScale(
