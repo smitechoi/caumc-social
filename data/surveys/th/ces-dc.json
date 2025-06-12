@@ -1,0 +1,182 @@
+{
+  "scale": {
+    "id": "ces-dc",
+    "name": "แบบประเมินภาวะซึมเศร้าในเด็ก (CES-DC)",
+    "fullName": "Center for Epidemiological Studies Depression Scale for Children",
+    "version": "1.0",
+    "description": "แบบประเมินตนเองสำหรับอาการซึมเศร้าในเด็กและวัยรุ่น",
+    "instruction": "กรุณาระบุว่าคุณมีความรู้สึกหรือประสบการณ์ต่อไปนี้บ่อยแค่ไหน",
+    "copyright": "Weissman et al. (1980), Thai version",
+    "cutoffScore": {
+      "clinical": 16,
+      "description": "คะแนน 16 ขึ้นไปอยู่ในกลุ่มเสี่ยงภาวะซึมเศร้า"
+    },
+    "reversedItems": [4, 8, 12, 16]
+  },
+  "questions": [
+    {
+      "id": "cesdc_1",
+      "number": 1,
+      "text": "ฉันรู้สึกรำคาญกับสิ่งที่ปกติไม่ทำให้ฉันรำคาญ",
+      "category": "somatic",
+      "required": true
+    },
+    {
+      "id": "cesdc_2",
+      "number": 2,
+      "text": "ฉันไม่อยากกินอะไร ฉันไม่รู้สึกหิว",
+      "category": "somatic",
+      "required": true
+    },
+    {
+      "id": "cesdc_3",
+      "number": 3,
+      "text": "ฉันไม่รู้สึกสนุกแม้ว่าครอบครัวและเพื่อนพยายามทำให้ฉันรู้สึกดีขึ้น",
+      "category": "depressed_affect",
+      "required": true
+    },
+    {
+      "id": "cesdc_4",
+      "number": 4,
+      "text": "ฉันรู้สึกว่าฉันก็ดีเหมือนกับเด็กคนอื่นๆ",
+      "category": "positive_affect",
+      "required": true,
+      "reverse": true
+    },
+    {
+      "id": "cesdc_5",
+      "number": 5,
+      "text": "ฉันมีปัญหาในการจดจ่อกับสิ่งที่กำลังทำ",
+      "category": "somatic",
+      "required": true
+    },
+    {
+      "id": "cesdc_6",
+      "number": 6,
+      "text": "ฉันรู้สึกหดหู่และไม่มีความสุข",
+      "category": "depressed_affect",
+      "required": true
+    },
+    {
+      "id": "cesdc_7",
+      "number": 7,
+      "text": "ฉันรู้สึกเหนื่อยเกินกว่าจะทำอะไร",
+      "category": "somatic",
+      "required": true
+    },
+    {
+      "id": "cesdc_8",
+      "number": 8,
+      "text": "ฉันรู้สึกว่าจะมีสิ่งดีๆ เกิดขึ้น",
+      "category": "positive_affect",
+      "required": true,
+      "reverse": true
+    },
+    {
+      "id": "cesdc_9",
+      "number": 9,
+      "text": "ฉันรู้สึกว่าสิ่งที่เคยทำได้ดีกลับทำได้ไม่ดีเหมือนเดิม",
+      "category": "depressed_affect",
+      "required": true
+    },
+    {
+      "id": "cesdc_10",
+      "number": 10,
+      "text": "ฉันรู้สึกกลัว",
+      "category": "depressed_affect",
+      "required": true
+    },
+    {
+      "id": "cesdc_11",
+      "number": 11,
+      "text": "ฉันนอนไม่หลับเหมือนเมื่อก่อน",
+      "category": "somatic",
+      "required": true
+    },
+    {
+      "id": "cesdc_12",
+      "number": 12,
+      "text": "ฉันมีความสุข",
+      "category": "positive_affect",
+      "required": true,
+      "reverse": true
+    },
+    {
+      "id": "cesdc_13",
+      "number": 13,
+      "text": "ฉันพูดน้อยกว่าปกติ",
+      "category": "interpersonal",
+      "required": true
+    },
+    {
+      "id": "cesdc_14",
+      "number": 14,
+      "text": "ฉันรู้สึกเหงาเหมือนไม่มีเพื่อน",
+      "category": "interpersonal",
+      "required": true
+    },
+    {
+      "id": "cesdc_15",
+      "number": 15,
+      "text": "ฉันรู้สึกว่าเด็กที่ฉันรู้จักไม่เป็นมิตรหรือไม่อยากอยู่กับฉัน",
+      "category": "interpersonal",
+      "required": true
+    },
+    {
+      "id": "cesdc_16",
+      "number": 16,
+      "text": "ฉันมีช่วงเวลาที่สนุกสนาน",
+      "category": "positive_affect",
+      "required": true,
+      "reverse": true
+    },
+    {
+      "id": "cesdc_17",
+      "number": 17,
+      "text": "ฉันรู้สึกอยากร้องไห้",
+      "category": "depressed_affect",
+      "required": true
+    },
+    {
+      "id": "cesdc_18",
+      "number": 18,
+      "text": "ฉันรู้สึกเศร้า",
+      "category": "depressed_affect",
+      "required": true
+    },
+    {
+      "id": "cesdc_19",
+      "number": 19,
+      "text": "ฉันรู้สึกว่าคนอื่นไม่ชอบฉัน",
+      "category": "interpersonal",
+      "required": true
+    },
+    {
+      "id": "cesdc_20",
+      "number": 20,
+      "text": "ฉันรู้สึกว่าเริ่มทำอะไรได้ยาก",
+      "category": "somatic",
+      "required": true
+    }
+  ],
+  "scoring": {
+    "type": "sum_with_reverse",
+    "ranges": [
+      { "min": 0, "max": 15, "level": "normal", "label": "ปกติ", "description": "แทบไม่มีอาการซึมเศร้า" },
+      { "min": 16, "max": 24, "level": "mild", "label": "ซึมเศร้าเล็กน้อย", "description": "มีอาการซึมเศร้าเล็กน้อย" },
+      { "min": 25, "max": 60, "level": "severe", "label": "ซึมเศร้ารุนแรง", "description": "มีอาการซึมเศร้ารุนแรง ควรปรึกษาผู้เชี่ยวชาญ" }
+    ],
+    "factors": {
+      "depressed_affect": "อารมณ์ซึมเศร้า",
+      "positive_affect": "อารมณ์เชิงบวก",
+      "somatic": "อาการทางกาย",
+      "interpersonal": "ปัญหาความสัมพันธ์"
+    }
+  },
+  "response_options": [
+    { "value": 0, "label": "แทบจะไม่เคย" },
+    { "value": 1, "label": "บางครั้ง" },
+    { "value": 2, "label": "บ่อย" },
+    { "value": 3, "label": "เกือบตลอดเวลา" }
+  ]
+}

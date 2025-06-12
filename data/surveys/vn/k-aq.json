@@ -1,0 +1,247 @@
+{
+  "scale": {
+    "id": "k-aq",
+    "name": "Bảng câu hỏi về tính hung hăng phiên bản Hàn Quốc (K-AQ)",
+    "fullName": "Korean Aggression Questionnaire",
+    "version": "1.0",
+    "description": "Bảng tự đánh giá tính hung hăng trong cuộc sống hàng ngày",
+    "instruction": "Bảng câu hỏi này bao gồm những nội dung bạn có thể trải nghiệm trong cuộc sống hàng ngày. Vui lòng đọc kỹ từng câu và đánh dấu vào câu trả lời phản ánh đúng nhất về bản thân bạn thường ngày.",
+    "copyright": "Buss & Perry (1992), Korean version by Seo & Kwon (2002)",
+    "cutoffScore": {
+      "clinical": 75,
+      "description": "Từ 75 điểm trở lên cho thấy mức độ hung hăng cao"
+    },
+    "reversedItems": [15, 24]
+  },
+  "questions": [
+    {
+      "id": "kaq_1",
+      "number": 1,
+      "text": "Đôi khi tôi khó kiểm soát được sự thôi thúc muốn đánh ai đó.",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_2",
+      "number": 2,
+      "text": "Tôi nói thẳng khi không đồng ý với bạn bè",
+      "category": "verbal_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_3",
+      "number": 3,
+      "text": "Tôi nổi giận nhanh nhưng cũng nguôi nhanh.",
+      "category": "anger",
+      "required": true
+    },
+    {
+      "id": "kaq_4",
+      "number": 4,
+      "text": "Đôi khi tôi cảm thấy ghen tị hoặc đố kỵ.",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_5",
+      "number": 5,
+      "text": "Nếu ai đó chọc giận tôi quá mức, tôi có thể sẽ đánh người đó",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_6",
+      "number": 6,
+      "text": "Tôi thường xuyên bất đồng ý kiến với người khác",
+      "category": "verbal_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_7",
+      "number": 7,
+      "text": "Khi mọi việc không như ý, tôi khó kìm giữ cơn giận.",
+      "category": "anger",
+      "required": true
+    },
+    {
+      "id": "kaq_8",
+      "number": 8,
+      "text": "Đôi khi tôi cảm thấy mình bị đối xử bất công",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_9",
+      "number": 9,
+      "text": "Nếu ai đó đánh tôi, tôi sẽ đánh lại.",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_10",
+      "number": 10,
+      "text": "Khi mọi người làm tôi khó chịu, tôi có thể nói với họ điều tôi nghĩ về họ.",
+      "category": "verbal_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_11",
+      "number": 11,
+      "text": "Đôi khi tôi cảm thấy như một thùng thuốc súng sắp nổ.",
+      "category": "anger",
+      "required": true
+    },
+    {
+      "id": "kaq_12",
+      "number": 12,
+      "text": "Người khác luôn có vẻ may mắn hơn tôi.",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_13",
+      "number": 13,
+      "text": "Tôi đánh nhau nhiều hơn người bình thường.",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_14",
+      "number": 14,
+      "text": "Tôi thường tranh cãi khi người khác có ý kiến khác tôi.",
+      "category": "verbal_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_15",
+      "number": 15,
+      "text": "Tôi là người bình tĩnh.",
+      "category": "anger",
+      "required": true,
+      "reverse": true
+    },
+    {
+      "id": "kaq_16",
+      "number": 16,
+      "text": "Đôi khi tôi tức giận dữ dội đến mức tự mình cũng ngạc nhiên.",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_17",
+      "number": 17,
+      "text": "Nếu cần dùng vũ lực để bảo vệ quyền lợi của mình, tôi sẵn sàng làm vậy.",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_18",
+      "number": 18,
+      "text": "Bạn bè nói tôi hay tranh luận.",
+      "category": "verbal_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_19",
+      "number": 19,
+      "text": "Khi ai đó tử tế với tôi quá mức, tôi nghĩ họ muốn điều gì đó từ tôi.",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_20",
+      "number": 20,
+      "text": "Tôi biết 'bạn bè' của tôi nói xấu tôi sau lưng.",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_21",
+      "number": 21,
+      "text": "Tôi đã từng đánh nhau với người đẩy tôi quá giới hạn.",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_22",
+      "number": 22,
+      "text": "Tôi đã từng giận đến mức phá đồ đạc.",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_23",
+      "number": 23,
+      "text": "Tôi nghi ngờ người lạ quá thân thiện.",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_24",
+      "number": 24,
+      "text": "Tôi nghĩ không có lý do gì biện minh cho việc đánh người.",
+      "category": "physical_aggression",
+      "required": true,
+      "reverse": true
+    },
+    {
+      "id": "kaq_25",
+      "number": 25,
+      "text": "Tôi gặp khó khăn trong việc kiểm soát cơn giận.",
+      "category": "anger",
+      "required": true
+    },
+    {
+      "id": "kaq_26",
+      "number": 26,
+      "text": "Đôi khi tôi cảm thấy mọi người đang cười nhạo tôi sau lưng.",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_27",
+      "number": 27,
+      "text": "Tôi đã từng đe dọa người quen.",
+      "category": "verbal_aggression",
+      "required": true
+    }
+  ],
+  "scoring": {
+    "type": "sum_with_reverse",
+    "ranges": [
+      { "min": 27, "max": 54, "level": "low", "label": "Mức độ hung hăng thấp", "description": "Dưới mức trung bình" },
+      { "min": 55, "max": 74, "level": "average", "label": "Mức độ hung hăng trung bình", "description": "Mức bình thường" },
+      { "min": 75, "max": 94, "level": "high", "label": "Mức độ hung hăng cao", "description": "Trên mức trung bình" },
+      { "min": 95, "max": 135, "level": "very_high", "label": "Mức độ hung hăng rất cao", "description": "Nên tham vấn chuyên gia" }
+    ],
+    "subscales": {
+      "physical_aggression": {
+        "name": "Hung hăng thể chất",
+        "items": [1, 5, 9, 13, 17, 21, 22, 24],
+        "description": "Xu hướng sử dụng bạo lực thể chất"
+      },
+      "verbal_aggression": {
+        "name": "Hung hăng lời nói",
+        "items": [2, 6, 10, 14, 18, 27],
+        "description": "Xu hướng tấn công bằng lời nói"
+      },
+      "anger": {
+        "name": "Giận dữ",
+        "items": [3, 7, 11, 15, 25],
+        "description": "Khó kiểm soát cơn giận"
+      },
+      "hostility": {
+        "name": "Thù địch",
+        "items": [4, 8, 12, 16, 19, 20, 23, 26],
+        "description": "Thái độ thù địch với người khác"
+      }
+    }
+  },
+  "response_options": [
+    { "value": 1, "label": "Hoàn toàn không đúng" },
+    { "value": 2, "label": "Hơi đúng" },
+    { "value": 3, "label": "Khá đúng" },
+    { "value": 4, "label": "Rất đúng" },
+    { "value": 5, "label": "Cực kỳ đúng" }
+  ]
+}

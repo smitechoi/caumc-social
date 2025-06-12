@@ -1,0 +1,186 @@
+{
+  "scale": {
+    "id": "bai",
+    "name": "แบบประเมินความวิตกกังวลของเบ็ค (BAI)",
+    "fullName": "Beck Anxiety Inventory",
+    "version": "1.0",
+    "description": "แบบประเมินตนเองสำหรับอาการวิตกกังวลในช่วงสัปดาห์ที่ผ่านมา",
+    "instruction": "กรุณาอ่านข้อความด้านล่างอย่างละเอียด และทำเครื่องหมายในช่องที่ตรงกับอาการของคุณมากที่สุดในช่วงสัปดาห์ที่ผ่านมา รวมถึงวันนี้",
+    "copyright": "Beck et al. (1988), Thai version",
+    "cutoffScore": {
+      "mild": 10,
+      "moderate": 19,
+      "severe": 30
+    }
+  },
+  "questions": [
+    {
+      "id": "bai_1",
+      "number": 1,
+      "text": "รู้สึกชาหรือเสียวซ่า",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_2",
+      "number": 2,
+      "text": "รู้สึกร้อนวูบวาบ",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_3",
+      "number": 3,
+      "text": "ขาสั่น",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_4",
+      "number": 4,
+      "text": "ไม่สามารถผ่อนคลายได้",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_5",
+      "number": 5,
+      "text": "กลัวว่าสิ่งเลวร้ายที่สุดจะเกิดขึ้น",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_6",
+      "number": 6,
+      "text": "มึนงงหรือหน้ามืด",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_7",
+      "number": 7,
+      "text": "หัวใจเต้นแรงหรือเต้นเร็ว",
+      "category": "autonomic",
+      "required": true
+    },
+    {
+      "id": "bai_8",
+      "number": 8,
+      "text": "รู้สึกไม่มั่นคง",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_9",
+      "number": 9,
+      "text": "รู้สึกหวาดกลัว",
+      "category": "panic",
+      "required": true
+    },
+    {
+      "id": "bai_10",
+      "number": 10,
+      "text": "รู้สึกประสาทตึงเครียด",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_11",
+      "number": 11,
+      "text": "รู้สึกหายใจไม่ออกหรือสำลัก",
+      "category": "autonomic",
+      "required": true
+    },
+    {
+      "id": "bai_12",
+      "number": 12,
+      "text": "มือสั่น",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_13",
+      "number": 13,
+      "text": "ตัวสั่น",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_14",
+      "number": 14,
+      "text": "กลัวว่าจะเสียการควบคุม",
+      "category": "panic",
+      "required": true
+    },
+    {
+      "id": "bai_15",
+      "number": 15,
+      "text": "หายใจลำบาก",
+      "category": "autonomic",
+      "required": true
+    },
+    {
+      "id": "bai_16",
+      "number": 16,
+      "text": "กลัวตาย",
+      "category": "panic",
+      "required": true
+    },
+    {
+      "id": "bai_17",
+      "number": 17,
+      "text": "รู้สึกกลัว",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_18",
+      "number": 18,
+      "text": "ย่อยอาหารไม่ดีหรือรู้สึกไม่สบายท้อง",
+      "category": "autonomic",
+      "required": true
+    },
+    {
+      "id": "bai_19",
+      "number": 19,
+      "text": "รู้สึกจะเป็นลม",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_20",
+      "number": 20,
+      "text": "หน้าแดง",
+      "category": "autonomic",
+      "required": true
+    },
+    {
+      "id": "bai_21",
+      "number": 21,
+      "text": "เหงื่อออก (ไม่ได้เกิดจากอากาศร้อน)",
+      "category": "autonomic",
+      "required": true
+    }
+  ],
+  "scoring": {
+    "type": "sum",
+    "ranges": [
+      { "min": 0, "max": 9, "level": "minimal", "label": "ปกติ", "description": "ระดับความวิตกกังวลปกติ" },
+      { "min": 10, "max": 18, "level": "mild", "label": "วิตกกังวลเล็กน้อย", "description": "มีอาการวิตกกังวลเล็กน้อย" },
+      { "min": 19, "max": 29, "level": "moderate", "label": "วิตกกังวลปานกลาง", "description": "ควรพิจารณารักษา" },
+      { "min": 30, "max": 63, "level": "severe", "label": "วิตกกังวลรุนแรง", "description": "ต้องรักษาทันที" }
+    ],
+    "factors": {
+      "neurophysiological": "ระบบประสาท-สรีรวิทยา",
+      "subjective": "อัตวิสัย",
+      "panic": "อาการตื่นตระหนก",
+      "autonomic": "ระบบประสาทอัตโนมัติ"
+    }
+  },
+  "response_options": [
+    { "value": 0, "label": "ไม่มีเลย" },
+    { "value": 1, "label": "เล็กน้อย" },
+    { "value": 2, "label": "ปานกลาง" },
+    { "value": 3, "label": "รุนแรง" }
+  ]
+}

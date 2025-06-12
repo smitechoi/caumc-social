@@ -1,0 +1,190 @@
+{
+  "scale": {
+    "id": "k-ars",
+    "name": "Thang đánh giá ADHD phiên bản Hàn Quốc (K-ARS)",
+    "fullName": "Korean ADHD Rating Scale",
+    "version": "1.0",
+    "description": "Thang đo đánh giá các triệu chứng ADHD",
+    "instruction": "Vui lòng đọc kỹ các câu hỏi dưới đây và trả lời.",
+    "copyright": "DuPaul (1991), Korean version",
+    "cutoffScore": {
+      "combined": 19,
+      "inattention": 12,
+      "hyperactivity": 11,
+      "description": "Tổng điểm từ 19 trở lên hoặc thiếu chú ý 12 điểm/tăng động 11 điểm trở lên"
+    }
+  },
+  "questions": [
+    {
+      "id": "kars_1",
+      "number": 1,
+      "text": "Không chú ý đến chi tiết hoặc mắc lỗi do bất cẩn trong học tập, công việc hoặc các hoạt động khác.",
+      "category": "inattention",
+      "dsm_criteria": "A1a",
+      "required": true
+    },
+    {
+      "id": "kars_2",
+      "number": 2,
+      "text": "Không thể ngồi yên, liên tục cử động tay chân hoặc ngọ nguậy.",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2a",
+      "required": true
+    },
+    {
+      "id": "kars_3",
+      "number": 3,
+      "text": "Khó duy trì sự chú ý trong các nhiệm vụ hoặc hoạt động vui chơi.",
+      "category": "inattention",
+      "dsm_criteria": "A1b",
+      "required": true
+    },
+    {
+      "id": "kars_4",
+      "number": 4,
+      "text": "Rời khỏi chỗ ngồi trong lớp học hoặc những nơi cần phải ngồi yên.",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2b",
+      "required": true
+    },
+    {
+      "id": "kars_5",
+      "number": 5,
+      "text": "Có vẻ như không nghe khi được nói chuyện trực tiếp.",
+      "category": "inattention",
+      "dsm_criteria": "A1c",
+      "required": true
+    },
+    {
+      "id": "kars_6",
+      "number": 6,
+      "text": "Chạy nhảy hoặc leo trèo quá mức trong những tình huống không phù hợp.",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2c",
+      "required": true
+    },
+    {
+      "id": "kars_7",
+      "number": 7,
+      "text": "Không làm theo hướng dẫn và không hoàn thành bài tập, việc nhà hoặc nhiệm vụ.",
+      "category": "inattention",
+      "dsm_criteria": "A1d",
+      "required": true
+    },
+    {
+      "id": "kars_8",
+      "number": 8,
+      "text": "Khó khăn khi chơi hoặc tham gia các hoạt động giải trí một cách yên lặng.",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2d",
+      "required": true
+    },
+    {
+      "id": "kars_9",
+      "number": 9,
+      "text": "Khó khăn trong việc tổ chức các nhiệm vụ và hoạt động.",
+      "category": "inattention",
+      "dsm_criteria": "A1e",
+      "required": true
+    },
+    {
+      "id": "kars_10",
+      "number": 10,
+      "text": "Luôn 'trong tình trạng chuyển động' hoặc hành động như thể 'được gắn động cơ'.",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2e",
+      "required": true
+    },
+    {
+      "id": "kars_11",
+      "number": 11,
+      "text": "Tránh, không thích hoặc miễn cưỡng làm những việc đòi hỏi nỗ lực tinh thần kéo dài.",
+      "category": "inattention",
+      "dsm_criteria": "A1f",
+      "required": true
+    },
+    {
+      "id": "kars_12",
+      "number": 12,
+      "text": "Nói quá nhiều.",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2f",
+      "required": true
+    },
+    {
+      "id": "kars_13",
+      "number": 13,
+      "text": "Mất đồ vật cần thiết cho các nhiệm vụ hoặc hoạt động (đồ chơi, bài tập, bút chì, v.v.).",
+      "category": "inattention",
+      "dsm_criteria": "A1g",
+      "required": true
+    },
+    {
+      "id": "kars_14",
+      "number": 14,
+      "text": "Trả lời vội vàng trước khi câu hỏi được hỏi xong.",
+      "category": "impulsivity",
+      "dsm_criteria": "A2g",
+      "required": true
+    },
+    {
+      "id": "kars_15",
+      "number": 15,
+      "text": "Dễ bị phân tâm bởi các kích thích bên ngoài.",
+      "category": "inattention",
+      "dsm_criteria": "A1h",
+      "required": true
+    },
+    {
+      "id": "kars_16",
+      "number": 16,
+      "text": "Khó chờ đến lượt mình.",
+      "category": "impulsivity",
+      "dsm_criteria": "A2h",
+      "required": true
+    },
+    {
+      "id": "kars_17",
+      "number": 17,
+      "text": "Hay quên trong các hoạt động hàng ngày (ví dụ: quên làm bài tập hoặc quên mang hộp cơm đến trường).",
+      "category": "inattention",
+      "dsm_criteria": "A1i",
+      "required": true
+    },
+    {
+      "id": "kars_18",
+      "number": 18,
+      "text": "Làm gián đoạn hoặc xen vào công việc của người khác.",
+      "category": "impulsivity",
+      "dsm_criteria": "A2i",
+      "required": true
+    }
+  ],
+  "scoring": {
+    "type": "sum",
+    "ranges": [
+      { "min": 0, "max": 18, "level": "normal", "label": "Bình thường", "description": "Khả năng mắc ADHD thấp" },
+      { "min": 19, "max": 28, "level": "mild", "label": "Nhẹ", "description": "Nghi ngờ ADHD, cần đánh giá thêm" },
+      { "min": 29, "max": 41, "level": "moderate", "label": "Vừa", "description": "Khả năng mắc ADHD cao" },
+      { "min": 42, "max": 54, "level": "severe", "label": "Nặng", "description": "Triệu chứng ADHD nghiêm trọng" }
+    ],
+    "subscales": {
+      "inattention": {
+        "name": "Thiếu chú ý",
+        "items": [1, 3, 5, 7, 9, 11, 13, 15, 17],
+        "cutoff": 12
+      },
+      "hyperactivity_impulsivity": {
+        "name": "Tăng động - Bốc đồng",
+        "items": [2, 4, 6, 8, 10, 12, 14, 16, 18],
+        "cutoff": 11
+      }
+    }
+  },
+  "response_options": [
+    { "value": 0, "label": "Không bao giờ" },
+    { "value": 1, "label": "Thỉnh thoảng" },
+    { "value": 2, "label": "Thường xuyên" },
+    { "value": 3, "label": "Rất thường xuyên" }
+  ]
+}

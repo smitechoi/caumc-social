@@ -1,0 +1,186 @@
+{
+  "scale": {
+    "id": "bai",
+    "name": "Thang lo âu Beck (BAI)",
+    "fullName": "Beck Anxiety Inventory",
+    "version": "1.0",
+    "description": "Bảng tự đánh giá các triệu chứng lo âu trong tuần qua",
+    "instruction": "Vui lòng đọc kỹ các câu dưới đây và đánh dấu vào ô phù hợp nhất với tình trạng của bạn trong tuần qua, bao gồm cả hôm nay.",
+    "copyright": "Beck et al. (1988), Vietnamese version",
+    "cutoffScore": {
+      "mild": 10,
+      "moderate": 19,
+      "severe": 30
+    }
+  },
+  "questions": [
+    {
+      "id": "bai_1",
+      "number": 1,
+      "text": "Tê cóng, ngứa ran hoặc cảm giác tê liệt",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_2",
+      "number": 2,
+      "text": "Cảm thấy nóng bừng",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_3",
+      "number": 3,
+      "text": "Chân run rẩy",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_4",
+      "number": 4,
+      "text": "Không thể thư giãn",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_5",
+      "number": 5,
+      "text": "Sợ điều tồi tệ nhất xảy ra",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_6",
+      "number": 6,
+      "text": "Chóng mặt hoặc choáng váng",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_7",
+      "number": 7,
+      "text": "Tim đập nhanh hoặc mạnh",
+      "category": "autonomic",
+      "required": true
+    },
+    {
+      "id": "bai_8",
+      "number": 8,
+      "text": "Cảm thấy bất ổn",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_9",
+      "number": 9,
+      "text": "Cảm thấy kinh hãi",
+      "category": "panic",
+      "required": true
+    },
+    {
+      "id": "bai_10",
+      "number": 10,
+      "text": "Cảm thấy căng thẳng",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_11",
+      "number": 11,
+      "text": "Cảm giác nghẹt thở",
+      "category": "autonomic",
+      "required": true
+    },
+    {
+      "id": "bai_12",
+      "number": 12,
+      "text": "Tay run rẩy",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_13",
+      "number": 13,
+      "text": "Run rẩy",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_14",
+      "number": 14,
+      "text": "Sợ mất kiểm soát",
+      "category": "panic",
+      "required": true
+    },
+    {
+      "id": "bai_15",
+      "number": 15,
+      "text": "Khó thở",
+      "category": "autonomic",
+      "required": true
+    },
+    {
+      "id": "bai_16",
+      "number": 16,
+      "text": "Sợ chết",
+      "category": "panic",
+      "required": true
+    },
+    {
+      "id": "bai_17",
+      "number": 17,
+      "text": "Cảm thấy sợ hãi",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_18",
+      "number": 18,
+      "text": "Khó tiêu hoặc khó chịu ở bụng",
+      "category": "autonomic",
+      "required": true
+    },
+    {
+      "id": "bai_19",
+      "number": 19,
+      "text": "Cảm thấy muốn ngất",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_20",
+      "number": 20,
+      "text": "Mặt đỏ bừng",
+      "category": "autonomic",
+      "required": true
+    },
+    {
+      "id": "bai_21",
+      "number": 21,
+      "text": "Đổ mồ hôi (không phải do nóng)",
+      "category": "autonomic",
+      "required": true
+    }
+  ],
+  "scoring": {
+    "type": "sum",
+    "ranges": [
+      { "min": 0, "max": 9, "level": "minimal", "label": "Bình thường", "description": "Mức lo âu bình thường" },
+      { "min": 10, "max": 18, "level": "mild", "label": "Lo âu nhẹ", "description": "Triệu chứng lo âu nhẹ" },
+      { "min": 19, "max": 29, "level": "moderate", "label": "Lo âu vừa", "description": "Nên cân nhắc điều trị" },
+      { "min": 30, "max": 63, "level": "severe", "label": "Lo âu nặng", "description": "Cần điều trị ngay" }
+    ],
+    "factors": {
+      "neurophysiological": "Thần kinh sinh lý",
+      "subjective": "Chủ quan",
+      "panic": "Hoảng loạn",
+      "autonomic": "Thần kinh tự chủ"
+    }
+  },
+  "response_options": [
+    { "value": 0, "label": "Không chút nào" },
+    { "value": 1, "label": "Nhẹ" },
+    { "value": 2, "label": "Vừa phải" },
+    { "value": 3, "label": "Nặng" }
+  ]
+}

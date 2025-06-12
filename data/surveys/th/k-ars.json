@@ -1,0 +1,190 @@
+{
+  "scale": {
+    "id": "k-ars",
+    "name": "มาตรวัดสมาธิสั้นฉบับเกาหลี (K-ARS)",
+    "fullName": "Korean ADHD Rating Scale",
+    "version": "1.0",
+    "description": "มาตรวัดประเมินอาการสมาธิสั้น",
+    "instruction": "กรุณาอ่านข้อความด้านล่างอย่างละเอียดและตอบคำถาม",
+    "copyright": "DuPaul (1991), Korean version",
+    "cutoffScore": {
+      "combined": 19,
+      "inattention": 12,
+      "hyperactivity": 11,
+      "description": "คะแนนรวม 19 ขึ้นไป หรือขาดสมาธิ 12 คะแนน/ซนอยู่ไม่นิ่ง 11 คะแนนขึ้นไป"
+    }
+  },
+  "questions": [
+    {
+      "id": "kars_1",
+      "number": 1,
+      "text": "ไม่ใส่ใจรายละเอียดหรือทำผิดพลาดเพราะประมาทในการเรียน การทำงาน หรือกิจกรรมอื่นๆ",
+      "category": "inattention",
+      "dsm_criteria": "A1a",
+      "required": true
+    },
+    {
+      "id": "kars_2",
+      "number": 2,
+      "text": "นั่งนิ่งไม่ได้ ขยับมือขยับเท้าหรือดิ้นไปมาตลอดเวลา",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2a",
+      "required": true
+    },
+    {
+      "id": "kars_3",
+      "number": 3,
+      "text": "มีปัญหาในการรักษาสมาธิในงานหรือกิจกรรมการเล่น",
+      "category": "inattention",
+      "dsm_criteria": "A1b",
+      "required": true
+    },
+    {
+      "id": "kars_4",
+      "number": 4,
+      "text": "ลุกจากที่นั่งในห้องเรียนหรือสถานการณ์ที่ต้องนั่งนิ่ง",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2b",
+      "required": true
+    },
+    {
+      "id": "kars_5",
+      "number": 5,
+      "text": "ดูเหมือนไม่ฟังเมื่อมีคนพูดด้วยโดยตรง",
+      "category": "inattention",
+      "dsm_criteria": "A1c",
+      "required": true
+    },
+    {
+      "id": "kars_6",
+      "number": 6,
+      "text": "วิ่งหรือปีนป่ายมากเกินไปในสถานการณ์ที่ไม่เหมาะสม",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2c",
+      "required": true
+    },
+    {
+      "id": "kars_7",
+      "number": 7,
+      "text": "ไม่ทำตามคำสั่งและไม่เสร็จการบ้าน งานบ้าน หรืองานที่ได้รับมอบหมาย",
+      "category": "inattention",
+      "dsm_criteria": "A1d",
+      "required": true
+    },
+    {
+      "id": "kars_8",
+      "number": 8,
+      "text": "มีปัญหาในการเล่นหรือทำกิจกรรมสันทนาการอย่างเงียบๆ",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2d",
+      "required": true
+    },
+    {
+      "id": "kars_9",
+      "number": 9,
+      "text": "มีปัญหาในการจัดระเบียบงานและกิจกรรม",
+      "category": "inattention",
+      "dsm_criteria": "A1e",
+      "required": true
+    },
+    {
+      "id": "kars_10",
+      "number": 10,
+      "text": "'อยู่ไม่นิ่ง' ตลอดเวลาหรือทำตัวเหมือน 'ติดเครื่องยนต์'",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2e",
+      "required": true
+    },
+    {
+      "id": "kars_11",
+      "number": 11,
+      "text": "หลีกเลี่ยง ไม่ชอบ หรือไม่เต็มใจทำงานที่ต้องใช้ความพยายามทางจิตใจต่อเนื่อง",
+      "category": "inattention",
+      "dsm_criteria": "A1f",
+      "required": true
+    },
+    {
+      "id": "kars_12",
+      "number": 12,
+      "text": "พูดมากเกินไป",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2f",
+      "required": true
+    },
+    {
+      "id": "kars_13",
+      "number": 13,
+      "text": "ทำของหายที่จำเป็นสำหรับงานหรือกิจกรรม (ของเล่น การบ้าน ดินสอ ฯลฯ)",
+      "category": "inattention",
+      "dsm_criteria": "A1g",
+      "required": true
+    },
+    {
+      "id": "kars_14",
+      "number": 14,
+      "text": "พูดแทรกก่อนที่คำถามจะจบ",
+      "category": "impulsivity",
+      "dsm_criteria": "A2g",
+      "required": true
+    },
+    {
+      "id": "kars_15",
+      "number": 15,
+      "text": "วอกแวกง่ายเพราะสิ่งกระตุ้นภายนอก",
+      "category": "inattention",
+      "dsm_criteria": "A1h",
+      "required": true
+    },
+    {
+      "id": "kars_16",
+      "number": 16,
+      "text": "รอคอยไม่เป็น",
+      "category": "impulsivity",
+      "dsm_criteria": "A2h",
+      "required": true
+    },
+    {
+      "id": "kars_17",
+      "number": 17,
+      "text": "หลงลืมในกิจกรรมประจำวัน (เช่น ลืมทำการบ้านหรือลืมเอากล่องข้าวไปโรงเรียน)",
+      "category": "inattention",
+      "dsm_criteria": "A1i",
+      "required": true
+    },
+    {
+      "id": "kars_18",
+      "number": 18,
+      "text": "ขัดจังหวะหรือสอดเข้าไปในกิจกรรมของผู้อื่น",
+      "category": "impulsivity",
+      "dsm_criteria": "A2i",
+      "required": true
+    }
+  ],
+  "scoring": {
+    "type": "sum",
+    "ranges": [
+      { "min": 0, "max": 18, "level": "normal", "label": "ปกติ", "description": "โอกาสเป็น ADHD ต่ำ" },
+      { "min": 19, "max": 28, "level": "mild", "label": "เล็กน้อย", "description": "สงสัย ADHD ต้องประเมินเพิ่มเติม" },
+      { "min": 29, "max": 41, "level": "moderate", "label": "ปานกลาง", "description": "โอกาสเป็น ADHD สูง" },
+      { "min": 42, "max": 54, "level": "severe", "label": "รุนแรง", "description": "อาการ ADHD รุนแรง" }
+    ],
+    "subscales": {
+      "inattention": {
+        "name": "ขาดสมาธิ",
+        "items": [1, 3, 5, 7, 9, 11, 13, 15, 17],
+        "cutoff": 12
+      },
+      "hyperactivity_impulsivity": {
+        "name": "ซนอยู่ไม่นิ่ง-หุนหันพลันแล่น",
+        "items": [2, 4, 6, 8, 10, 12, 14, 16, 18],
+        "cutoff": 11
+      }
+    }
+  },
+  "response_options": [
+    { "value": 0, "label": "ไม่เคยเลย" },
+    { "value": 1, "label": "บางครั้ง" },
+    { "value": 2, "label": "บ่อย" },
+    { "value": 3, "label": "บ่อยมาก" }
+  ]
+}

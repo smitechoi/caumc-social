@@ -1,0 +1,247 @@
+{
+  "scale": {
+    "id": "k-aq",
+    "name": "แบบสอบถามความก้าวร้าวฉบับเกาหลี (K-AQ)",
+    "fullName": "Korean Aggression Questionnaire",
+    "version": "1.0",
+    "description": "แบบประเมินตนเองเกี่ยวกับความก้าวร้าวในชีวิตประจำวัน",
+    "instruction": "แบบสอบถามนี้ประกอบด้วยข้อความที่คุณอาจพบในชีวิตประจำวัน กรุณาอ่านแต่ละข้อให้ละเอียดและเลือกคำตอบที่สะท้อนตัวคุณในชีวิตประจำวันได้ดีที่สุด",
+    "copyright": "Buss & Perry (1992), Korean version by Seo & Kwon (2002)",
+    "cutoffScore": {
+      "clinical": 75,
+      "description": "คะแนน 75 ขึ้นไปแสดงถึงความก้าวร้าวสูง"
+    },
+    "reversedItems": [15, 24]
+  },
+  "questions": [
+    {
+      "id": "kaq_1",
+      "number": 1,
+      "text": "บางครั้งฉันควบคุมแรงกระตุ้นที่อยากตีใครสักคนไม่ได้",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_2",
+      "number": 2,
+      "text": "ฉันพูดตรงๆ เมื่อไม่เห็นด้วยกับเพื่อน",
+      "category": "verbal_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_3",
+      "number": 3,
+      "text": "ฉันโกรธง่ายแต่ก็หายเร็ว",
+      "category": "anger",
+      "required": true
+    },
+    {
+      "id": "kaq_4",
+      "number": 4,
+      "text": "บางครั้งฉันรู้สึกอิจฉาริษยา",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_5",
+      "number": 5,
+      "text": "ถ้าใครมายั่วโมโหฉันมากๆ ฉันอาจตีคนนั้น",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_6",
+      "number": 6,
+      "text": "ฉันมักมีความเห็นขัดแย้งกับคนอื่น",
+      "category": "verbal_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_7",
+      "number": 7,
+      "text": "เมื่อสิ่งต่างๆ ไม่เป็นไปตามที่ต้องการ ฉันอดใจไม่ได้ที่จะโกรธ",
+      "category": "anger",
+      "required": true
+    },
+    {
+      "id": "kaq_8",
+      "number": 8,
+      "text": "บางครั้งฉันรู้สึกว่าถูกปฏิบัติอย่างไม่เป็นธรรม",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_9",
+      "number": 9,
+      "text": "ถ้าใครตีฉัน ฉันจะตีกลับ",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_10",
+      "number": 10,
+      "text": "เมื่อมีคนทำให้ฉันหงุดหงิด ฉันสามารถพูดสิ่งที่คิดเกี่ยวกับพวกเขา",
+      "category": "verbal_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_11",
+      "number": 11,
+      "text": "บางครั้งฉันรู้สึกเหมือนถังดินปืนที่พร้อมจะระเบิด",
+      "category": "anger",
+      "required": true
+    },
+    {
+      "id": "kaq_12",
+      "number": 12,
+      "text": "คนอื่นดูเหมือนจะโชคดีกว่าฉันเสมอ",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_13",
+      "number": 13,
+      "text": "ฉันทะเลาะวิวาทมากกว่าคนทั่วไป",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_14",
+      "number": 14,
+      "text": "ฉันมักจะโต้เถียงเมื่อมีความคิดเห็นต่างจากคนอื่น",
+      "category": "verbal_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_15",
+      "number": 15,
+      "text": "ฉันเป็นคนใจเย็น",
+      "category": "anger",
+      "required": true,
+      "reverse": true
+    },
+    {
+      "id": "kaq_16",
+      "number": 16,
+      "text": "บางครั้งฉันโกรธจัดจนแม้แต่ตัวเองก็ตกใจ",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_17",
+      "number": 17,
+      "text": "ถ้าต้องใช้ความรุนแรงเพื่อปกป้องสิทธิของฉัน ฉันจะทำ",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_18",
+      "number": 18,
+      "text": "เพื่อนๆ บอกว่าฉันชอบเถียง",
+      "category": "verbal_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_19",
+      "number": 19,
+      "text": "เมื่อมีคนใจดีกับฉันมากเกินไป ฉันคิดว่าพวกเขาต้องการอะไรจากฉัน",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_20",
+      "number": 20,
+      "text": "ฉันรู้ว่า 'เพื่อน' ของฉันนินทาฉันลับหลัง",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_21",
+      "number": 21,
+      "text": "ฉันเคยชกต่อยกับคนที่ผลักดันฉันมากเกินไป",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_22",
+      "number": 22,
+      "text": "ฉันเคยโกรธจนทำลายข้าวของ",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_23",
+      "number": 23,
+      "text": "ฉันระแวงคนแปลกหน้าที่ทำตัวเป็นมิตรเกินไป",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_24",
+      "number": 24,
+      "text": "ฉันคิดว่าไม่มีเหตุผลใดที่จะตีคนอื่น",
+      "category": "physical_aggression",
+      "required": true,
+      "reverse": true
+    },
+    {
+      "id": "kaq_25",
+      "number": 25,
+      "text": "ฉันมีปัญหาในการควบคุมอารมณ์โกรธ",
+      "category": "anger",
+      "required": true
+    },
+    {
+      "id": "kaq_26",
+      "number": 26,
+      "text": "บางครั้งฉันรู้สึกว่าคนอื่นกำลังหัวเราะเยาะฉันลับหลัง",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_27",
+      "number": 27,
+      "text": "ฉันเคยข่มขู่คนที่รู้จัก",
+      "category": "verbal_aggression",
+      "required": true
+    }
+  ],
+  "scoring": {
+    "type": "sum_with_reverse",
+    "ranges": [
+      { "min": 27, "max": 54, "level": "low", "label": "ความก้าวร้าวต่ำ", "description": "ต่ำกว่าค่าเฉลี่ย" },
+      { "min": 55, "max": 74, "level": "average", "label": "ความก้าวร้าวปานกลาง", "description": "อยู่ในระดับปกติ" },
+      { "min": 75, "max": 94, "level": "high", "label": "ความก้าวร้าวสูง", "description": "สูงกว่าค่าเฉลี่ย" },
+      { "min": 95, "max": 135, "level": "very_high", "label": "ความก้าวร้าวสูงมาก", "description": "ควรปรึกษาผู้เชี่ยวชาญ" }
+    ],
+    "subscales": {
+      "physical_aggression": {
+        "name": "ความก้าวร้าวทางกาย",
+        "items": [1, 5, 9, 13, 17, 21, 22, 24],
+        "description": "แนวโน้มการใช้ความรุนแรงทางกาย"
+      },
+      "verbal_aggression": {
+        "name": "ความก้าวร้าวทางวาจา",
+        "items": [2, 6, 10, 14, 18, 27],
+        "description": "แนวโน้มการโจมตีด้วยคำพูด"
+      },
+      "anger": {
+        "name": "ความโกรธ",
+        "items": [3, 7, 11, 15, 25],
+        "description": "ความยากลำบากในการควบคุมความโกรธ"
+      },
+      "hostility": {
+        "name": "ความเป็นปฏิปักษ์",
+        "items": [4, 8, 12, 16, 19, 20, 23, 26],
+        "description": "ทัศนคติที่เป็นปฏิปักษ์ต่อผู้อื่น"
+      }
+    }
+  },
+  "response_options": [
+    { "value": 1, "label": "ไม่ตรงเลย" },
+    { "value": 2, "label": "ค่อนข้างตรง" },
+    { "value": 3, "label": "ตรงพอสมควร" },
+    { "value": 4, "label": "ตรงมาก" },
+    { "value": 5, "label": "ตรงมากที่สุด" }
+  ]
+}

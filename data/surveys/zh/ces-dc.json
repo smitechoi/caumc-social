@@ -1,0 +1,182 @@
+{
+  "scale": {
+    "id": "ces-dc",
+    "name": "儿童抑郁量表 (CES-DC)",
+    "fullName": "Center for Epidemiological Studies Depression Scale for Children",
+    "version": "1.0",
+    "description": "评估儿童和青少年抑郁症状的自评量表",
+    "instruction": "以下列出了一些你可能有过的感受或行为。请标出在过去一周中你有这种感受的频率。",
+    "copyright": "Weissman et al. (1980), Chinese version",
+    "cutoffScore": {
+      "clinical": 16,
+      "description": "16分以上为抑郁症风险群体"
+    },
+    "reversedItems": [4, 8, 12, 16]
+  },
+  "questions": [
+    {
+      "id": "cesdc_1",
+      "number": 1,
+      "text": "平时不烦恼的事情变得让我烦恼。",
+      "category": "somatic",
+      "required": true
+    },
+    {
+      "id": "cesdc_2",
+      "number": 2,
+      "text": "我不想吃东西，没有胃口。",
+      "category": "somatic",
+      "required": true
+    },
+    {
+      "id": "cesdc_3",
+      "number": 3,
+      "text": "即使家人和朋友努力让我开心，我也高兴不起来。",
+      "category": "depressed_affect",
+      "required": true
+    },
+    {
+      "id": "cesdc_4",
+      "number": 4,
+      "text": "我觉得我和其他孩子一样好。",
+      "category": "positive_affect",
+      "required": true,
+      "reverse": true
+    },
+    {
+      "id": "cesdc_5",
+      "number": 5,
+      "text": "我很难集中注意力做事。",
+      "category": "somatic",
+      "required": true
+    },
+    {
+      "id": "cesdc_6",
+      "number": 6,
+      "text": "我感到沮丧，不开心。",
+      "category": "depressed_affect",
+      "required": true
+    },
+    {
+      "id": "cesdc_7",
+      "number": 7,
+      "text": "我觉得做什么都很累。",
+      "category": "somatic",
+      "required": true
+    },
+    {
+      "id": "cesdc_8",
+      "number": 8,
+      "text": "我觉得好事会发生。",
+      "category": "positive_affect",
+      "required": true,
+      "reverse": true
+    },
+    {
+      "id": "cesdc_9",
+      "number": 9,
+      "text": "我觉得以前做过的事情都做不好了。",
+      "category": "depressed_affect",
+      "required": true
+    },
+    {
+      "id": "cesdc_10",
+      "number": 10,
+      "text": "我感到害怕。",
+      "category": "depressed_affect",
+      "required": true
+    },
+    {
+      "id": "cesdc_11",
+      "number": 11,
+      "text": "我比平时睡得不好。",
+      "category": "somatic",
+      "required": true
+    },
+    {
+      "id": "cesdc_12",
+      "number": 12,
+      "text": "我很快乐。",
+      "category": "positive_affect",
+      "required": true,
+      "reverse": true
+    },
+    {
+      "id": "cesdc_13",
+      "number": 13,
+      "text": "我比平时更安静。",
+      "category": "interpersonal",
+      "required": true
+    },
+    {
+      "id": "cesdc_14",
+      "number": 14,
+      "text": "我感到孤独，好像没有朋友。",
+      "category": "interpersonal",
+      "required": true
+    },
+    {
+      "id": "cesdc_15",
+      "number": 15,
+      "text": "我觉得认识的孩子们不友好，或者不想和我在一起。",
+      "category": "interpersonal",
+      "required": true
+    },
+    {
+      "id": "cesdc_16",
+      "number": 16,
+      "text": "我过得很愉快。",
+      "category": "positive_affect",
+      "required": true,
+      "reverse": true
+    },
+    {
+      "id": "cesdc_17",
+      "number": 17,
+      "text": "我想哭。",
+      "category": "depressed_affect",
+      "required": true
+    },
+    {
+      "id": "cesdc_18",
+      "number": 18,
+      "text": "我感到悲伤。",
+      "category": "depressed_affect",
+      "required": true
+    },
+    {
+      "id": "cesdc_19",
+      "number": 19,
+      "text": "我觉得人们不喜欢我。",
+      "category": "interpersonal",
+      "required": true
+    },
+    {
+      "id": "cesdc_20",
+      "number": 20,
+      "text": "我很难开始做事情。",
+      "category": "somatic",
+      "required": true
+    }
+  ],
+  "scoring": {
+    "type": "sum_with_reverse",
+    "ranges": [
+      { "min": 0, "max": 15, "level": "normal", "label": "正常", "description": "几乎没有抑郁症状" },
+      { "min": 16, "max": 24, "level": "mild", "label": "轻度抑郁", "description": "轻微抑郁症状" },
+      { "min": 25, "max": 60, "level": "severe", "label": "重度抑郁", "description": "严重抑郁症状，需要专业咨询" }
+    ],
+    "factors": {
+      "depressed_affect": "抑郁情绪",
+      "positive_affect": "积极情绪",
+      "somatic": "躯体化症状",
+      "interpersonal": "人际关系问题"
+    }
+  },
+  "response_options": [
+    { "value": 0, "label": "很少" },
+    { "value": 1, "label": "有时" },
+    { "value": 2, "label": "经常" },
+    { "value": 3, "label": "总是" }
+  ]
+}

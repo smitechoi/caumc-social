@@ -1,6 +1,3 @@
-
-// ================================================
-// js/components/survey/surveyConfig.js
 export const surveyConfig = {
     scales: {
       scale1: {

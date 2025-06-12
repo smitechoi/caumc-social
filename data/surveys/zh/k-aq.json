@@ -1,0 +1,247 @@
+{
+  "scale": {
+    "id": "k-aq",
+    "name": "攻击性问卷 (K-AQ)",
+    "fullName": "Korean Aggression Questionnaire",
+    "version": "1.0",
+    "description": "评估日常生活中攻击性的自评量表",
+    "instruction": "这份问卷包含了您在日常生活中可能经历的一些情况。请仔细阅读每个项目，选择最能代表您平时表现的答案。",
+    "copyright": "Buss & Perry (1992), Chinese version",
+    "cutoffScore": {
+      "clinical": 75,
+      "description": "75分以上表示高攻击性"
+    },
+    "reversedItems": [15, 24]
+  },
+  "questions": [
+    {
+      "id": "kaq_1",
+      "number": 1,
+      "text": "有时我很难控制想打人的冲动。",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_2",
+      "number": 2,
+      "text": "当我和朋友意见不同时，我会坦诚地说出来。",
+      "category": "verbal_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_3",
+      "number": 3,
+      "text": "我很快就会生气，但也很快就平息下来。",
+      "category": "anger",
+      "required": true
+    },
+    {
+      "id": "kaq_4",
+      "number": 4,
+      "text": "我有时充满嫉妒或羡慕。",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_5",
+      "number": 5,
+      "text": "如果有人激怒我到极点，我可能会打他。",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_6",
+      "number": 6,
+      "text": "我经常与他人意见不合。",
+      "category": "verbal_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_7",
+      "number": 7,
+      "text": "当事情不如意时，我很难控制怒火。",
+      "category": "anger",
+      "required": true
+    },
+    {
+      "id": "kaq_8",
+      "number": 8,
+      "text": "我有时觉得受到不公平的对待。",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_9",
+      "number": 9,
+      "text": "如果有人打我，我会还手。",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_10",
+      "number": 10,
+      "text": "当别人惹恼我时，我会反驳他们。",
+      "category": "verbal_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_11",
+      "number": 11,
+      "text": "我有时怒火中烧，感觉随时都会爆发。",
+      "category": "anger",
+      "required": true
+    },
+    {
+      "id": "kaq_12",
+      "number": 12,
+      "text": "其他人似乎总是更幸运。",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_13",
+      "number": 13,
+      "text": "我比一般人更常打架。",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_14",
+      "number": 14,
+      "text": "当别人与我意见不同时，我经常会争论。",
+      "category": "verbal_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_15",
+      "number": 15,
+      "text": "我是一个不容易激动的人。",
+      "category": "anger",
+      "required": true,
+      "reverse": true
+    },
+    {
+      "id": "kaq_16",
+      "number": 16,
+      "text": "我有时会被自己都感到惊讶的强烈愤怒所包围。",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_17",
+      "number": 17,
+      "text": "如果需要使用暴力来保护我的权益，我会欣然这么做。",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_18",
+      "number": 18,
+      "text": "朋友说我喜欢争辩。",
+      "category": "verbal_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_19",
+      "number": 19,
+      "text": "当有人对我过分友好时，我会怀疑他们是否有所图。",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_20",
+      "number": 20,
+      "text": "我知道所谓的'朋友'在背后议论我。",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_21",
+      "number": 21,
+      "text": "我曾与逼迫我的人动过手。",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_22",
+      "number": 22,
+      "text": "我曾因为太生气而砸坏东西。",
+      "category": "physical_aggression",
+      "required": true
+    },
+    {
+      "id": "kaq_23",
+      "number": 23,
+      "text": "我对过分友好的陌生人感到怀疑。",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_24",
+      "number": 24,
+      "text": "我认为无论什么理由都不能打人。",
+      "category": "physical_aggression",
+      "required": true,
+      "reverse": true
+    },
+    {
+      "id": "kaq_25",
+      "number": 25,
+      "text": "我很难控制自己的脾气。",
+      "category": "anger",
+      "required": true
+    },
+    {
+      "id": "kaq_26",
+      "number": 26,
+      "text": "我有时觉得别人在背后嘲笑我。",
+      "category": "hostility",
+      "required": true
+    },
+    {
+      "id": "kaq_27",
+      "number": 27,
+      "text": "我曾威胁过认识的人。",
+      "category": "physical_aggression",
+      "required": true
+    }
+  ],
+  "scoring": {
+    "type": "sum_with_reverse",
+    "ranges": [
+      { "min": 27, "max": 54, "level": "low", "label": "低攻击性", "description": "低于平均水平" },
+      { "min": 55, "max": 74, "level": "average", "label": "平均攻击性", "description": "正常水平" },
+      { "min": 75, "max": 94, "level": "high", "label": "高攻击性", "description": "高于平均水平" },
+      { "min": 95, "max": 135, "level": "very_high", "label": "极高攻击性", "description": "建议寻求专业咨询" }
+    ],
+    "subscales": {
+      "physical_aggression": {
+        "name": "身体攻击性",
+        "items": [1, 5, 9, 13, 17, 21, 22, 24, 27],
+        "description": "身体暴力倾向"
+      },
+      "verbal_aggression": {
+        "name": "言语攻击性",
+        "items": [2, 6, 10, 14, 18],
+        "description": "言语攻击倾向"
+      },
+      "anger": {
+        "name": "愤怒",
+        "items": [3, 7, 11, 15, 25],
+        "description": "愤怒控制困难"
+      },
+      "hostility": {
+        "name": "敌意",
+        "items": [4, 8, 12, 16, 19, 20, 23, 26],
+        "description": "对他人的敌对态度"
+      }
+    }
+  },
+  "response_options": [
+    { "value": 1, "label": "完全不符合" },
+    { "value": 2, "label": "有点符合" },
+    { "value": 3, "label": "比较符合" },
+    { "value": 4, "label": "相当符合" },
+    { "value": 5, "label": "非常符合" }
+  ]
+}

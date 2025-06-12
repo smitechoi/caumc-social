@@ -1,0 +1,190 @@
+{
+  "scale": {
+    "id": "k-ars",
+    "name": "ADHD评定量表 (K-ARS)",
+    "fullName": "Korean ADHD Rating Scale",
+    "version": "1.0",
+    "description": "评估ADHD症状的量表",
+    "instruction": "请仔细阅读下面的每个项目并回答。",
+    "copyright": "DuPaul (1991), Chinese version",
+    "cutoffScore": {
+      "combined": 19,
+      "inattention": 12,
+      "hyperactivity": 11,
+      "description": "总分≥19分或注意力不集中≥12分/多动冲动≥11分"
+    }
+  },
+  "questions": [
+    {
+      "id": "kars_1",
+      "number": 1,
+      "text": "在学校学习、工作或其他活动中，不注意细节，粗心大意，经常出错。",
+      "category": "inattention",
+      "dsm_criteria": "A1a",
+      "required": true
+    },
+    {
+      "id": "kars_2",
+      "number": 2,
+      "text": "无法安静地坐着，手脚不停地动或身体扭动。",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2a",
+      "required": true
+    },
+    {
+      "id": "kars_3",
+      "number": 3,
+      "text": "在做任务或游戏时，难以长时间集中注意力。",
+      "category": "inattention",
+      "dsm_criteria": "A1b",
+      "required": true
+    },
+    {
+      "id": "kars_4",
+      "number": 4,
+      "text": "在教室或其他需要坐着的场合无法坐在座位上。",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2b",
+      "required": true
+    },
+    {
+      "id": "kars_5",
+      "number": 5,
+      "text": "别人直接对他说话时，似乎没有在听。",
+      "category": "inattention",
+      "dsm_criteria": "A1c",
+      "required": true
+    },
+    {
+      "id": "kars_6",
+      "number": 6,
+      "text": "在不适当的场合过度地跑来跑去或爬上爬下。",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2c",
+      "required": true
+    },
+    {
+      "id": "kars_7",
+      "number": 7,
+      "text": "不能按照指示完成学业、家务或自己应该做的事。",
+      "category": "inattention",
+      "dsm_criteria": "A1d",
+      "required": true
+    },
+    {
+      "id": "kars_8",
+      "number": 8,
+      "text": "难以安静地玩耍或参加休闲活动。",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2d",
+      "required": true
+    },
+    {
+      "id": "kars_9",
+      "number": 9,
+      "text": "难以按照一定的规则有条理地完成任务或活动。",
+      "category": "inattention",
+      "dsm_criteria": "A1e",
+      "required": true
+    },
+    {
+      "id": "kars_10",
+      "number": 10,
+      "text": "总是'忙个不停'或像'装了发动机'一样活动。",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2e",
+      "required": true
+    },
+    {
+      "id": "kars_11",
+      "number": 11,
+      "text": "逃避、不喜欢或不愿意做需要长时间精神努力的学习或作业。",
+      "category": "inattention",
+      "dsm_criteria": "A1f",
+      "required": true
+    },
+    {
+      "id": "kars_12",
+      "number": 12,
+      "text": "话太多。",
+      "category": "hyperactivity",
+      "dsm_criteria": "A2f",
+      "required": true
+    },
+    {
+      "id": "kars_13",
+      "number": 13,
+      "text": "经常丢失做任务或活动所需的东西，如玩具、作业、铅笔等。",
+      "category": "inattention",
+      "dsm_criteria": "A1g",
+      "required": true
+    },
+    {
+      "id": "kars_14",
+      "number": 14,
+      "text": "问题还没问完就抢着回答。",
+      "category": "impulsivity",
+      "dsm_criteria": "A2g",
+      "required": true
+    },
+    {
+      "id": "kars_15",
+      "number": 15,
+      "text": "容易被外界刺激分散注意力。",
+      "category": "inattention",
+      "dsm_criteria": "A1h",
+      "required": true
+    },
+    {
+      "id": "kars_16",
+      "number": 16,
+      "text": "无法等待轮到自己。",
+      "category": "impulsivity",
+      "dsm_criteria": "A2h",
+      "required": true
+    },
+    {
+      "id": "kars_17",
+      "number": 17,
+      "text": "忘记日常活动（如忘记做作业或把午餐盒忘在学校）。",
+      "category": "inattention",
+      "dsm_criteria": "A1i",
+      "required": true
+    },
+    {
+      "id": "kars_18",
+      "number": 18,
+      "text": "打扰别人或插手别人的事情。",
+      "category": "impulsivity",
+      "dsm_criteria": "A2i",
+      "required": true
+    }
+  ],
+  "scoring": {
+    "type": "sum",
+    "ranges": [
+      { "min": 0, "max": 18, "level": "normal", "label": "正常", "description": "ADHD可能性低" },
+      { "min": 19, "max": 28, "level": "mild", "label": "轻度", "description": "疑似ADHD，需要进一步评估" },
+      { "min": 29, "max": 41, "level": "moderate", "label": "中度", "description": "ADHD可能性高" },
+      { "min": 42, "max": 54, "level": "severe", "label": "重度", "description": "严重的ADHD症状" }
+    ],
+    "subscales": {
+      "inattention": {
+        "name": "注意力不集中",
+        "items": [1, 3, 5, 7, 9, 11, 13, 15, 17],
+        "cutoff": 12
+      },
+      "hyperactivity_impulsivity": {
+        "name": "多动-冲动",
+        "items": [2, 4, 6, 8, 10, 12, 14, 16, 18],
+        "cutoff": 11
+      }
+    }
+  },
+  "response_options": [
+    { "value": 0, "label": "从不" },
+    { "value": 1, "label": "偶尔" },
+    { "value": 2, "label": "经常" },
+    { "value": 3, "label": "总是" }
+  ]
+}

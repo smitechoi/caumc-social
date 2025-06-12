@@ -1,0 +1,186 @@
+{
+  "scale": {
+    "id": "bai",
+    "name": "贝克焦虑量表 (BAI)",
+    "fullName": "Beck Anxiety Inventory",
+    "version": "1.0",
+    "description": "评估过去一周焦虑症状的自评量表",
+    "instruction": "下面列出了一些焦虑的常见症状。请仔细阅读每一项，并标出在过去一周（包括今天）这些症状对你的困扰程度。",
+    "copyright": "Beck et al. (1988), Chinese standardization",
+    "cutoffScore": {
+      "mild": 10,
+      "moderate": 19,
+      "severe": 30
+    }
+  },
+  "questions": [
+    {
+      "id": "bai_1",
+      "number": 1,
+      "text": "身体麻木或刺痛感",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_2",
+      "number": 2,
+      "text": "感到发热",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_3",
+      "number": 3,
+      "text": "腿部颤抖",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_4",
+      "number": 4,
+      "text": "无法放松",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_5",
+      "number": 5,
+      "text": "害怕最坏的事情发生",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_6",
+      "number": 6,
+      "text": "头晕或头昏眼花",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_7",
+      "number": 7,
+      "text": "心跳加速",
+      "category": "autonomic",
+      "required": true
+    },
+    {
+      "id": "bai_8",
+      "number": 8,
+      "text": "情绪不稳定",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_9",
+      "number": 9,
+      "text": "感到恐惧",
+      "category": "panic",
+      "required": true
+    },
+    {
+      "id": "bai_10",
+      "number": 10,
+      "text": "神经紧张",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_11",
+      "number": 11,
+      "text": "有窒息感",
+      "category": "autonomic",
+      "required": true
+    },
+    {
+      "id": "bai_12",
+      "number": 12,
+      "text": "手颤抖",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_13",
+      "number": 13,
+      "text": "身体摇晃不稳",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_14",
+      "number": 14,
+      "text": "害怕失去控制",
+      "category": "panic",
+      "required": true
+    },
+    {
+      "id": "bai_15",
+      "number": 15,
+      "text": "呼吸困难",
+      "category": "autonomic",
+      "required": true
+    },
+    {
+      "id": "bai_16",
+      "number": 16,
+      "text": "害怕快要死去",
+      "category": "panic",
+      "required": true
+    },
+    {
+      "id": "bai_17",
+      "number": 17,
+      "text": "感到害怕",
+      "category": "subjective",
+      "required": true
+    },
+    {
+      "id": "bai_18",
+      "number": 18,
+      "text": "消化不良或腹部不适",
+      "category": "autonomic",
+      "required": true
+    },
+    {
+      "id": "bai_19",
+      "number": 19,
+      "text": "感到要晕倒",
+      "category": "neurophysiological",
+      "required": true
+    },
+    {
+      "id": "bai_20",
+      "number": 20,
+      "text": "脸红发热",
+      "category": "autonomic",
+      "required": true
+    },
+    {
+      "id": "bai_21",
+      "number": 21,
+      "text": "出汗（不是因为天热）",
+      "category": "autonomic",
+      "required": true
+    }
+  ],
+  "scoring": {
+    "type": "sum",
+    "ranges": [
+      { "min": 0, "max": 9, "level": "minimal", "label": "正常", "description": "焦虑水平正常" },
+      { "min": 10, "max": 18, "level": "mild", "label": "轻度焦虑", "description": "轻微焦虑症状" },
+      { "min": 19, "max": 29, "level": "moderate", "label": "中度焦虑", "description": "需要考虑治疗" },
+      { "min": 30, "max": 63, "level": "severe", "label": "重度焦虑", "description": "需要立即治疗" }
+    ],
+    "factors": {
+      "neurophysiological": "神经生理",
+      "subjective": "主观感受",
+      "panic": "惊恐相关",
+      "autonomic": "自主神经"
+    }
+  },
+  "response_options": [
+    { "value": 0, "label": "完全没有" },
+    { "value": 1, "label": "轻微" },
+    { "value": 2, "label": "中度" },
+    { "value": 3, "label": "严重" }
+  ]
+}
