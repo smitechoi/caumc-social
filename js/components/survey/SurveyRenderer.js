@@ -251,28 +251,9 @@ export class SurveyRenderer {
         </div>
       `;
   }
-
   renderComplete() {
-    const currentScale = this.manager.scales[0]; // 개별 척도 모드
-    const scaleData = this.manager.patientData.survey[currentScale];
-
-    this.manager.container.innerHTML = `
-        <div class="survey-complete">
-          <div class="complete-icon">✓</div>
-          <h2>${this.getLocalizedScaleName(currentScale)} 완료!</h2>
-          <div class="score-summary">
-            <h3>검사 결과</h3>
-            <div class="score-display">
-              <span class="score-value">${scaleData.score}</span>
-              <span class="score-label">점</span>
-            </div>
-            ${this.renderScoreInterpretation(currentScale, scaleData)}
-          </div>
-          <button onclick="window.location.hash='#survey-selection'" class="back-btn">
-            다른 척도 선택하기
-          </button>
-        </div>
-      `;
+    // 개별 척도 완료 시 바로 survey-selection으로 이동
+    window.location.hash = '#survey-selection';
   }
 
   renderScoreInterpretation(scale, data) {
