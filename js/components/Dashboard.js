@@ -289,4 +289,4 @@ style.textContent = `
     }
   }
 `;
-document.head.appendChild(style);ㄹ
+document.head.appendChild(style);
