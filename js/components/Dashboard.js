@@ -14,9 +14,14 @@ export class Dashboard {
       <div class="dashboard-container">
         <div class="dashboard-header">
           <h1>검사 선택</h1>
-          <div class="patient-info">
-            <span>${this.patientData.name}님</span>
-            <span>${this.patientData.birthDate}</span>
+          <div class="header-right">
+            <div class="patient-info">
+              <span>${this.patientData.name}님</span>
+              <span>${this.patientData.birthDate}</span>
+            </div>
+            <button class="logout-btn" onclick="window.dashboardInstance.logout()">
+              로그아웃
+            </button>
           </div>
         </div>
         
@@ -64,6 +69,19 @@ export class Dashboard {
     `;
     
     window.dashboardInstance = this;
+  }
+  
+  logout() {
+    if (confirm('로그아웃 하시겠습니까?')) {
+      // 환자 데이터 초기화
+      window.currentPatient = null;
+      if (window.app) {
+        window.app.patientData = null;
+      }
+      
+      // 로그인 페이지로 이동
+      window.location.hash = '#login';
+    }
   }
 
   calculateDetailedProgress() {
@@ -196,6 +214,30 @@ style.textContent = `
     margin-bottom: 20px;
     color: #333;
   }
+  
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+  }
+  
+  .logout-btn {
+    padding: 8px 20px;
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .logout-btn:hover {
+    background: #d32f2f;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  
   
   .progress-info {
     margin-bottom: 20px;
