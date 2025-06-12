@@ -476,15 +476,15 @@ export class Report {
         average: '정상적인 반응 억제 능력입니다.',
         low: '충동성 조절에 어려움이 있을 수 있습니다.'
       },
-      task4: { // Trail Making
-        high: '시공간 처리와 인지 유연성이 우수합니다.',
-        average: '평균적인 실행 기능을 보입니다.',
-        low: '처리 속도나 주의 전환에 어려움이 있습니다.'
+      task4: { // Emotion Recognition
+        high: '감정 인식 능력이 매우 우수합니다.',
+        average: '정상적인 사회적 인지 능력입니다.',
+        low: '감정 인식에 어려움이 있을 수 있습니다.'
       },
-      task5: { // Digit Span
-        high: '단기 기억력이 매우 좋습니다.',
-        average: '정상적인 기억 폭을 가지고 있습니다.',
-        low: '단기 기억 용량이 제한적일 수 있습니다.'
+      task5: { // Mental Rotation
+        high: '공간 지각 능력이 뛰어납니다.',
+        average: '평균적인 시공간 처리 능력입니다.',
+        low: '시공간 처리에 어려움이 있을 수 있습니다.'
       }
     };
     

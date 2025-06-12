@@ -2,7 +2,7 @@ import { updateCNTTask } from '../firebase/crud.js';
 import { StroopTask } from './tasks/StroopTask.js';
 import { NBackTask } from './tasks/NBackTask.js';
 import { GoNoGoTask } from './tasks/GoNoGoTask.js';
-import { TrailMakingTask } from './tasks/TrailMakingTask.js';
+import { EmotionRecognitionTask } from './tasks/EmotionRecognitionTask.js';
 import { MentalRotationTask } from './tasks/MentalRotationTask.js';
 
 export class CNTTask {
@@ -43,7 +43,7 @@ export class CNTTask {
       task4: { 
         name: 'Trail Making Test', 
         type: 'trail',
-        class: TrailMakingTask,
+        class: EmotionRecognitionTask,
         duration: 300000
       },
       task5: { 

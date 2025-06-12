@@ -1,12 +1,12 @@
 export class CNTSelection {
-    constructor(containerId, patientData) {
-      this.container = document.getElementById(containerId);
-      this.patientData = patientData;
-      this.render();
-    }
-  
-    render() {
-      this.container.innerHTML = `
+  constructor(containerId, patientData) {
+    this.container = document.getElementById(containerId);
+    this.patientData = patientData;
+    this.render();
+  }
+
+  render() {
+    this.container.innerHTML = `
         <div class="selection-container">
           <div class="selection-header">
             <button onclick="window.location.hash='#dashboard'" class="back-btn">← 뒤로</button>
@@ -18,97 +18,96 @@ export class CNTSelection {
           </div>
         </div>
       `;
-    }
-  
-    renderTasks() {
-      const tasks = Object.entries(this.patientData.cnt || {});
-      
-      return tasks.map(([key, task], index) => {
-        const isCompleted = task.isDone;
-        const taskNumber = index + 1;
-        
-        return `
+  }
+
+  renderTasks() {
+    const tasks = Object.entries(this.patientData.cnt || {});
+
+    return tasks.map(([key, task], index) => {
+      const isCompleted = task.isDone;
+      const taskNumber = index + 1;
+
+      return `
           <div class="task-card ${isCompleted ? 'completed' : ''}" 
                ${!isCompleted ? `onclick="window.cntSelectionInstance.selectTask('${key}')"` : ''}>
             <div class="task-icon">${this.getTaskIcon(key)}</div>
             <h3>${this.getTaskName(key)}</h3>
             <div class="task-info">
               <p>예상 시간: ${this.getTaskDuration(key)}</p>
-              ${isCompleted ? 
-                `<p class="score">점수: ${task.score}점</p>` : 
-                '<p class="status">미완료</p>'
-              }
+              ${isCompleted ?
+          `<p class="score">점수: ${task.score}점</p>` :
+          '<p class="status">미완료</p>'
+        }
             </div>
             <div class="task-description">
               <p>${this.getTaskDescription(key)}</p>
             </div>
             <div class="task-status">
-              ${isCompleted ? 
-                '<span class="completed-badge">✓ 완료됨</span>' : 
-                '<button class="start-btn">시작하기</button>'
-              }
+              ${isCompleted ?
+          '<span class="completed-badge">✓ 완료됨</span>' :
+          '<button class="start-btn">시작하기</button>'
+        }
             </div>
           </div>
         `;
-      }).join('');
-    }
-  
-    selectTask(taskKey) {
-      window.selectedTask = taskKey;
-      window.location.hash = '#cnt';
-    }
-  
-    getTaskName(key) {
-      const names = {
-        task1: '스트룹 검사',
-        task2: 'N-Back 검사',
-        task3: 'Go/No-Go 검사',
-        task4: '선로 잇기 검사',
-        task5: '숫자 폭 검사'
-      };
-      return names[key] || key;
-    }
-  
-    getTaskIcon(key) {
-      const icons = {
-        task1: '🎨',
-        task2: '🧠',
-        task3: '🚦',
-        task4: '🔗',
-        task5: '🔢'
-      };
-      return icons[key] || '📝';
-    }
-  
-    getTaskDuration(key) {
-      const durations = {
-        task1: '2분',
-        task2: '3분',
-        task3: '2.5분',
-        task4: '5분',
-        task5: '4분'
-      };
-      return durations[key] || '3분';
-    }
-  
-    getTaskDescription(key) {
-      const descriptions = {
-        task1: '색깔 단어의 의미가 아닌 글자 색을 판단',
-        task2: '연속 자극 중 N개 전 자극과의 일치 여부 판단',
-        task3: '특정 자극에만 반응하고 다른 자극은 억제',
-        task4: '숫자나 문자를 순서대로 연결',
-        task5: '제시된 숫자들을 순서대로 기억'
-      };
-      return descriptions[key] || '';
-    }
+    }).join('');
   }
-  
-  // 전역 인스턴스
-  window.cntSelectionInstance = null;
-  
-  // CSS 스타일
-  const style = document.createElement('style');
-  style.textContent = `
+
+  selectTask(taskKey) {
+    window.selectedTask = taskKey;
+    window.location.hash = '#cnt';
+  }
+  getTaskName(key) {
+    const names = {
+      task1: '스트룹 검사',
+      task2: 'N-Back 검사',
+      task3: 'Go/No-Go 검사',
+      task4: '표정 인식 검사',
+      task5: '3D 회전 검사'
+    };
+    return names[key] || key;
+  }
+
+  getTaskIcon(key) {
+    const icons = {
+      task1: '🎨',
+      task2: '🧠',
+      task3: '🚦',
+      task4: '😊',
+      task5: '🔲'
+    };
+    return icons[key] || '📝';
+  }
+
+  getTaskDuration(key) {
+    const durations = {
+      task1: '2분',
+      task2: '3분',
+      task3: '2.5분',
+      task4: '3분',
+      task5: '4분'
+    };
+    return durations[key] || '3분';
+  }
+
+  getTaskDescription(key) {
+    const descriptions = {
+      task1: '색깔 단어의 의미가 아닌 글자 색을 판단',
+      task2: '연속 자극 중 N개 전 자극과의 일치 여부 판단',
+      task3: '특정 자극에만 반응하고 다른 자극은 억제',
+      task4: '얼굴 표정을 보고 감정 상태 파악',
+      task5: '3D 도형이 같은지 다른지 판단'
+    };
+    return descriptions[key] || '';
+  }
+}
+
+// 전역 인스턴스
+window.cntSelectionInstance = null;
+
+// CSS 스타일
+const style = document.createElement('style');
+style.textContent = `
     .task-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -185,4 +184,4 @@ export class CNTSelection {
       text-align: center;
     }
   `;
-  document.head.appendChild(style);
+document.head.appendChild(style);

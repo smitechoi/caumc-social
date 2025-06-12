@@ -372,3 +372,51 @@ export class SurveyRenderer {
     }
   }
   
+
+
+const additionalStyles = `
+.survey-instruction {
+  background: #f0f7ff;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  border-left: 4px solid #2196F3;
+}
+
+.survey-instruction p {
+  margin: 0;
+  color: #1565c0;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.scale-description {
+  color: #666;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.question-item.critical {
+  border-color: #ff9800;
+  background: #fff8e1;
+}
+
+.critical-indicator {
+  background: #ff9800;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.question-category {
+  display: inline-block;
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-left: 8px;
+}
+`;

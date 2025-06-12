@@ -126,10 +126,10 @@ export class Dashboard {
 
   getScaleName(key) {
     const names = {
-      scale1: '우울 척도',
-      scale2: '불안 척도', 
-      scale3: '스트레스 척도',
-      scale4: '삶의 질'
+      scale1: '아동 우울 척도 (CES-DC)',
+      scale2: '벡 불안 척도 (BAI)', 
+      scale3: '한국판 공격성 질문지 (K-AQ)',
+      scale4: '한국형 ADHD 평가척도 (K-ARS)'
     };
     return names[key] || key;
   }
@@ -139,8 +139,8 @@ export class Dashboard {
       task1: '스트룹 검사',
       task2: 'N-Back 검사',
       task3: 'Go/No-Go 검사',
-      task4: '선로 잇기 검사',
-      task5: '숫자 폭 검사'
+      task4: '표정 인식 검사',
+      task5: '회전 도형 검사'
     };
     return names[key] || key;
   }
