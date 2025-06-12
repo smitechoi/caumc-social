@@ -160,11 +160,6 @@ export class SurveyRenderer {
 
     // 언어가 없으면 한국어로 폴백
     const langTexts = texts[language] || texts.ko;
-
-    // 모든 문항을 답변했는지 확인
-    if (answered < total) {
-      return langTexts.incomplete;
-    }
     return langTexts.complete;
   }
   getLocalizedScaleName(scale) {
