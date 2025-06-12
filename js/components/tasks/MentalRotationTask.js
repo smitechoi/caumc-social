@@ -3,41 +3,45 @@ import { BaseTask } from './BaseTask.js';
 export class MentalRotationTask extends BaseTask {
   getTutorial() {
     return {
-      title: '회전 도형 검사 연습',
+      title: '3D 블록 회전 검사 연습',
       content: `
-        <p>두 개의 3D 도형이 나타납니다.</p>
-        <p>오른쪽 도형이 왼쪽 도형을 <strong>회전</strong>시킨 것과 같은지 판단하세요.</p>
+        <p>두 개의 3D 블록 구조가 나타납니다.</p>
+        <p>오른쪽 블록이 왼쪽 블록을 <strong>회전</strong>시킨 것과 같은지 판단하세요.</p>
         <div style="text-align: center; margin: 30px 0;">
-          <div style="display: inline-block; margin: 20px; vertical-align: middle;">
-            <div style="width: 120px; height: 120px; background: #e3f2fd; border: 3px solid #2196F3; display: flex; align-items: center; justify-content: center; font-size: 60px; font-weight: bold;">F</div>
-            <p>원본</p>
-          </div>
-          <span style="font-size: 40px; vertical-align: middle; margin: 0 20px;">→</span>
-          <div style="display: inline-block; margin: 20px; vertical-align: middle;">
-            <div style="width: 120px; height: 120px; background: #e3f2fd; border: 3px solid #2196F3; display: flex; align-items: center; justify-content: center; font-size: 60px; font-weight: bold; transform: rotate(90deg);">F</div>
-            <p>회전됨 (같음)</p>
-          </div>
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'%3E%3Crect x='50' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Crect x='90' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Crect x='90' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Ctext x='90' y='150' text-anchor='middle' font-size='14'%3E원본%3C/text%3E%3Ctext x='200' y='100' font-size='30'%3E→%3C/text%3E%3Crect x='250' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Crect x='250' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Crect x='210' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Ctext x='290' y='150' text-anchor='middle' font-size='14'%3E회전됨 (같음)%3C/text%3E%3C/svg%3E" style="max-width: 400px; margin: 20px auto; display: block;">
         </div>
         <p style="color: red; font-weight: bold;">주의: 뒤집어진 것(거울상)은 "다름"입니다.</p>
+        <p>마우스로 드래그하여 블록을 회전시켜 볼 수 있습니다.</p>
         <p>하단의 버튼을 터치하여 응답하세요.</p>
       `
     };
   }
 
   getTaskName() {
-    return 'Mental Rotation Task';
+    return '3D Mental Rotation Task';
   }
 
   initializeState(state, p) {
-    // 더 복잡한 도형 사용
-    state.shapes = [
-      { char: 'F', complexity: 1 },
-      { char: 'L', complexity: 1 },
-      { char: 'P', complexity: 2 },
-      { char: 'R', complexity: 2 },
-      { char: 'G', complexity: 3 },
-      { char: 'S', complexity: 3 },
-      { char: 'Z', complexity: 3 }
+    // 블록 패턴 정의 (각 블록의 상대 위치)
+    state.blockPatterns = [
+      // 난이도 1: 3-4개 블록
+      [
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}], // L자
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 2, y: 0, z: 0}], // 일자
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 1, y: 1, z: 0}, {x: 1, y: 2, z: 0}], // T자
+      ],
+      // 난이도 2: 4-5개 블록
+      [
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 0, y: 0, z: 1}], // 3D L자
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 1, y: 1, z: 0}, {x: 2, y: 1, z: 0}], // 계단
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 1, y: 1, z: 0}, {x: 0, y: 0, z: 1}], // 큐브+1
+      ],
+      // 난이도 3: 5-6개 블록 (복잡한 3D 구조)
+      [
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 0, y: 0, z: 1}, {x: 1, y: 0, z: 1}],
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 2, y: 0, z: 0}, {x: 1, y: 1, z: 0}, {x: 1, y: 0, z: 1}],
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 1, y: 1, z: 0}, {x: 0, y: 0, z: 1}, {x: 0, y: 1, z: 1}],
+      ]
     ];
     
     state.currentTrial = 0;
@@ -46,6 +50,18 @@ export class MentalRotationTask extends BaseTask {
     state.stimulusOnset = p.millis();
     state.responded = false;
     
+    // 3D 회전 관련
+    state.leftRotation = { x: -0.5, y: 0.5, z: 0 };
+    state.rightRotation = { x: -0.5, y: 0.5, z: 0 };
+    state.autoRotate = true;
+    state.blockSize = 30;
+    
+    // 마우스 드래그 관련
+    state.isDragging = false;
+    state.dragTarget = null; // 'left' or 'right'
+    state.lastMouseX = 0;
+    state.lastMouseY = 0;
+    
     // 난이도 점진적 증가
     state.trialDifficulty = Math.floor(state.currentTrial / 8) + 1;
     
@@ -53,36 +69,57 @@ export class MentalRotationTask extends BaseTask {
   }
 
   generateTrial(state) {
-    // 난이도에 따른 도형 선택
-    const availableShapes = state.shapes.filter(s => s.complexity <= state.trialDifficulty);
-    const shapeData = availableShapes[Math.floor(Math.random() * availableShapes.length)];
+    // 난이도에 따른 패턴 선택
+    const difficultyIndex = Math.min(state.trialDifficulty - 1, 2);
+    const patterns = state.blockPatterns[difficultyIndex];
+    const pattern = patterns[Math.floor(Math.random() * patterns.length)];
     
-    state.baseShape = shapeData.char;
+    state.basePattern = pattern;
     state.isSame = Math.random() < 0.5;
     
     if (state.isSame) {
-      // 같은 도형, 회전만
-      state.comparisonShape = state.baseShape;
-      state.rotation = [0, 90, 180, 270][Math.floor(Math.random() * 4)];
+      // 같은 패턴, 회전만
+      state.comparisonPattern = [...pattern];
+      // 랜덤 회전 각도
+      state.targetRotation = {
+        x: Math.floor(Math.random() * 4) * Math.PI / 2,
+        y: Math.floor(Math.random() * 4) * Math.PI / 2,
+        z: Math.floor(Math.random() * 4) * Math.PI / 2
+      };
       state.isMirrored = false;
     } else {
       if (Math.random() < 0.5) {
-        // 다른 도형
-        let otherShape;
+        // 다른 패턴
+        let otherPattern;
         do {
-          otherShape = availableShapes[Math.floor(Math.random() * availableShapes.length)];
-        } while (otherShape.char === state.baseShape);
+          otherPattern = patterns[Math.floor(Math.random() * patterns.length)];
+        } while (otherPattern === pattern);
         
-        state.comparisonShape = otherShape.char;
-        state.rotation = [0, 90, 180, 270][Math.floor(Math.random() * 4)];
+        state.comparisonPattern = otherPattern;
+        state.targetRotation = {
+          x: Math.floor(Math.random() * 4) * Math.PI / 2,
+          y: Math.floor(Math.random() * 4) * Math.PI / 2,
+          z: Math.floor(Math.random() * 4) * Math.PI / 2
+        };
         state.isMirrored = false;
       } else {
-        // 같은 도형의 거울상
-        state.comparisonShape = state.baseShape;
-        state.rotation = [0, 90, 180, 270][Math.floor(Math.random() * 4)];
+        // 같은 패턴의 거울상
+        state.comparisonPattern = pattern.map(block => ({
+          x: -block.x,
+          y: block.y,
+          z: block.z
+        }));
+        state.targetRotation = {
+          x: Math.floor(Math.random() * 4) * Math.PI / 2,
+          y: Math.floor(Math.random() * 4) * Math.PI / 2,
+          z: Math.floor(Math.random() * 4) * Math.PI / 2
+        };
         state.isMirrored = true;
       }
     }
+    
+    // 초기 회전 설정
+    state.rightRotation = { ...state.targetRotation };
   }
 
   render(state, p) {
@@ -99,14 +136,15 @@ export class MentalRotationTask extends BaseTask {
       p.rect(0, 0, p.width, p.height);
       p.pop();
       
-      // 도형 크기
-      const shapeSize = Math.min(p.width * 0.25, p.height * 0.3);
-      const spacing = p.width * 0.15;
+      // 3D 렌더링 영역 크기
+      const viewWidth = p.width * 0.35;
+      const viewHeight = p.height * 0.4;
+      const spacing = p.width * 0.1;
       
-      // 원본 도형 (왼쪽)
+      // 왼쪽 블록 (원본)
       p.push();
-      p.translate(p.width/2 - spacing, p.height * 0.35);
-      this.drawShape(state.baseShape, shapeSize, 0, false, p);
+      p.translate(p.width/2 - viewWidth/2 - spacing/2, p.height * 0.35);
+      this.draw3DBlocks(state.basePattern, state.leftRotation, state.blockSize, viewWidth, viewHeight, p);
       p.pop();
       
       // 라벨
@@ -114,7 +152,7 @@ export class MentalRotationTask extends BaseTask {
       p.textAlign(p.CENTER);
       p.textSize(20);
       p.fill(100);
-      p.text('원본', p.width/2 - spacing, p.height * 0.55);
+      p.text('원본', p.width/2 - viewWidth/2 - spacing/2, p.height * 0.6);
       p.pop();
       
       // 화살표
@@ -123,18 +161,18 @@ export class MentalRotationTask extends BaseTask {
       p.strokeWeight(3);
       p.fill(150);
       const arrowY = p.height * 0.35;
-      p.line(p.width/2 - spacing/2, arrowY, p.width/2 + spacing/2 - 30, arrowY);
+      p.line(p.width/2 - spacing/4, arrowY, p.width/2 + spacing/4 - 10, arrowY);
       p.triangle(
-        p.width/2 + spacing/2 - 30, arrowY,
-        p.width/2 + spacing/2 - 40, arrowY - 10,
-        p.width/2 + spacing/2 - 40, arrowY + 10
+        p.width/2 + spacing/4 - 10, arrowY,
+        p.width/2 + spacing/4 - 20, arrowY - 10,
+        p.width/2 + spacing/4 - 20, arrowY + 10
       );
       p.pop();
       
-      // 비교 도형 (오른쪽)
+      // 오른쪽 블록 (비교)
       p.push();
-      p.translate(p.width/2 + spacing, p.height * 0.35);
-      this.drawShape(state.comparisonShape, shapeSize, state.rotation, state.isMirrored, p);
+      p.translate(p.width/2 + viewWidth/2 + spacing/2, p.height * 0.35);
+      this.draw3DBlocks(state.comparisonPattern, state.rightRotation, state.blockSize, viewWidth, viewHeight, p);
       p.pop();
       
       // 라벨
@@ -142,8 +180,14 @@ export class MentalRotationTask extends BaseTask {
       p.textAlign(p.CENTER);
       p.textSize(20);
       p.fill(100);
-      p.text('비교', p.width/2 + spacing, p.height * 0.55);
+      p.text('비교', p.width/2 + viewWidth/2 + spacing/2, p.height * 0.6);
       p.pop();
+      
+      // 자동 회전
+      if (state.autoRotate && !state.isDragging) {
+        state.leftRotation.y += 0.01;
+        state.rightRotation.y += 0.01;
+      }
       
       // 진행 상황
       p.push();
@@ -162,50 +206,82 @@ export class MentalRotationTask extends BaseTask {
         p.textSize(36);
         p.fill(100);
         p.textAlign(p.CENTER);
-        p.text('응답 완료', p.width/2, p.height * 0.65);
+        p.text('응답 완료', p.width/2, p.height * 0.68);
         p.pop();
       }
     }
   }
 
-  drawShape(shape, size, rotation, mirrored, p) {
-    p.push();
-    p.rotate(p.radians(rotation));
-    if (mirrored) {
-      p.scale(-1, 1);
-    }
+  draw3DBlocks(pattern, rotation, blockSize, viewWidth, viewHeight, p) {
+    // 3D 그래픽 컨텍스트 생성
+    const pg = p.createGraphics(viewWidth, viewHeight, p.WEBGL);
     
-    // 3D 효과를 위한 그림자
-    p.push();
-    p.fill(0, 0, 0, 30);
-    p.noStroke();
-    p.textSize(size);
-    p.textAlign(p.CENTER, p.CENTER);
-    p.textStyle(p.BOLD);
-    p.text(shape, 5, 5);
-    p.pop();
+    pg.background(250);
+    pg.lights();
+    pg.ambientLight(100);
+    pg.directionalLight(255, 255, 255, 0.5, 0.5, -1);
     
-    // 메인 도형
-    p.fill(50);
-    p.noStroke();
-    p.textSize(size);
-    p.textAlign(p.CENTER, p.CENTER);
-    p.textStyle(p.BOLD);
-    p.text(shape, 0, 0);
+    // 카메라 설정
+    pg.camera(0, -100, 200, 0, 0, 0, 0, 1, 0);
     
-    // 3D 효과를 위한 하이라이트
-    p.push();
-    p.fill(255, 255, 255, 100);
-    p.text(shape, -2, -2);
-    p.pop();
+    // 회전 적용
+    pg.rotateX(rotation.x);
+    pg.rotateY(rotation.y);
+    pg.rotateZ(rotation.z);
     
-    p.pop();
+    // 블록 그리기
+    pg.push();
+    pg.noStroke();
+    
+    // 패턴의 중심 계산
+    let centerX = 0, centerY = 0, centerZ = 0;
+    pattern.forEach(block => {
+      centerX += block.x;
+      centerY += block.y;
+      centerZ += block.z;
+    });
+    centerX /= pattern.length;
+    centerY /= pattern.length;
+    centerZ /= pattern.length;
+    
+    // 블록 그리기
+    pattern.forEach((block, index) => {
+      pg.push();
+      
+      // 중심 기준으로 위치 조정
+      const x = (block.x - centerX) * blockSize;
+      const y = (block.y - centerY) * blockSize;
+      const z = (block.z - centerZ) * blockSize;
+      
+      pg.translate(x, y, z);
+      
+      // 블록 색상 (위치에 따라 약간 다르게)
+      const hue = 200 + index * 10;
+      pg.fill(hue, 200, 255);
+      pg.box(blockSize * 0.9);
+      
+      // 블록 테두리 효과
+      pg.push();
+      pg.stroke(0);
+      pg.strokeWeight(1);
+      pg.noFill();
+      pg.box(blockSize * 0.91);
+      pg.pop();
+      
+      pg.pop();
+    });
+    
+    pg.pop();
+    
+    // 메인 캔버스에 그리기
+    p.image(pg, -viewWidth/2, -viewHeight/2);
+    pg.remove();
   }
 
   renderButtons(state, p) {
     const buttonWidth = 200;
     const buttonHeight = 100;
-    const buttonY = p.height * 0.72;
+    const buttonY = p.height * 0.75;
     const spacing = 80;
     
     state.buttons = [];
@@ -254,6 +330,7 @@ export class MentalRotationTask extends BaseTask {
   }
 
   handleMousePress(state, x, y, p) {
+    // 버튼 클릭 확인
     if (!state.buttons || state.responded) return;
     
     for (let button of state.buttons) {
@@ -264,9 +341,8 @@ export class MentalRotationTask extends BaseTask {
         
         this.taskData.responses.push({
           trial: state.currentTrial,
-          baseShape: state.baseShape,
-          comparisonShape: state.comparisonShape,
-          rotation: state.rotation,
+          patternComplexity: state.basePattern.length,
+          rotation: state.targetRotation,
           isMirrored: state.isMirrored,
           isSame: state.isSame,
           response: button.response,
@@ -283,12 +359,64 @@ export class MentalRotationTask extends BaseTask {
           state.trialDifficulty = Math.floor(state.currentTrial / 8) + 1;
           state.stimulusOnset = p.millis();
           state.responded = false;
+          state.leftRotation = { x: -0.5, y: 0.5, z: 0 };
           this.generateTrial(state);
         }, 1000);
         
         break;
       }
     }
+    
+    // 마우스 드래그 시작 (블록 회전용)
+    const viewWidth = p.width * 0.35;
+    const spacing = p.width * 0.1;
+    const leftCenterX = p.width/2 - viewWidth/2 - spacing/2;
+    const rightCenterX = p.width/2 + viewWidth/2 + spacing/2;
+    const blockY = p.height * 0.35;
+    
+    if (Math.abs(x - leftCenterX) < viewWidth/2 && Math.abs(y - blockY) < p.height * 0.2) {
+      state.isDragging = true;
+      state.dragTarget = 'left';
+      state.autoRotate = false;
+    } else if (Math.abs(x - rightCenterX) < viewWidth/2 && Math.abs(y - blockY) < p.height * 0.2) {
+      state.isDragging = true;
+      state.dragTarget = 'right';
+      state.autoRotate = false;
+    }
+    
+    state.lastMouseX = x;
+    state.lastMouseY = y;
+  }
+
+  handleMouseDrag(state, x, y, p) {
+    if (!state.isDragging) return;
+    
+    const deltaX = x - state.lastMouseX;
+    const deltaY = y - state.lastMouseY;
+    
+    const rotationSpeed = 0.01;
+    
+    if (state.dragTarget === 'left') {
+      state.leftRotation.y += deltaX * rotationSpeed;
+      state.leftRotation.x += deltaY * rotationSpeed;
+    } else if (state.dragTarget === 'right') {
+      state.rightRotation.y += deltaX * rotationSpeed;
+      state.rightRotation.x += deltaY * rotationSpeed;
+    }
+    
+    state.lastMouseX = x;
+    state.lastMouseY = y;
+  }
+
+  handleMouseRelease(state, p) {
+    state.isDragging = false;
+    state.dragTarget = null;
+    // 드래그 후 3초 뒤에 자동 회전 재개
+    setTimeout(() => {
+      if (!state.isDragging) {
+        state.autoRotate = true;
+      }
+    }, 3000);
   }
 
   calculateScore() {
@@ -304,11 +432,15 @@ export class MentalRotationTask extends BaseTask {
     let totalWeight = 0;
     
     for (let response of responses) {
-      const weight = response.difficulty;
+      const weight = response.difficulty * response.patternComplexity / 3;
       if (response.correct) {
-        // 회전 각도에 따른 추가 점수
-        const rotationBonus = response.rotation / 360 * 0.2;
-        weightedScore += weight * (1 + rotationBonus);
+        // 회전 복잡도에 따른 추가 점수
+        const rotationComplexity = 
+          (response.rotation.x !== 0 ? 1 : 0) +
+          (response.rotation.y !== 0 ? 1 : 0) +
+          (response.rotation.z !== 0 ? 1 : 0);
+        const complexityBonus = rotationComplexity * 0.1;
+        weightedScore += weight * (1 + complexityBonus);
       }
       totalWeight += weight;
     }
@@ -330,43 +462,102 @@ export class MentalRotationTask extends BaseTask {
       speedBonus
     ));
   }
-  
-  // 추가 메서드 예시 - 확장성 시연
-  getDetailedAnalysis() {
-    const responses = this.taskData.responses;
-    
-    return {
-      rotationErrors: responses.filter(r => !r.correct && !r.isMirrored).length,
-      mirrorErrors: responses.filter(r => !r.correct && r.isMirrored).length,
-      avgRTByRotation: this.calculateRTByRotation(responses),
-      accuracyByDifficulty: this.calculateAccuracyByDifficulty(responses)
-    };
-  }
-  
-  calculateRTByRotation(responses) {
-    const rtByRotation = {};
-    
-    [0, 90, 180, 270].forEach(angle => {
-      const angleResponses = responses.filter(r => r.rotation === angle && r.correct);
-      if (angleResponses.length > 0) {
-        rtByRotation[angle] = angleResponses.reduce((sum, r) => sum + r.rt, 0) / angleResponses.length;
-      }
-    });
-    
-    return rtByRotation;
-  }
-  
-  calculateAccuracyByDifficulty(responses) {
-    const accuracyByDifficulty = {};
-    
-    [1, 2, 3].forEach(difficulty => {
-      const diffResponses = responses.filter(r => r.difficulty === difficulty);
-      if (diffResponses.length > 0) {
-        const correct = diffResponses.filter(r => r.correct).length;
-        accuracyByDifficulty[difficulty] = (correct / diffResponses.length) * 100;
-      }
-    });
-    
-    return accuracyByDifficulty;
-  }
 }
+
+// BaseTask 확장 - 마우스 드래그 지원
+BaseTask.prototype.handleMouseDrag = function(state, x, y, p) {
+  // 기본적으로 아무것도 하지 않음
+};
+
+BaseTask.prototype.handleMouseRelease = function(state, p) {
+  // 기본적으로 아무것도 하지 않음
+};
+
+// p5 스케치에 마우스 이벤트 추가
+BaseTask.prototype.createP5Sketch = function() {
+  const originalCreate = BaseTask.prototype.createP5Sketch;
+  
+  const sketch = (p) => {
+    let state = {};
+    
+    p.setup = () => {
+      const canvas = p.createCanvas(window.innerWidth, window.innerHeight);
+      canvas.parent('task-canvas');
+      p.textAlign(p.CENTER, p.CENTER);
+      
+      this.initializeState(state, p);
+    };
+    
+    p.draw = () => {
+      p.background(240);
+      this.drawExitButton(p);
+      this.render(state, p);
+    };
+    
+    p.mousePressed = () => {
+      if (p.mouseX >= p.width - 80 && p.mouseX <= p.width - 20 &&
+          p.mouseY >= 20 && p.mouseY <= 50) {
+        if (confirm('검사를 종료하시겠습니까?')) {
+          this.exitTask();
+          return;
+        }
+      }
+      
+      this.handleMousePress(state, p.mouseX, p.mouseY, p);
+    };
+    
+    p.mouseDragged = () => {
+      if (this.handleMouseDrag) {
+        this.handleMouseDrag(state, p.mouseX, p.mouseY, p);
+      }
+    };
+    
+    p.mouseReleased = () => {
+      if (this.handleMouseRelease) {
+        this.handleMouseRelease(state, p);
+      }
+    };
+    
+    p.touchStarted = () => {
+      if (p.touches.length > 0) {
+        const touch = p.touches[0];
+        
+        if (touch.x >= p.width - 80 && touch.x <= p.width - 20 &&
+            touch.y >= 20 && touch.y <= 50) {
+          if (confirm('검사를 종료하시겠습니까?')) {
+            this.exitTask();
+            return false;
+          }
+        }
+        
+        this.handleMousePress(state, touch.x, touch.y, p);
+      }
+      return false;
+    };
+    
+    p.touchMoved = () => {
+      if (p.touches.length > 0 && this.handleMouseDrag) {
+        const touch = p.touches[0];
+        this.handleMouseDrag(state, touch.x, touch.y, p);
+      }
+      return false;
+    };
+    
+    p.touchEnded = () => {
+      if (this.handleMouseRelease) {
+        this.handleMouseRelease(state, p);
+      }
+      return false;
+    };
+    
+    p.keyPressed = () => {
+      this.handleKeyPress(state, p.key, p);
+    };
+    
+    p.windowResized = () => {
+      p.resizeCanvas(window.innerWidth, window.innerHeight);
+    };
+  };
+  
+  this.p5Instance = new p5(sketch);
+};
