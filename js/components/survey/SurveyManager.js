@@ -2,7 +2,6 @@ import { updateSurveyScale } from '../../firebase/crud.js';
 import { SurveyRenderer } from './SurveyRenderer.js';
 import { SurveyValidator } from './SurveyValidator.js';
 import { SurveyScoreCalculator } from './SurveyScoreCalculator.js';
-import { surveyConfig } from './surveyConfig.js';
 
 export class SurveyManager {
   constructor(containerId, patientData) {
@@ -10,17 +9,17 @@ export class SurveyManager {
     this.patientData = patientData;
     this.currentScaleIndex = 0;
     
-    // 척도 순서와 매핑을 여기서 직접 정의
+    // 척도 순서와 매핑 직접 정의
     this.scaleMapping = {
-      scale1: 'ces-dc',
-      scale2: 'bai',
-      scale3: 'k-aq',
-      scale4: 'k-ars'
+      scale1: { id: 'ces-dc', questions: 20 },
+      scale2: { id: 'bai', questions: 21 },
+      scale3: { id: 'k-aq', questions: 27 },
+      scale4: { id: 'k-ars', questions: 18 }
     };
     
     this.scales = ['scale1', 'scale2', 'scale3', 'scale4'];
     
-    // 검증 규칙도 여기서 정의
+    // 검증 규칙
     this.validationRules = {
       minResponseTime: 300,
       maxResponseTime: 300000,
@@ -44,17 +43,33 @@ export class SurveyManager {
     this.currentResponses = [];
     this.init();
   }
-  
   getScaleConfig() {
     const currentScale = this.getCurrentScale();
-    const scaleId = this.scaleMapping[currentScale];
+    const mapping = this.scaleMapping[currentScale];
     
-    // SurveyQuestionLoader에서 실제 데이터를 가져옴
+    if (!mapping) {
+      console.error(`Invalid scale: ${currentScale}`);
+      return null;
+    }
+    
     return {
-      id: scaleId,
-      questions: this.getQuestionCount(currentScale)
+      id: mapping.id,
+      name: this.getScaleName(currentScale),
+      questions: mapping.questions,
+      scaleKey: currentScale
     };
   }
+  
+  getScaleName(scaleKey) {
+    const names = {
+      scale1: '아동 우울 척도 (CES-DC)',
+      scale2: '벡 불안 척도 (BAI)',
+      scale3: '한국판 공격성 질문지 (K-AQ)',
+      scale4: '한국형 ADHD 평가척도 (K-ARS)'
+    };
+    return names[scaleKey] || scaleKey;
+  }
+  
   
   getQuestionCount(scaleKey) {
     const counts = {
@@ -156,10 +171,6 @@ export class SurveyManager {
 
   getCurrentScale() {
     return this.scales[this.currentScaleIndex];
-  }
-
-  getScaleConfig() {
-    return surveyConfig.scales[this.getCurrentScale()];
   }
 }
 

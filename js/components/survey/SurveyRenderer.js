@@ -115,16 +115,15 @@ export class SurveyRenderer {
     `;
   }
 
-  getScaleId(scaleName) {
-    // scale1 -> depression 등의 매핑
+  getScaleId(currentScale) {
     const mapping = {
       scale1: 'ces-dc',
       scale2: 'bai',
       scale3: 'k-aq',
       scale4: 'k-ars'
     };
-
-    return mapping[scaleName] || scaleName;
+    
+    return mapping[currentScale] || currentScale;
   }
   getSubmitButtonText() {
     const answered = this.manager.currentResponses.filter(r => r !== undefined).length;
@@ -407,40 +406,64 @@ export class SurveyRenderer {
   }
 
   getScoreInterpretation(scale, score, questionCount) {
-    const percentage = (score / (questionCount * 4)) * 100;
-
-    const interpretations = {
-      scale1: { // 우울
-        low: {
-          label: '정상',
-          description: '우울 증상이 거의 없습니다.'
-        },
-        mild: {
-          label: '경도',
-          description: '가벼운 우울 증상이 있을 수 있습니다.'
-        },
-        moderate: {
-          label: '중등도',
-          description: '중간 정도의 우울 증상이 있습니다.'
-        },
-        severe: {
-          label: '심각',
-          description: '전문가 상담이 권장됩니다.'
+    // questionData는 이미 renderSurvey에서 로드됨
+    const scaleData = this.questionData;
+    
+    // JSON에서 해석 정보 가져오기
+    if (scaleData?.scale?.scoring?.ranges) {
+      const ranges = scaleData.scale.scoring.ranges;
+      
+      // 점수에 맞는 범위 찾기
+      for (const range of ranges) {
+        if (score >= range.min && score <= range.max) {
+          return {
+            level: `level-${range.level}`,
+            label: range.label,
+            description: range.description || this.getDefaultDescription(range.level)
+          };
         }
       }
-      // ... 다른 척도들
-    };
-
-    let level;
-    if (percentage < 25) level = 'low';
-    else if (percentage < 50) level = 'mild';
-    else if (percentage < 75) level = 'moderate';
-    else level = 'severe';
-
+    }
+    
+    // 폴백: JSON에 데이터가 없으면 기본 해석
+    const maxScore = questionCount * (scaleData?.response_options?.length - 1 || 4);
+    const percentage = (score / maxScore) * 100;
+    
+    let level, label, description;
+    if (percentage < 25) {
+      level = 'low';
+      label = '정상';
+      description = '증상이 거의 없는 정상 범위입니다.';
+    } else if (percentage < 50) {
+      level = 'mild';
+      label = '경도';
+      description = '경미한 증상이 있을 수 있습니다.';
+    } else if (percentage < 75) {
+      level = 'moderate';
+      label = '중등도';
+      description = '중간 정도의 증상이 있습니다.';
+    } else {
+      level = 'severe';
+      label = '심각';
+      description = '전문가 상담이 권장됩니다.';
+    }
+    
     return {
       level: `level-${level}`,
-      ...interpretations[scale]?.[level] || interpretations.scale1[level]
+      label: label,
+      description: description
     };
+  }
+  
+  getDefaultDescription(level) {
+    const descriptions = {
+      normal: '증상이 거의 없는 정상 범위입니다.',
+      minimal: '최소한의 증상만 있습니다.',
+      mild: '경미한 증상이 있을 수 있습니다.',
+      moderate: '중간 정도의 증상이 있습니다.',
+      severe: '심각한 증상이 있습니다. 전문가 상담이 권장됩니다.'
+    };
+    return descriptions[level] || '';
   }
 }
 
