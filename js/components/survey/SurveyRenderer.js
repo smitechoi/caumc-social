@@ -1,107 +1,156 @@
+import { surveyQuestionLoader } from '../../services/SurveyQuestionLoader.js';
 
-// ================================================
-// js/components/survey/SurveyRenderer.js
 export class SurveyRenderer {
-    constructor(manager) {
-      this.manager = manager;
-    }
-  
-    renderSurvey() {
-      const currentScale = this.manager.getCurrentScale();
-      const config = this.manager.getScaleConfig();
-      const progress = this.calculateProgress();
-      
-      this.manager.container.innerHTML = `
-        <div class="survey-container">
-          ${this.renderHeader(currentScale, config, progress)}
-          
-          <div id="scale-questions">
-            ${this.renderQuestions(currentScale, config)}
-          </div>
-          
-          <div class="survey-navigation">
-            ${this.renderProgressIndicator(progress)}
-            ${this.renderNavigationButtons()}
-          </div>
-          
-          <div class="button-container">
-            <button id="submit-scale" onclick="window.surveyInstance.submitScale()">
-              이 척도 완료
-            </button>
-          </div>
-        </div>
-      `;
-  
-      window.surveyInstance = this.manager;
-      this.attachEventListeners();
-    }
-  
-    renderHeader(scaleName, config, progress) {
-      return `
-        <div class="survey-header">
-          <h2>임상 척도 검사 - ${this.getLocalizedScaleName(scaleName)}</h2>
-          <div class="current-scale-info">
-            <span class="scale-badge">${scaleName.replace('scale', 'Scale ')}</span>
-            <span class="scale-name">${this.getLocalizedScaleName(scaleName)}</span>
-          </div>
-          <div class="progress">
-            <div class="progress-text">
-              전체 진행률: ${progress.completed}/${progress.total} 완료
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: ${progress.percentage}%"></div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-  
-    renderQuestions(scaleName, config) {
-      let html = '<div class="questions-container">';
-      
-      for (let i = 0; i < config.questions; i++) {
-        const isAnswered = this.manager.currentResponses[i] !== undefined;
+  constructor(manager) {
+    this.manager = manager;
+    this.questionData = null;
+  }
+
+  async renderSurvey() {
+    const currentScale = this.manager.getCurrentScale();
+    const scaleId = this.getScaleId(currentScale);
+    const language = this.manager.patientData.language;
+    
+    // 질문 데이터 로드
+    this.questionData = await surveyQuestionLoader.loadQuestions(scaleId, language);
+    
+    const progress = this.calculateProgress();
+    
+    this.manager.container.innerHTML = `
+      <div class="survey-container">
+        ${this.renderHeader()}
+        ${this.renderInstruction()}
         
-        html += `
-          <div class="question-item ${isAnswered ? 'answered' : ''}" id="question-${i}">
-            <div class="question-header">
-              <span class="question-number">${i + 1}</span>
-              <span class="question-status">${isAnswered ? '✓' : ''}</span>
-            </div>
-            <p class="question-text">
-              ${this.getLocalizedQuestion(scaleName, i)}
-            </p>
-            <div class="likert-scale">
-              ${this.renderLikertScale(i)}
+        <div id="scale-questions">
+          ${this.renderQuestions()}
+        </div>
+        
+        <div class="survey-navigation">
+          ${this.renderProgressIndicator(progress)}
+          ${this.renderNavigationButtons()}
+        </div>
+        
+        <div class="button-container">
+          <button id="submit-scale" onclick="window.surveyInstance.submitScale()">
+            ${this.getSubmitButtonText()}
+          </button>
+        </div>
+      </div>
+    `;
+
+    window.surveyInstance = this.manager;
+    this.attachEventListeners();
+  }
+
+  renderHeader() {
+    const { scale } = this.questionData;
+    
+    return `
+      <div class="survey-header">
+        <h2>${scale.name}</h2>
+        <p class="scale-description">${scale.description || ''}</p>
+        <div class="progress">
+          <div class="progress-text">
+            ${this.manager.currentScaleIndex + 1} / ${this.manager.scales.length}
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" 
+                 style="width: ${((this.manager.currentScaleIndex + 1) / this.manager.scales.length) * 100}%">
             </div>
           </div>
-        `;
-      }
+        </div>
+      </div>
+    `;
+  }
+
+  renderInstruction() {
+    const { scale } = this.questionData;
+    
+    if (!scale.instruction) return '';
+    
+    return `
+      <div class="survey-instruction">
+        <p>${scale.instruction}</p>
+      </div>
+    `;
+  }
+
+  renderQuestions() {
+    const { questions } = this.questionData;
+    let html = '<div class="questions-container">';
+    
+    questions.forEach((question, index) => {
+      const isAnswered = this.manager.currentResponses[index] !== undefined;
+      const isCritical = question.critical || false;
       
-      html += '</div>';
-      return html;
-    }
-  
-    renderLikertScale(questionIndex) {
-      const labels = this.getLocalizedLikertLabels();
-      const value = this.manager.currentResponses[questionIndex];
-      
-      return `
-        <div class="likert-options" data-question="${questionIndex}">
-          ${labels.map((label, idx) => `
-            <label class="likert-label ${value === idx ? 'selected' : ''}">
-              <input type="radio" 
-                     name="q${questionIndex}" 
-                     value="${idx}" 
-                     ${value === idx ? 'checked' : ''}
-                     onchange="window.surveyInstance.updateResponse(${questionIndex}, ${idx})">
-              <span class="likert-value">${idx}</span>
-              <small class="likert-text">${label}</small>
-            </label>
-          `).join('')}
+      html += `
+        <div class="question-item ${isAnswered ? 'answered' : ''} ${isCritical ? 'critical' : ''}" 
+             id="question-${index}">
+          <div class="question-header">
+            <span class="question-number">${index + 1}</span>
+            ${isCritical ? '<span class="critical-indicator">중요</span>' : ''}
+            <span class="question-status">${isAnswered ? '✓' : ''}</span>
+          </div>
+          <p class="question-text">
+            ${question.text}
+          </p>
+          <div class="likert-scale">
+            ${this.renderLikertScale(index)}
+          </div>
         </div>
       `;
-    }
+    });
+    
+    html += '</div>';
+    return html;
+  }
+
+  renderLikertScale(questionIndex) {
+    const { response_options } = this.questionData;
+    const value = this.manager.currentResponses[questionIndex];
+    
+    return `
+      <div class="likert-options" data-question="${questionIndex}">
+        ${response_options.map((option) => `
+          <label class="likert-label ${value === option.value ? 'selected' : ''}">
+            <input type="radio" 
+                   name="q${questionIndex}" 
+                   value="${option.value}" 
+                   ${value === option.value ? 'checked' : ''}
+                   onchange="window.surveyInstance.updateResponse(${questionIndex}, ${option.value})">
+            <span class="likert-value">${option.value}</span>
+            <small class="likert-text">${option.label}</small>
+          </label>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  getScaleId(scaleName) {
+    // scale1 -> depression 등의 매핑
+    const mapping = {
+      scale1: 'depression',
+      scale2: 'anxiety',
+      scale3: 'stress',
+      scale4: 'qualityOfLife'
+    };
+    
+    return mapping[scaleName] || scaleName;
+  }
+
+  getSubmitButtonText() {
+    const language = this.manager.patientData.language;
+    const texts = {
+      ko: '이 척도 완료',
+      en: 'Complete this scale',
+      ja: 'このスケールを完了',
+      zh: '完成此量表'
+    };
+    
+    return texts[language] || texts.ko;
+  }
+
+  // 기타 메서드들은 기존과 동일...
   
     renderProgressIndicator(progress) {
       return `

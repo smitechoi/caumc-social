@@ -1,0 +1,247 @@
+{
+    "scale": {
+      "id": "k-aq",
+      "name": "한국판 공격성 질문지 (K-AQ)",
+      "fullName": "Korean Aggression Questionnaire",
+      "version": "1.0",
+      "description": "일상생활에서의 공격성을 평가하는 자가보고식 검사입니다",
+      "instruction": "이 질문지는 여러분이 일상생활에서 경험할 수 있는 내용들로 구성되어 있습니다. 각 문항들을 자세히 읽어보시고, 평소의 자신을 잘 나타낸다고 생각되는 답변에 표시하여주시기 바랍니다.",
+      "copyright": "Buss & Perry (1992), Korean version by Seo & Kwon (2002)",
+      "cutoffScore": {
+        "clinical": 75,
+        "description": "75점 이상 시 높은 공격성"
+      },
+      "reversedItems": [15, 24]
+    },
+    "questions": [
+      {
+        "id": "kaq_1",
+        "number": 1,
+        "text": "때로 나는 누군가를 치고 싶은 충동을 통제하기 어렵다.",
+        "category": "physical_aggression",
+        "required": true
+      },
+      {
+        "id": "kaq_2",
+        "number": 2,
+        "text": "나는 친구와 의견이 다를 때 솔직하게 이야기한다",
+        "category": "verbal_aggression",
+        "required": true
+      },
+      {
+        "id": "kaq_3",
+        "number": 3,
+        "text": "나는 화가 빨리 치밀지만 또 빨리 풀어진다.",
+        "category": "anger",
+        "required": true
+      },
+      {
+        "id": "kaq_4",
+        "number": 4,
+        "text": "나는 때로 시기나 질투에 차 있다.",
+        "category": "hostility",
+        "required": true
+      },
+      {
+        "id": "kaq_5",
+        "number": 5,
+        "text": "누군가 화를 한껏 돋우면, 나는 그 사람을 칠지도 모른다",
+        "category": "physical_aggression",
+        "required": true
+      },
+      {
+        "id": "kaq_6",
+        "number": 6,
+        "text": "나는 다른 사람과 의견 충돌이 잦다",
+        "category": "verbal_aggression",
+        "required": true
+      },
+      {
+        "id": "kaq_7",
+        "number": 7,
+        "text": "일이 뜻대로 안 되었을 때 나는 화를 참기 어렵다.",
+        "category": "anger",
+        "required": true
+      },
+      {
+        "id": "kaq_8",
+        "number": 8,
+        "text": "내가 부당하게 대우받고 있다고 느낄 때가 때때로 있다",
+        "category": "hostility",
+        "required": true
+      },
+      {
+        "id": "kaq_9",
+        "number": 9,
+        "text": "누군가 나를 때리면, 나도 맞서 대든다.",
+        "category": "physical_aggression",
+        "required": true
+      },
+      {
+        "id": "kaq_10",
+        "number": 10,
+        "text": "사람들이 나를 짜증나게 하면, 나도 그에 맞서 그들에게 한마디 해 줄 수 있다.",
+        "category": "verbal_aggression",
+        "required": true
+      },
+      {
+        "id": "kaq_11",
+        "number": 11,
+        "text": "나는 때로 울분이 치밀고 참기 어려워 금방이라도 폭발해 버릴 것 같다.",
+        "category": "anger",
+        "required": true
+      },
+      {
+        "id": "kaq_12",
+        "number": 12,
+        "text": "다른 사람들은 항상 운이 좋아 보인다.",
+        "category": "hostility",
+        "required": true
+      },
+      {
+        "id": "kaq_13",
+        "number": 13,
+        "text": "나는 보통 사람들보다 좀 더 많이 치고받고 싸우는 편이다.",
+        "category": "physical_aggression",
+        "required": true
+      },
+      {
+        "id": "kaq_14",
+        "number": 14,
+        "text": "나는 다른 사람과 생각하는 바가 다를 때, 흔히 다투게 된다.",
+        "category": "verbal_aggression",
+        "required": true
+      },
+      {
+        "id": "kaq_15",
+        "number": 15,
+        "text": "나는 쉽게 흥분하지 않는 사람이다.",
+        "category": "anger",
+        "required": true,
+        "reverse": true
+      },
+      {
+        "id": "kaq_16",
+        "number": 16,
+        "text": "나는 때로는 스스로도 놀랄 정도로 심한 분노에 휩싸이곤 한다.",
+        "category": "hostility",
+        "required": true
+      },
+      {
+        "id": "kaq_17",
+        "number": 17,
+        "text": "나의 권한과 이익를 보호하기 위해서 폭력을 써야 한다면, 나는 기꺼이 그렇게 하겠다.",
+        "category": "physical_aggression",
+        "required": true
+      },
+      {
+        "id": "kaq_18",
+        "number": 18,
+        "text": "친구들은 내가 따지기를 좋아한다고 말한다.",
+        "category": "verbal_aggression",
+        "required": true
+      },
+      {
+        "id": "kaq_19",
+        "number": 19,
+        "text": "누가 내게 지나치게 친절하면, 나는 그 사람이 내게 원하는 게 있어 그렇지 않나 생각된다.",
+        "category": "hostility",
+        "required": true
+      },
+      {
+        "id": "kaq_20",
+        "number": 20,
+        "text": "나는 소위 '내 친구'라는 자들이 나에 대해 몰래 이야기하고 다닌다는 것을 알고 있다.",
+        "category": "hostility",
+        "required": true
+      },
+      {
+        "id": "kaq_21",
+        "number": 21,
+        "text": "나를 몰아세운 사람과 주먹과 폭행을 한 적이 있다.",
+        "category": "physical_aggression",
+        "required": true
+      },
+      {
+        "id": "kaq_22",
+        "number": 22,
+        "text": "나는 너무 화가 나서 물건을 부순 적이 있다.",
+        "category": "physical_aggression",
+        "required": true
+      },
+      {
+        "id": "kaq_23",
+        "number": 23,
+        "text": "나는 지나치게 친한 척하는 낯선 사람을 보면 의심이 든다.",
+        "category": "hostility",
+        "required": true
+      },
+      {
+        "id": "kaq_24",
+        "number": 24,
+        "text": "나는 누굴 때리는 것은 어떤 이유로든 정정당당하다라고 볼 수 없다고 생각한다.",
+        "category": "physical_aggression",
+        "required": true,
+        "reverse": true
+      },
+      {
+        "id": "kaq_25",
+        "number": 25,
+        "text": "나는 화나는 것을 통제하는 데 어려움을 겪는다.",
+        "category": "anger",
+        "required": true
+      },
+      {
+        "id": "kaq_26",
+        "number": 26,
+        "text": "나는 때로 사람들이 내가 모르게 나를 비웃고 있다는 느낌이 든다.",
+        "category": "hostility",
+        "required": true
+      },
+      {
+        "id": "kaq_27",
+        "number": 27,
+        "text": "나는 내가 아는 사람을 위협해 본적이 있다.",
+        "category": "verbal_aggression",
+        "required": true
+      }
+    ],
+    "scoring": {
+      "type": "sum_with_reverse",
+      "ranges": [
+        { "min": 27, "max": 54, "level": "low", "label": "낮은 공격성", "description": "평균 이하의 공격성" },
+        { "min": 55, "max": 74, "level": "average", "label": "평균 공격성", "description": "일반적인 수준" },
+        { "min": 75, "max": 94, "level": "high", "label": "높은 공격성", "description": "평균 이상의 공격성" },
+        { "min": 95, "max": 135, "level": "very_high", "label": "매우 높은 공격성", "description": "전문가 상담 권장" }
+      ],
+      "subscales": {
+        "physical_aggression": {
+          "name": "신체적 공격성",
+          "items": [1, 5, 9, 13, 17, 21, 22, 24],
+          "description": "신체적 폭력 행사 경향"
+        },
+        "verbal_aggression": {
+          "name": "언어적 공격성",
+          "items": [2, 6, 10, 14, 18, 27],
+          "description": "언어적 공격 경향"
+        },
+        "anger": {
+          "name": "분노",
+          "items": [3, 7, 11, 15, 25],
+          "description": "분노 조절 어려움"
+        },
+        "hostility": {
+          "name": "적대감",
+          "items": [4, 8, 12, 16, 19, 20, 23, 26],
+          "description": "타인에 대한 적대적 태도"
+        }
+      }
+    },
+    "response_options": [
+      { "value": 1, "label": "전혀 그렇지 않다" },
+      { "value": 2, "label": "약간 그렇다" },
+      { "value": 3, "label": "왠만큼 그렇다" },
+      { "value": 4, "label": "꽤 그렇다" },
+      { "value": 5, "label": "매우 많이 그렇다" }
+    ]
+  }

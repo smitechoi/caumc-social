@@ -1,0 +1,69 @@
+{
+    "scale": {
+      "id": "anxiety",
+      "name": "불안 척도",
+      "version": "1.0",
+      "description": "지난 2주 동안의 불안 증상을 평가합니다",
+      "instruction": "지난 2주 동안 다음의 문제들로 얼마나 자주 방해를 받았는지 표시해 주세요."
+    },
+    "questions": [
+      {
+        "id": "anx_1",
+        "text": "초조하거나 불안하거나 조마조마하게 느낀다",
+        "category": "general",
+        "required": true
+      },
+      {
+        "id": "anx_2", 
+        "text": "걱정하는 것을 멈추거나 조절할 수가 없다",
+        "category": "worry",
+        "required": true
+      },
+      {
+        "id": "anx_3",
+        "text": "여러 가지 것들에 대해 걱정을 너무 많이 한다",
+        "category": "worry",
+        "required": true
+      },
+      {
+        "id": "anx_4",
+        "text": "편하게 있기가 어렵다",
+        "category": "restlessness",
+        "required": true
+      },
+      {
+        "id": "anx_5",
+        "text": "너무 안절부절못해서 가만히 있기가 힘들다",
+        "category": "restlessness", 
+        "required": true
+      },
+      {
+        "id": "anx_6",
+        "text": "쉽게 짜증이 나거나 쉽게 성을 내게 된다",
+        "category": "irritability",
+        "required": true
+      },
+      {
+        "id": "anx_7",
+        "text": "마치 끔찍한 일이 생길 것처럼 두렵게 느껴진다",
+        "category": "fear",
+        "required": true
+      }
+    ],
+    "scoring": {
+      "type": "sum",
+      "ranges": [
+        { "min": 0, "max": 4, "level": "minimal", "label": "불안증상 없음" },
+        { "min": 5, "max": 9, "level": "mild", "label": "가벼운 불안" },
+        { "min": 10, "max": 14, "level": "moderate", "label": "중간 정도 불안" },
+        { "min": 15, "max": 21, "level": "severe", "label": "심한 불안" }
+      ]
+    },
+    "response_options": [
+      { "value": 0, "label": "전혀 방해받지 않았다" },
+      { "value": 1, "label": "며칠 동안 방해받았다" },
+      { "value": 2, "label": "7일 이상 방해받았다" },
+      { "value": 3, "label": "거의 매일 방해받았다" }
+    ]
+  }
+  

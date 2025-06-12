@@ -1,0 +1,93 @@
+{
+    "scale": {
+      "id": "depression",
+      "name": "우울 척도",
+      "version": "1.0",
+      "description": "지난 2주 동안의 기분과 생각을 평가합니다",
+      "instruction": "다음 문항들을 읽고 지난 2주 동안 얼마나 자주 다음과 같은 문제들로 어려움을 겪었는지 표시해 주세요."
+    },
+    "questions": [
+      {
+        "id": "dep_1",
+        "text": "일을 하는 것에 대한 흥미나 재미가 거의 없음",
+        "category": "interest",
+        "required": true
+      },
+      {
+        "id": "dep_2",
+        "text": "가라앉은 느낌, 우울감 혹은 절망감",
+        "category": "mood",
+        "required": true
+      },
+      {
+        "id": "dep_3",
+        "text": "잠들기 어렵거나 자꾸 깨어남, 혹은 너무 많이 잠",
+        "category": "sleep",
+        "required": true
+      },
+      {
+        "id": "dep_4",
+        "text": "피곤감, 기력이 저하됨",
+        "category": "energy",
+        "required": true
+      },
+      {
+        "id": "dep_5",
+        "text": "식욕 저하 혹은 과식",
+        "category": "appetite",
+        "required": true
+      },
+      {
+        "id": "dep_6",
+        "text": "내 자신이 나쁜 사람이라는 느낌 혹은 내 자신을 실패자라고 느끼거나, 나 때문에 나 자신이나 내 가족이 불행하게 되었다는 느낌",
+        "category": "self-worth",
+        "required": true
+      },
+      {
+        "id": "dep_7",
+        "text": "신문을 읽거나 TV를 볼 때 집중하기 어려움",
+        "category": "concentration",
+        "required": true
+      },
+      {
+        "id": "dep_8",
+        "text": "남들이 알아챌 정도로 거동이나 말이 느림. 또는 반대로 너무 초조하고 안절부절못해서 평소보다 많이 돌아다니고 서성거림",
+        "category": "psychomotor",
+        "required": true
+      },
+      {
+        "id": "dep_9",
+        "text": "나는 차라리 죽는 것이 낫겠다는 생각 혹은 어떻게든 스스로를 해칠 것이라는 생각",
+        "category": "suicidal",
+        "required": true,
+        "critical": true
+      }
+    ],
+    "scoring": {
+      "type": "sum",
+      "ranges": [
+        { "min": 0, "max": 4, "level": "minimal", "label": "우울증상 없음" },
+        { "min": 5, "max": 9, "level": "mild", "label": "가벼운 우울증상" },
+        { "min": 10, "max": 14, "level": "moderate", "label": "중간 정도 우울증상" },
+        { "min": 15, "max": 19, "level": "moderately_severe", "label": "약간 심한 우울증상" },
+        { "min": 20, "max": 27, "level": "severe", "label": "심한 우울증상" }
+      ],
+      "categories": {
+        "interest": "흥미/즐거움",
+        "mood": "기분",
+        "sleep": "수면",
+        "energy": "에너지",
+        "appetite": "식욕",
+        "self-worth": "자기가치감",
+        "concentration": "집중력",
+        "psychomotor": "정신운동",
+        "suicidal": "자살사고"
+      }
+    },
+    "response_options": [
+      { "value": 0, "label": "전혀 없음" },
+      { "value": 1, "label": "여러 날 동안" },
+      { "value": 2, "label": "일주일 이상" },
+      { "value": 3, "label": "거의 매일" }
+    ]
+  }

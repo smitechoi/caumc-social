@@ -1,0 +1,51 @@
+
+{
+  "scales": [
+    {
+      "id": "depression",
+      "internalId": "scale1",
+      "order": 1,
+      "enabled": true,
+      "estimatedTime": 3,
+      "category": "mood"
+    },
+    {
+      "id": "anxiety",
+      "internalId": "scale2", 
+      "order": 2,
+      "enabled": true,
+      "estimatedTime": 2,
+      "category": "mood"
+    },
+    {
+      "id": "stress",
+      "internalId": "scale3",
+      "order": 3,
+      "enabled": true,
+      "estimatedTime": 3,
+      "category": "stress"
+    },
+    {
+      "id": "qualityOfLife",
+      "internalId": "scale4",
+      "order": 4,
+      "enabled": true,
+      "estimatedTime": 5,
+      "category": "wellbeing"
+    }
+  ],
+  "categories": {
+    "mood": {
+      "name": "기분 관련",
+      "color": "#2196F3"
+    },
+    "stress": {
+      "name": "스트레스",
+      "color": "#FF5722"
+    },
+    "wellbeing": {
+      "name": "웰빙",
+      "color": "#4CAF50"
+    }
+  }
+}
