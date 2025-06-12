@@ -59,8 +59,8 @@ export class SurveySelection {
       const names = {
         scale1: '아동 우울 척도 (CES-DC) - 12세 이상',
         scale2: '벡 불안 척도 (BAI) - 12세 이상', 
-        scale3: '한국판 공격성 질문지 (K-AQ) - 6세 이상',
-        scale4: '한국형 ADHD 평가척도 (K-ARS) - 6세 이상'
+        scale3: '공격성 질문지 (K-AQ) - 6세 이상',
+        scale4: 'ADHD 평가척도 (K-ARS) - 6세 이상'
       };
       return names[key] || key;
     }

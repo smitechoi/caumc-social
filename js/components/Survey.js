@@ -5,18 +5,20 @@ export class Survey {
     this.manager = new SurveyManager(containerId, patientData);
   }
   
-  // 추가 public 메서드들
-  nextQuestion() {
-    this.manager.nextQuestion();
-  }
-  
-  previousQuestion() {
-    this.manager.previousQuestion();
-  }
-  
   scrollToQuestion(index) {
     this.manager.scrollToQuestion(index);
   }
+  getScaleId(scaleKey) {
+    const scaleMapping = {
+      'scale1': 'ces-dc',    // 아동 우울 척도
+      'scale2': 'bai',       // 벡 불안 척도
+      'scale3': 'k-aq',      // 한국판 공격성 질문지
+      'scale4': 'k-ars'      // 한국형 ADHD 평가척도
+    };
+    
+    return scaleMapping[scaleKey] || scaleKey;
+  }
+  
 }
 
 // ================================================
@@ -204,29 +206,50 @@ const surveyStyles = `
     display: flex;
     justify-content: space-between;
     gap: 20px;
+  }.survey-navigation {
+    margin: 30px 0;
+    padding: 20px;
+    background: #f5f5f5;
+    border-radius: 8px;
   }
   
-  .nav-btn {
-    padding: 10px 30px;
-    background: #2196F3;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  .progress-indicator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .answered-count {
     font-size: 16px;
+    font-weight: 600;
+    color: #2196F3;
+  }
+  
+  .question-dots {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  .dot {
+    width: 10px;
+    height: 10px;
+    background: #e0e0e0;
+    border-radius: 50%;
+    cursor: pointer;
     transition: all 0.2s;
   }
   
-  .nav-btn:hover {
-    background: #1976D2;
-    transform: translateY(-1px);
+  .dot.answered {
+    background: #4CAF50;
   }
   
-  .nav-btn:disabled {
-    background: #ccc;
-    cursor: not-allowed;
+  .dot:hover {
+    transform: scale(1.2);
   }
-  
   .survey-complete {
     text-align: center;
     padding: 60px 40px;

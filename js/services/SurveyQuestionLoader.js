@@ -1,7 +1,7 @@
 export class SurveyQuestionLoader {
   constructor() {
     this.cache = new Map();
-    this.basePath = '/data/surveys';
+    this.basePath = './data/surveys'; // 상대 경로로 수정
   }
 
   /**
