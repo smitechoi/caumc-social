@@ -514,7 +514,7 @@ const additionalStyles = `
   font-size: 11px;
   margin-left: 8px;
 }
-.button-container {
+.button-container { 
   margin-top: 40px;
   text-align: center;
 }
@@ -590,3 +590,6 @@ const additionalStyles = `
   transform: scale(1.2);
 }
 `;
+const styleElement = document.createElement('style');
+styleElement.textContent = surveyStyles;
+document.head.appendChild(styleElement);
