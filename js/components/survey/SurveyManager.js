@@ -1,4 +1,3 @@
-// js/components/survey/SurveyManager.js
 import { updateSurveyScale } from '../../firebase/crud.js';
 import { SurveyRenderer } from './SurveyRenderer.js';
 import { SurveyValidator } from './SurveyValidator.js';
@@ -10,8 +9,24 @@ export class SurveyManager {
     this.container = document.getElementById(containerId);
     this.patientData = patientData;
     this.currentScaleIndex = 0;
-    // 순서를 명시적으로 정의
+    
+    // 척도 순서와 매핑을 여기서 직접 정의
+    this.scaleMapping = {
+      scale1: 'ces-dc',
+      scale2: 'bai',
+      scale3: 'k-aq',
+      scale4: 'k-ars'
+    };
+    
     this.scales = ['scale1', 'scale2', 'scale3', 'scale4'];
+    
+    // 검증 규칙도 여기서 정의
+    this.validationRules = {
+      minResponseTime: 300,
+      maxResponseTime: 300000,
+      consistencyCheck: true,
+      requiredCompletion: 1.0
+    };
     
     // 선택된 scale 처리
     if (window.selectedScale) {
@@ -28,6 +43,27 @@ export class SurveyManager {
     
     this.currentResponses = [];
     this.init();
+  }
+  
+  getScaleConfig() {
+    const currentScale = this.getCurrentScale();
+    const scaleId = this.scaleMapping[currentScale];
+    
+    // SurveyQuestionLoader에서 실제 데이터를 가져옴
+    return {
+      id: scaleId,
+      questions: this.getQuestionCount(currentScale)
+    };
+  }
+  
+  getQuestionCount(scaleKey) {
+    const counts = {
+      scale1: 20,
+      scale2: 21,
+      scale3: 27,
+      scale4: 18
+    };
+    return counts[scaleKey];
   }
 
   init() {
