@@ -68,9 +68,9 @@ export class SurveySelection {
     getQuestionCount(key) {
       const counts = {
         scale1: 20,
-        scale2: 15,
-        scale3: 10,
-        scale4: 25
+        scale2: 21,
+        scale3: 27,
+        scale4: 18
       };
       return counts[key] || 10;
     }
