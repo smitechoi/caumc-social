@@ -4,6 +4,7 @@ export class PatientLogin {
   constructor(containerId) {
     this.container = document.getElementById(containerId);
     this.patientData = null;
+    this.matchedPatientData = null; // 매칭된 환자 데이터 저장
     this.render();
   }
 
@@ -62,6 +63,7 @@ export class PatientLogin {
         </div>
         
         <div id="error-message" style="display: none; color: red;"></div>
+        <div id="success-message" style="display: none; color: green;"></div>
       </div>
     `;
 
@@ -88,6 +90,8 @@ export class PatientLogin {
       } else {
         // 등록번호가 짧으면 다른 필드 활성화
         this.enableOtherFields(true);
+        this.matchedPatientData = null;
+        this.showSuccess(''); // 성공 메시지 숨기기
       }
     });
     
@@ -135,19 +139,36 @@ export class PatientLogin {
       const patientData = await getPatientByRegistrationNumber(registrationNumber);
       
       if (patientData) {
-        // 환자를 찾으면 즉시 로그인
-        this.patientData = patientData;
+        // 환자를 찾으면 데이터 저장하고 다른 필드 자동 채우기
+        this.matchedPatientData = patientData;
         this.showLoading(false);
-        this.onLoginSuccess(patientData);
+        
+        // 필드 자동 채우기
+        document.getElementById('name').value = patientData.name;
+        document.getElementById('language').value = patientData.language;
+        
+        // 생년월일 파싱 및 설정
+        const [year, month, day] = patientData.birthDate.split('-');
+        document.getElementById('birthYear').value = year;
+        document.getElementById('birthMonth').value = month;
+        document.getElementById('birthDay').value = day;
+        
+        // 필드 비활성화
+        this.enableOtherFields(false);
+        
+        // 성공 메시지 표시
+        this.showSuccess('등록번호가 확인되었습니다. 시작하기 버튼을 눌러주세요.');
       } else {
         // 찾지 못하면 다른 필드 활성화
         this.showLoading(false);
         this.enableOtherFields(true);
+        this.matchedPatientData = null;
       }
     } catch (error) {
       console.error('등록번호 확인 오류:', error);
       this.showLoading(false);
       this.enableOtherFields(true);
+      this.matchedPatientData = null;
     }
   }
 
@@ -171,8 +192,16 @@ export class PatientLogin {
     try {
       const registrationNumber = document.getElementById('registration').value.trim();
       
-      // 등록번호가 있으면 한번 더 체크 (이미 로그인 안된 경우)
-      if (registrationNumber && !this.patientData) {
+      // 이미 매칭된 환자 데이터가 있으면 바로 로그인
+      if (this.matchedPatientData && registrationNumber) {
+        this.patientData = this.matchedPatientData;
+        this.showLoading(false);
+        this.onLoginSuccess(this.patientData);
+        return;
+      }
+      
+      // 등록번호가 있지만 매칭되지 않은 경우 다시 확인
+      if (registrationNumber && !this.matchedPatientData) {
         const patientData = await getPatientByRegistrationNumber(registrationNumber);
         if (patientData) {
           this.patientData = patientData;
@@ -315,8 +344,18 @@ export class PatientLogin {
 
   showError(message) {
     const errorDiv = document.getElementById('error-message');
+    const successDiv = document.getElementById('success-message');
     errorDiv.textContent = message;
     errorDiv.style.display = message ? 'block' : 'none';
+    successDiv.style.display = 'none';
+  }
+
+  showSuccess(message) {
+    const successDiv = document.getElementById('success-message');
+    const errorDiv = document.getElementById('error-message');
+    successDiv.textContent = message;
+    successDiv.style.display = message ? 'block' : 'none';
+    errorDiv.style.display = 'none';
   }
 
   onLoginSuccess(patientData) {
@@ -413,6 +452,16 @@ style.textContent = `
     outline: none;
     border-color: #1976D2;
     box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+  }
+  
+  #success-message {
+    margin-top: 10px;
+    padding: 10px;
+    background: #e8f5e9;
+    border: 1px solid #4caf50;
+    border-radius: 4px;
+    color: #2e7d32;
+    font-size: 14px;
   }
   
   #submit-btn {
