@@ -12,8 +12,9 @@ export class EmotionRecognitionTask extends BaseTask {
             😊
           </div>
         </div>
-        <p>기본 감정: 행복, 슬픔, 화남, 놀람, 두려움, 역겨움, 중립</p>
+        <p>평가할 감정: <strong>행복, 슬픔, 중립, 화남</strong></p>
         <p style="color: #666; font-size: 14px;">각 표정을 주의 깊게 보고 가장 적절한 감정을 선택하세요.</p>
+        <p style="color: #2196F3; font-size: 14px;">표정의 강도는 다양할 수 있습니다 (강함, 중간, 약함)</p>
       `
     };
   }
@@ -23,31 +24,28 @@ export class EmotionRecognitionTask extends BaseTask {
   }
 
   initializeState(state, p) {
-    // 감정 카테고리 정의
+    // 감정 카테고리 정의 (4가지로 축소)
     state.emotions = {
       happy: { ko: '행복', en: 'Happy', color: [255, 193, 7] },
       sad: { ko: '슬픔', en: 'Sad', color: [33, 150, 243] },
-      angry: { ko: '화남', en: 'Angry', color: [244, 67, 54] },
-      surprised: { ko: '놀람', en: 'Surprised', color: [156, 39, 176] },
-      fearful: { ko: '두려움', en: 'Fearful', color: [121, 85, 72] },
-      disgusted: { ko: '역겨움', en: 'Disgusted', color: [76, 175, 80] },
-      neutral: { ko: '중립', en: 'Neutral', color: [158, 158, 158] }
+      neutral: { ko: '중립', en: 'Neutral', color: [158, 158, 158] },
+      anger: { ko: '화남', en: 'Anger', color: [244, 67, 54] }
     };
     
-    // 이미지 경로 설정 (GitHub 또는 로컬 경로)
-    state.imageBasePath = '/data/emotion-faces/'; // 또는 GitHub raw URL
+    // GitHub Pages raw 이미지 경로
+    state.imageBasePath = 'https://raw.githubusercontent.com/smitechoi/caumc-social/main/data/emotion-faces/';
     
     // 시행 설정
     state.currentTrial = 0;
-    state.maxTrials = 28; // 7 emotions × 4 variations
+    state.maxTrials = 20; // (3 emotions × 3 intensities × 2) + (neutral × 2) = 18 + 2 = 20
     state.showStimulus = true;
     state.stimulusOnset = p.millis();
     state.stimulusDuration = 5000; // 5초 제한
     state.responded = false;
     
     // 난이도 설정
-    state.difficulty = 'basic'; // basic, subtle, masked
     state.presentationTime = 3000; // 표정 제시 시간
+    state.showFeedback = false; // 피드백 표시 여부
     
     // 시행 순서 생성 (균형잡힌 무작위)
     state.trials = this.generateTrialSequence(state);
@@ -60,15 +58,32 @@ export class EmotionRecognitionTask extends BaseTask {
   generateTrialSequence(state) {
     const trials = [];
     const emotionKeys = Object.keys(state.emotions);
+    const intensities = ['strong', 'medium', 'weak']; // 강, 중, 약
     
-    // 각 감정당 4번씩 (총 28 시행)
-    for (let rep = 0; rep < 4; rep++) {
-      for (let emotion of emotionKeys) {
-        trials.push({
-          emotion: emotion,
-          intensity: rep < 2 ? 'high' : 'low', // 처음 2번은 강한 표정, 나중 2번은 약한 표정
-          imageFile: `${emotion}_${rep + 1}.jpg`
-        });
+    // 각 감정별로 처리
+    for (let emotion of emotionKeys) {
+      if (emotion === 'neutral') {
+        // neutral은 강도 구분 없이 2개만
+        for (let variant = 1; variant <= 2; variant++) {
+          trials.push({
+            emotion: emotion,
+            intensity: 'neutral', // 강도 대신 'neutral' 표시
+            variant: variant,
+            imageFile: `${emotion}_${variant}.jpg`
+          });
+        }
+      } else {
+        // happy, sad, anger는 강도별로
+        for (let intensity of intensities) {
+          for (let variant = 1; variant <= 2; variant++) {
+            trials.push({
+              emotion: emotion,
+              intensity: intensity,
+              variant: variant,
+              imageFile: `${emotion}_${intensity}_${variant}.jpg`
+            });
+          }
+        }
       }
     }
     
@@ -87,28 +102,42 @@ export class EmotionRecognitionTask extends BaseTask {
 
   preloadImages(state, p) {
     state.images = {};
+    state.loadedCount = 0;
+    state.totalImages = state.trials.length;
+    
     for (let trial of state.trials) {
       const imagePath = state.imageBasePath + trial.imageFile;
-      // p5.js에서는 preload가 따로 필요하지만, 
-      // 여기서는 동적 로딩을 위해 Image 객체 사용
+      
+      // 이미지 로드 시도
       state.images[trial.imageFile] = p.loadImage(imagePath, 
-        () => console.log(`Loaded: ${trial.imageFile}`),
         () => {
+          state.loadedCount++;
+          console.log(`Loaded: ${trial.imageFile} (${state.loadedCount}/${state.totalImages})`);
+        },
+        () => {
+          state.loadedCount++;
           console.error(`Failed to load: ${trial.imageFile}`);
           // 실패 시 플레이스홀더 이미지 사용
-          state.images[trial.imageFile] = this.createPlaceholderImage(p);
+          state.images[trial.imageFile] = this.createPlaceholderImage(p, trial.emotion);
         }
       );
     }
   }
 
-  createPlaceholderImage(p) {
-    // 이미지 로드 실패 시 간단한 이모지 기반 플레이스홀더
+  createPlaceholderImage(p, emotion) {
+    // 이미지 로드 실패 시 이모지 기반 플레이스홀더
+    const emojis = {
+      happy: '😊',
+      sad: '😢',
+      neutral: '😐',
+      anger: '😠'
+    };
+    
     const pg = p.createGraphics(200, 200);
     pg.background(240);
     pg.textAlign(p.CENTER, p.CENTER);
-    pg.textSize(80);
-    pg.text('🙂', 100, 100);
+    pg.textSize(100);
+    pg.text(emojis[emotion] || '🙂', 100, 100);
     return pg;
   }
 
@@ -127,12 +156,23 @@ export class EmotionRecognitionTask extends BaseTask {
     // 진행 상황 표시
     this.drawProgress(state, p);
     
+    // 로딩 상태 확인
+    if (state.loadedCount < state.totalImages) {
+      p.push();
+      p.textAlign(p.CENTER);
+      p.textSize(24);
+      p.fill(100);
+      p.text(`이미지 로딩 중... (${state.loadedCount}/${state.totalImages})`, p.width/2, p.height/2);
+      p.pop();
+      return;
+    }
+    
     // 자극 제시 단계
-    if (timeSinceOnset < state.presentationTime) {
+    if (timeSinceOnset < state.presentationTime && !state.responded) {
       // 얼굴 이미지 표시
       this.drawFaceStimulus(state, p);
       
-      // 응답 버튼은 항상 표시
+      // 응답 버튼 표시
       this.drawEmotionButtons(state, p);
       
       // 남은 시간 표시
@@ -141,19 +181,23 @@ export class EmotionRecognitionTask extends BaseTask {
       p.textAlign(p.CENTER);
       p.textSize(24);
       p.fill(100);
-      p.text(`남은 시간: ${remainingTime}초`, p.width/2, p.height * 0.9);
+      p.text(`남은 시간: ${remainingTime}초`, p.width/2, p.height * 0.88);
       p.pop();
     }
-    // 시간 초과
-    else if (!state.responded) {
-      // 무응답으로 기록
-      this.recordResponse(state, null, p);
-      this.nextTrial(state, p);
-    }
-    
-    // 피드백 표시 (옵션)
-    if (state.showFeedback && state.feedbackEndTime > currentTime) {
-      this.drawFeedback(state, p);
+    // 시간 초과 또는 응답 완료
+    else {
+      if (!state.responded) {
+        // 무응답으로 기록
+        this.recordResponse(state, null, p);
+      }
+      
+      // 피드백 표시 (옵션)
+      if (state.showFeedback && state.feedbackEndTime > currentTime) {
+        this.drawFeedback(state, p);
+      } else {
+        // 다음 시행으로
+        this.nextTrial(state, p);
+      }
     }
   }
 
@@ -175,6 +219,21 @@ export class EmotionRecognitionTask extends BaseTask {
     p.textAlign(p.CENTER);
     p.textSize(16);
     p.text(`${state.currentTrial + 1} / ${state.maxTrials}`, p.width/2, 60);
+    
+    // 현재 시행 정보 (디버그용 - 필요시 제거)
+    if (state.currentTrialData) {
+      p.textSize(12);
+      p.fill(150);
+      if (state.currentTrialData.emotion !== 'neutral') {
+        const intensityKo = {
+          strong: '강함',
+          medium: '중간',
+          weak: '약함'
+        };
+        p.text(`(${intensityKo[state.currentTrialData.intensity]} 강도)`, p.width/2, 75);
+      }
+    }
+    
     p.pop();
   }
 
@@ -184,7 +243,7 @@ export class EmotionRecognitionTask extends BaseTask {
     
     if (img && img.width > 0) {
       // 이미지 크기 조정
-      const maxSize = Math.min(p.width * 0.4, p.height * 0.4);
+      const maxSize = Math.min(p.width * 0.4, p.height * 0.4, 400);
       const scale = Math.min(maxSize / img.width, maxSize / img.height);
       const imgWidth = img.width * scale;
       const imgHeight = img.height * scale;
@@ -192,10 +251,19 @@ export class EmotionRecognitionTask extends BaseTask {
       // 중앙에 표시
       p.push();
       p.imageMode(p.CENTER);
+      
+      // 이미지 테두리
+      p.stroke(200);
+      p.strokeWeight(2);
+      p.fill(255);
+      p.rectMode(p.CENTER);
+      p.rect(p.width/2, p.height * 0.35, imgWidth + 10, imgHeight + 10, 5);
+      
+      // 이미지 표시
       p.image(img, p.width/2, p.height * 0.35, imgWidth, imgHeight);
       p.pop();
     } else {
-      // 로딩 중 또는 실패 시 플레이스홀더
+      // 플레이스홀더 표시
       p.push();
       p.fill(240);
       p.stroke(200);
@@ -207,23 +275,24 @@ export class EmotionRecognitionTask extends BaseTask {
       p.noStroke();
       p.textAlign(p.CENTER, p.CENTER);
       p.textSize(20);
-      p.text('이미지 로딩 중...', p.width/2, p.height * 0.35);
+      p.text('이미지 준비 중...', p.width/2, p.height * 0.35);
       p.pop();
     }
   }
 
   drawEmotionButtons(state, p) {
     const emotions = Object.entries(state.emotions);
-    const buttonWidth = Math.min(140, (p.width - 100) / emotions.length);
-    const buttonHeight = 80;
-    const totalWidth = emotions.length * buttonWidth + (emotions.length - 1) * 10;
+    const buttonWidth = Math.min(160, (p.width - 80) / emotions.length);
+    const buttonHeight = 90;
+    const spacing = 15;
+    const totalWidth = emotions.length * buttonWidth + (emotions.length - 1) * spacing;
     const startX = (p.width - totalWidth) / 2;
     const buttonY = p.height * 0.65;
     
     state.buttons = [];
     
     emotions.forEach(([key, emotion], index) => {
-      const x = startX + index * (buttonWidth + 10);
+      const x = startX + index * (buttonWidth + spacing);
       
       // 버튼 정보 저장
       state.buttons.push({
@@ -242,17 +311,27 @@ export class EmotionRecognitionTask extends BaseTask {
       if (state.responded && state.lastResponse === key) {
         p.strokeWeight(4);
         p.stroke(emotion.color);
+        p.fill(emotion.color[0], emotion.color[1], emotion.color[2], 100);
       } else {
         p.noStroke();
+        p.fill(emotion.color[0], emotion.color[1], emotion.color[2], 200);
       }
       
-      p.fill(emotion.color[0], emotion.color[1], emotion.color[2], 200);
-      p.rect(x, buttonY, buttonWidth, buttonHeight, 8);
+      // 버튼 박스
+      p.rect(x, buttonY, buttonWidth, buttonHeight, 12);
+      
+      // 버튼 호버 효과 (마우스 위치 확인)
+      if (!state.responded && 
+          p.mouseX >= x && p.mouseX <= x + buttonWidth &&
+          p.mouseY >= buttonY && p.mouseY <= buttonY + buttonHeight) {
+        p.fill(255, 255, 255, 50);
+        p.rect(x, buttonY, buttonWidth, buttonHeight, 12);
+      }
       
       // 텍스트
       p.fill(255);
       p.textAlign(p.CENTER, p.CENTER);
-      p.textSize(18);
+      p.textSize(24);
       p.textStyle(p.BOLD);
       p.text(emotion.ko, x + buttonWidth/2, buttonY + buttonHeight/2);
       p.pop();
@@ -294,10 +373,15 @@ export class EmotionRecognitionTask extends BaseTask {
         state.responded = true;
         state.lastResponse = button.emotion;
         
-        // 다음 시행으로
-        setTimeout(() => {
-          this.nextTrial(state, p);
-        }, 1500);
+        // 피드백 표시 설정
+        if (state.showFeedback) {
+          state.feedbackEndTime = p.millis() + 1500;
+        } else {
+          // 피드백 없이 바로 다음 시행
+          setTimeout(() => {
+            this.nextTrial(state, p);
+          }, 500);
+        }
         
         break;
       }
@@ -313,6 +397,7 @@ export class EmotionRecognitionTask extends BaseTask {
       trial: state.currentTrial,
       targetEmotion: trial.emotion,
       intensity: trial.intensity,
+      variant: trial.variant,
       response: response,
       correct: correct,
       rt: rt,
@@ -320,11 +405,6 @@ export class EmotionRecognitionTask extends BaseTask {
     });
     
     state.lastResponseCorrect = correct;
-    
-    // 피드백 설정 (옵션)
-    if (state.showFeedback) {
-      state.feedbackEndTime = p.millis() + 1500;
-    }
   }
 
   nextTrial(state, p) {
@@ -347,7 +427,7 @@ export class EmotionRecognitionTask extends BaseTask {
     
     // 감정별 정확도 계산
     const emotionAccuracy = {};
-    const emotions = ['happy', 'sad', 'angry', 'surprised', 'fearful', 'disgusted', 'neutral'];
+    const emotions = ['happy', 'sad', 'neutral', 'anger'];
     
     for (let emotion of emotions) {
       const emotionTrials = responses.filter(r => r.targetEmotion === emotion);
@@ -358,15 +438,16 @@ export class EmotionRecognitionTask extends BaseTask {
     }
     
     // 강도별 정확도
-    const highIntensity = responses.filter(r => r.intensity === 'high');
-    const lowIntensity = responses.filter(r => r.intensity === 'low');
+    const intensityAccuracy = {};
+    const intensities = ['strong', 'medium', 'weak', 'neutral']; // neutral 추가
     
-    const highAccuracy = highIntensity.length > 0 
-      ? (highIntensity.filter(r => r.correct).length / highIntensity.length) * 100 
-      : 0;
-    const lowAccuracy = lowIntensity.length > 0
-      ? (lowIntensity.filter(r => r.correct).length / lowIntensity.length) * 100
-      : 0;
+    for (let intensity of intensities) {
+      const intensityTrials = responses.filter(r => r.intensity === intensity);
+      if (intensityTrials.length > 0) {
+        const intensityCorrect = intensityTrials.filter(r => r.correct).length;
+        intensityAccuracy[intensity] = (intensityCorrect / intensityTrials.length) * 100;
+      }
+    }
     
     // 반응시간 분석 (정답만)
     const correctResponses = responses.filter(r => r.correct && r.rt);
@@ -374,23 +455,52 @@ export class EmotionRecognitionTask extends BaseTask {
       ? correctResponses.reduce((sum, r) => sum + r.rt, 0) / correctResponses.length
       : 0;
     
+    // 혼동 행렬 계산
+    const confusionMatrix = this.calculateConfusionMatrix(responses);
+    
     // 분석 결과 저장
     this.taskData.analysis = {
       overallAccuracy: accuracy,
       emotionAccuracy: emotionAccuracy,
-      highIntensityAccuracy: highAccuracy,
-      lowIntensityAccuracy: lowAccuracy,
+      intensityAccuracy: intensityAccuracy,
       averageRT: avgRT,
-      timeouts: responses.filter(r => r.timeout).length
+      timeouts: responses.filter(r => r.timeout).length,
+      confusionMatrix: confusionMatrix
     };
     
     // 종합 점수 계산
-    // 높은 강도와 낮은 강도 모두 고려
-    const weightedAccuracy = (highAccuracy * 0.4 + lowAccuracy * 0.6);
+    // 강도별 가중치 적용 (약한 표정일수록 높은 가중치, neutral은 중간 가중치)
+    const weightedAccuracy = 
+      (intensityAccuracy.strong || 0) * 0.2 +
+      (intensityAccuracy.medium || 0) * 0.3 +
+      (intensityAccuracy.weak || 0) * 0.4 +
+      (intensityAccuracy.neutral || 0) * 0.1;
     
     // 반응시간 보너스 (빠를수록 좋음, 2초 기준)
     const rtBonus = avgRT > 0 ? Math.max(0, 10 - (avgRT - 2000) / 200) : 0;
     
     return Math.round(Math.min(100, weightedAccuracy + rtBonus));
+  }
+
+  calculateConfusionMatrix(responses) {
+    const emotions = ['happy', 'sad', 'neutral', 'anger'];
+    const matrix = {};
+    
+    // 초기화
+    for (let actual of emotions) {
+      matrix[actual] = {};
+      for (let predicted of emotions) {
+        matrix[actual][predicted] = 0;
+      }
+    }
+    
+    // 카운트
+    for (let response of responses) {
+      if (response.response) {
+        matrix[response.targetEmotion][response.response]++;
+      }
+    }
+    
+    return matrix;
   }
 }
