@@ -1,15 +1,15 @@
 {
   "scale": {
     "id": "ces-dc",
-    "name": "아동 우울 척도 (CES-DC)",
+    "name": "Depression Scale for Children (CES-DC)",
     "fullName": "Center for Epidemiological Studies Depression Scale for Children",
     "version": "1.0",
-    "description": "아동 및 청소년의 우울 증상을 평가하는 자가보고식 검사입니다",
-    "instruction": "아래의 문항들을 얼마나 자주 경험하는지 해당 항목에 표시해주세요",
-    "copyright": "Weissman et al. (1980), Korean version",
+    "description": "A self-report scale assessing depressive symptoms in children and adolescents",
+    "instruction": "Below is a list of the ways you might have felt or acted. Please indicate how often you have felt this way during the past week.",
+    "copyright": "Weissman et al. (1980)",
     "cutoffScore": {
       "clinical": 16,
-      "description": "16점 이상 시 우울증 위험군"
+      "description": "Score of 16 or higher indicates risk for depression"
     },
     "reversedItems": [4, 8, 12, 16]
   },
@@ -17,28 +17,28 @@
     {
       "id": "cesdc_1",
       "number": 1,
-      "text": "평소에는 아무렇지도 않던 일들이 귀찮게 느껴졌다.",
+      "text": "I was bothered by things that usually don't bother me.",
       "category": "somatic",
       "required": true
     },
     {
       "id": "cesdc_2",
       "number": 2,
-      "text": "먹고 싶지 않았다. 배가 고프지 않았다.",
+      "text": "I did not feel like eating; my appetite was poor.",
       "category": "somatic",
       "required": true
     },
     {
       "id": "cesdc_3",
       "number": 3,
-      "text": "내 기분이 나아지도록 가족과 친구들이 노력해도 즐겁지 않았다.",
+      "text": "I felt that I could not shake off the blues even with help from my family or friends.",
       "category": "depressed_affect",
       "required": true
     },
     {
       "id": "cesdc_4",
       "number": 4,
-      "text": "나도 다른 아이들만큼 괜찮은 사람이라고 느꼈다",
+      "text": "I felt I was just as good as other people.",
       "category": "positive_affect",
       "required": true,
       "reverse": true
@@ -46,28 +46,28 @@
     {
       "id": "cesdc_5",
       "number": 5,
-      "text": "내가 하는 일에 집중하기 어려웠다",
+      "text": "I had trouble keeping my mind on what I was doing.",
       "category": "somatic",
       "required": true
     },
     {
       "id": "cesdc_6",
       "number": 6,
-      "text": "기분이 울적하고 행복하지 않았다.",
+      "text": "I felt depressed.",
       "category": "depressed_affect",
       "required": true
     },
     {
       "id": "cesdc_7",
       "number": 7,
-      "text": "뭔가를 하기에 너무 피곤하게 느꼈다",
+      "text": "I felt that everything I did was an effort.",
       "category": "somatic",
       "required": true
     },
     {
       "id": "cesdc_8",
       "number": 8,
-      "text": "좋은 일이 일어날 것처럼 느꼈다.",
+      "text": "I felt hopeful about the future.",
       "category": "positive_affect",
       "required": true,
       "reverse": true
@@ -75,28 +75,28 @@
     {
       "id": "cesdc_9",
       "number": 9,
-      "text": "내가 예전에 했던 일이 잘 풀리지 않는다고 느꼈다",
+      "text": "I thought my life had been a failure.",
       "category": "depressed_affect",
       "required": true
     },
     {
       "id": "cesdc_10",
       "number": 10,
-      "text": "무섭다고 느꼈다.",
+      "text": "I felt fearful.",
       "category": "depressed_affect",
       "required": true
     },
     {
       "id": "cesdc_11",
       "number": 11,
-      "text": "평소에 비해 잠을 잘 자지 못했다",
+      "text": "My sleep was restless.",
       "category": "somatic",
       "required": true
     },
     {
       "id": "cesdc_12",
       "number": 12,
-      "text": "행복했다.",
+      "text": "I was happy.",
       "category": "positive_affect",
       "required": true,
       "reverse": true
@@ -104,28 +104,28 @@
     {
       "id": "cesdc_13",
       "number": 13,
-      "text": "나는 평소보다 조용했다.",
+      "text": "I talked less than usual.",
       "category": "interpersonal",
       "required": true
     },
     {
       "id": "cesdc_14",
       "number": 14,
-      "text": "친구가 없는 듯 외롭게 느꼈다",
+      "text": "I felt lonely.",
       "category": "interpersonal",
       "required": true
     },
     {
       "id": "cesdc_15",
       "number": 15,
-      "text": "내가 아는 아이들이 친근하지 않거나 나랑 같이 있고 싶어하지 않는 것처럼 느꼈다.",
+      "text": "People were unfriendly.",
       "category": "interpersonal",
       "required": true
     },
     {
       "id": "cesdc_16",
       "number": 16,
-      "text": "즐거웠다.",
+      "text": "I enjoyed life.",
       "category": "positive_affect",
       "required": true,
       "reverse": true
@@ -133,28 +133,28 @@
     {
       "id": "cesdc_17",
       "number": 17,
-      "text": "울고 싶은 마음이었다.",
+      "text": "I had crying spells.",
       "category": "depressed_affect",
       "required": true
     },
     {
       "id": "cesdc_18",
       "number": 18,
-      "text": "슬펐다.",
+      "text": "I felt sad.",
       "category": "depressed_affect",
       "required": true
     },
     {
       "id": "cesdc_19",
       "number": 19,
-      "text": "사람들이 나를 좋아하지 않는 것처럼 느꼈다",
+      "text": "I felt that people dislike me.",
       "category": "interpersonal",
       "required": true
     },
     {
       "id": "cesdc_20",
       "number": 20,
-      "text": "뭔가를 시작하기가 어려웠다.",
+      "text": "I could not get 'going'.",
       "category": "somatic",
       "required": true
     }
@@ -162,21 +162,21 @@
   "scoring": {
     "type": "sum_with_reverse",
     "ranges": [
-      { "min": 0, "max": 15, "level": "normal", "label": "정상", "description": "우울 증상이 거의 없음" },
-      { "min": 16, "max": 24, "level": "mild", "label": "경도 우울", "description": "가벼운 우울 증상" },
-      { "min": 25, "max": 60, "level": "severe", "label": "중증 우울", "description": "심각한 우울 증상, 전문가 상담 필요" }
+      { "min": 0, "max": 15, "level": "normal", "label": "Normal", "description": "Minimal depressive symptoms" },
+      { "min": 16, "max": 24, "level": "mild", "label": "Mild Depression", "description": "Mild depressive symptoms" },
+      { "min": 25, "max": 60, "level": "severe", "label": "Severe Depression", "description": "Severe depressive symptoms, professional consultation needed" }
     ],
     "factors": {
-      "depressed_affect": "우울 정서",
-      "positive_affect": "긍정 정서",
-      "somatic": "신체화 증상",
-      "interpersonal": "대인관계 문제"
+      "depressed_affect": "Depressed Affect",
+      "positive_affect": "Positive Affect",
+      "somatic": "Somatic Complaints",
+      "interpersonal": "Interpersonal Problems"
     }
   },
   "response_options": [
-    { "value": 0, "label": "극히 드물게" },
-    { "value": 1, "label": "가끔" },
-    { "value": 2, "label": "자주" },
-    { "value": 3, "label": "거의 대부분" }
+    { "value": 0, "label": "Rarely or none of the time" },
+    { "value": 1, "label": "Some or a little of the time" },
+    { "value": 2, "label": "Occasionally or a moderate amount of time" },
+    { "value": 3, "label": "Most or all of the time" }
   ]
 }

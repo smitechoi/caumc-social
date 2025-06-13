@@ -1,15 +1,15 @@
 {
   "scale": {
     "id": "ces-dc",
-    "name": "儿童抑郁量表 (CES-DC)",
+    "name": "Thang trầm cảm cho trẻ em (CES-DC)",
     "fullName": "Center for Epidemiological Studies Depression Scale for Children",
     "version": "1.0",
-    "description": "评估儿童和青少年抑郁症状的自评量表",
-    "instruction": "以下列出了一些你可能有过的感受或行为。请标出在过去一周中你有这种感受的频率。",
-    "copyright": "Weissman et al. (1980), Chinese version",
+    "description": "Bảng tự đánh giá các triệu chứng trầm cảm ở trẻ em và thanh thiếu niên",
+    "instruction": "Hãy đánh dấu vào mức độ bạn thường xuyên trải nghiệm các điều dưới đây",
+    "copyright": "Weissman et al. (1980), Vietnamese version",
     "cutoffScore": {
       "clinical": 16,
-      "description": "16分以上为抑郁症风险群体"
+      "description": "Từ 16 điểm trở lên thuộc nhóm nguy cơ trầm cảm"
     },
     "reversedItems": [4, 8, 12, 16]
   },
@@ -17,28 +17,28 @@
     {
       "id": "cesdc_1",
       "number": 1,
-      "text": "平时不烦恼的事情变得让我烦恼。",
+      "text": "Tôi cảm thấy phiền phức bởi những điều thường không làm tôi bận tâm.",
       "category": "somatic",
       "required": true
     },
     {
       "id": "cesdc_2",
       "number": 2,
-      "text": "我不想吃东西，没有胃口。",
+      "text": "Tôi không muốn ăn. Tôi không cảm thấy đói.",
       "category": "somatic",
       "required": true
     },
     {
       "id": "cesdc_3",
       "number": 3,
-      "text": "即使家人和朋友努力让我开心，我也高兴不起来。",
+      "text": "Tôi không vui dù gia đình và bạn bè cố gắng giúp tôi cảm thấy tốt hơn.",
       "category": "depressed_affect",
       "required": true
     },
     {
       "id": "cesdc_4",
       "number": 4,
-      "text": "我觉得我和其他孩子一样好。",
+      "text": "Tôi cảm thấy mình cũng tốt như những đứa trẻ khác",
       "category": "positive_affect",
       "required": true,
       "reverse": true
@@ -46,28 +46,28 @@
     {
       "id": "cesdc_5",
       "number": 5,
-      "text": "我很难集中注意力做事。",
+      "text": "Tôi khó tập trung vào việc mình đang làm",
       "category": "somatic",
       "required": true
     },
     {
       "id": "cesdc_6",
       "number": 6,
-      "text": "我感到沮丧，不开心。",
+      "text": "Tôi cảm thấy buồn và không vui.",
       "category": "depressed_affect",
       "required": true
     },
     {
       "id": "cesdc_7",
       "number": 7,
-      "text": "我觉得做什么都很累。",
+      "text": "Tôi cảm thấy quá mệt để làm bất cứ điều gì",
       "category": "somatic",
       "required": true
     },
     {
       "id": "cesdc_8",
       "number": 8,
-      "text": "我觉得好事会发生。",
+      "text": "Tôi cảm thấy có điều tốt đẹp sẽ xảy ra.",
       "category": "positive_affect",
       "required": true,
       "reverse": true
@@ -75,28 +75,28 @@
     {
       "id": "cesdc_9",
       "number": 9,
-      "text": "我觉得以前做过的事情都做不好了。",
+      "text": "Tôi cảm thấy những việc tôi từng làm không còn diễn ra tốt nữa",
       "category": "depressed_affect",
       "required": true
     },
     {
       "id": "cesdc_10",
       "number": 10,
-      "text": "我感到害怕。",
+      "text": "Tôi cảm thấy sợ hãi.",
       "category": "depressed_affect",
       "required": true
     },
     {
       "id": "cesdc_11",
       "number": 11,
-      "text": "我比平时睡得不好。",
+      "text": "Tôi ngủ không ngon như trước",
       "category": "somatic",
       "required": true
     },
     {
       "id": "cesdc_12",
       "number": 12,
-      "text": "我很快乐。",
+      "text": "Tôi vui vẻ.",
       "category": "positive_affect",
       "required": true,
       "reverse": true
@@ -104,28 +104,28 @@
     {
       "id": "cesdc_13",
       "number": 13,
-      "text": "我比平时更安静。",
+      "text": "Tôi ít nói hơn bình thường.",
       "category": "interpersonal",
       "required": true
     },
     {
       "id": "cesdc_14",
       "number": 14,
-      "text": "我感到孤独，好像没有朋友。",
+      "text": "Tôi cảm thấy cô đơn như thể không có bạn bè",
       "category": "interpersonal",
       "required": true
     },
     {
       "id": "cesdc_15",
       "number": 15,
-      "text": "我觉得认识的孩子们不友好，或者不想和我在一起。",
+      "text": "Tôi cảm thấy những đứa trẻ tôi biết không thân thiện hoặc không muốn ở cùng tôi.",
       "category": "interpersonal",
       "required": true
     },
     {
       "id": "cesdc_16",
       "number": 16,
-      "text": "我过得很愉快。",
+      "text": "Tôi có khoảng thời gian vui vẻ.",
       "category": "positive_affect",
       "required": true,
       "reverse": true
@@ -133,28 +133,28 @@
     {
       "id": "cesdc_17",
       "number": 17,
-      "text": "我想哭。",
+      "text": "Tôi muốn khóc.",
       "category": "depressed_affect",
       "required": true
     },
     {
       "id": "cesdc_18",
       "number": 18,
-      "text": "我感到悲伤。",
+      "text": "Tôi buồn.",
       "category": "depressed_affect",
       "required": true
     },
     {
       "id": "cesdc_19",
       "number": 19,
-      "text": "我觉得人们不喜欢我。",
+      "text": "Tôi cảm thấy mọi người không thích tôi",
       "category": "interpersonal",
       "required": true
     },
     {
       "id": "cesdc_20",
       "number": 20,
-      "text": "我很难开始做事情。",
+      "text": "Tôi khó bắt đầu làm việc gì đó.",
       "category": "somatic",
       "required": true
     }
@@ -162,21 +162,21 @@
   "scoring": {
     "type": "sum_with_reverse",
     "ranges": [
-      { "min": 0, "max": 15, "level": "normal", "label": "正常", "description": "几乎没有抑郁症状" },
-      { "min": 16, "max": 24, "level": "mild", "label": "轻度抑郁", "description": "轻微抑郁症状" },
-      { "min": 25, "max": 60, "level": "severe", "label": "重度抑郁", "description": "严重抑郁症状，需要专业咨询" }
+      { "min": 0, "max": 15, "level": "normal", "label": "Bình thường", "description": "Hầu như không có triệu chứng trầm cảm" },
+      { "min": 16, "max": 24, "level": "mild", "label": "Trầm cảm nhẹ", "description": "Triệu chứng trầm cảm nhẹ" },
+      { "min": 25, "max": 60, "level": "severe", "label": "Trầm cảm nặng", "description": "Triệu chứng trầm cảm nghiêm trọng, cần tư vấn chuyên gia" }
     ],
     "factors": {
-      "depressed_affect": "抑郁情绪",
-      "positive_affect": "积极情绪",
-      "somatic": "躯体化症状",
-      "interpersonal": "人际关系问题"
+      "depressed_affect": "Cảm xúc trầm cảm",
+      "positive_affect": "Cảm xúc tích cực",
+      "somatic": "Triệu chứng cơ thể",
+      "interpersonal": "Vấn đề quan hệ"
     }
   },
   "response_options": [
-    { "value": 0, "label": "很少" },
-    { "value": 1, "label": "有时" },
-    { "value": 2, "label": "经常" },
-    { "value": 3, "label": "总是" }
+    { "value": 0, "label": "Hiếm khi" },
+    { "value": 1, "label": "Thỉnh thoảng" },
+    { "value": 2, "label": "Thường xuyên" },
+    { "value": 3, "label": "Hầu hết thời gian" }
   ]
 }
