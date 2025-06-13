@@ -176,15 +176,15 @@ export class Dashboard {
   getTaskName(key) {
     const t = (key) => translationService.t(key);
     const names = {
-      task1: t('stroopTask'),
-      task2: t('nBackTask'),
-      task3: t('goNoGoTask'),
-      task4: t('emotionTask'),
-      task5: t('rotationTask')
+      task1: t('stroopTest'),
+      task2: t('nBackTest'),
+      task3: t('goNoGoTest'),
+      task4: t('emotionRecognitionTest'),
+      task5: t('mentalRotationTest')
     };
     return names[key] || key;
   }
-
+  
   destroy() {
     // 컴포넌트 정리
     this.container.innerHTML = '';
