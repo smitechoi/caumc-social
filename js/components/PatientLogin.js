@@ -6,17 +6,37 @@ export class PatientLogin {
     this.container = document.getElementById(containerId);
     this.patientData = null;
     this.matchedPatientData = null;
+    this.selectedLanguage = translationService.currentLanguage || 'ko'; // 기본값을 한국어로
     this.render();
   }
 
   render() {
     const t = (key, params) => translationService.t(key, params);
     
+    // 현재 선택된 언어 저장 (리렌더링 시 유지)
+    const currentLanguage = this.selectedLanguage || translationService.currentLanguage;
+    
     this.container.innerHTML = `
       <div class="patient-login-form">
         <h2>${t('patientInfoInput')}</h2>
         
         <form id="patient-form">
+          <div class="form-group language-selector">
+            <label for="language">${t('selectLanguage')}: <span style="color: red;">*</span></label>
+            <select id="language" required>
+              <option value="ko" ${currentLanguage === 'ko' ? 'selected' : ''}>한국어</option>
+              <option value="en" ${currentLanguage === 'en' ? 'selected' : ''}>English</option>
+              <option value="ja" ${currentLanguage === 'ja' ? 'selected' : ''}>日本語</option>
+              <option value="zh" ${currentLanguage === 'zh' ? 'selected' : ''}>中文</option>
+              <option value="vn" ${currentLanguage === 'vn' ? 'selected' : ''}>Tiếng Việt</option>
+              <option value="th" ${currentLanguage === 'th' ? 'selected' : ''}>ภาษาไทย</option>
+            </select>
+          </div>
+          
+          <div class="divider">
+            <span>${t('patientInfoInput')}</span>
+          </div>
+          
           <div class="form-group">
             <label for="registration">${t('registrationNumber')}:</label>
             <input type="text" id="registration" placeholder="${t('registrationNumberPlaceholder')}">
@@ -45,19 +65,6 @@ export class PatientLogin {
                 <option value="">${t('day')}</option>
               </select>
             </div>
-          </div>
-          
-          <div class="form-group">
-            <label for="language">${t('selectLanguage')}: <span style="color: red;">*</span></label>
-            <select id="language" required>
-              <option value="">${t('selectPlease')}</option>
-              <option value="ko">한국어</option>
-              <option value="en">English</option>
-              <option value="ja">日本語</option>
-              <option value="zh">中文</option>
-              <option value="vn">Tiếng Việt</option>
-              <option value="th">ภาษาไทย</option>
-            </select>
           </div>
           
           <div id="error-message" style="display: none; color: red; margin-bottom: 10px;"></div>
@@ -122,9 +129,36 @@ export class PatientLogin {
     document.getElementById('language').addEventListener('change', (e) => {
       const newLang = e.target.value;
       if (newLang) {
+        // 선택된 언어 저장
+        this.selectedLanguage = newLang;
+        
+        // 현재 입력된 값들 저장
+        const currentValues = {
+          registration: document.getElementById('registration').value,
+          name: document.getElementById('name').value,
+          birthYear: document.getElementById('birthYear').value,
+          birthMonth: document.getElementById('birthMonth').value,
+          birthDay: document.getElementById('birthDay').value
+        };
+        
+        // 언어 설정 변경
         translationService.setLanguage(newLang);
         document.body.className = `lang-${newLang}`;
+        
+        // UI 재렌더링
         this.render();
+        
+        // 저장된 값들 복원
+        document.getElementById('registration').value = currentValues.registration;
+        document.getElementById('name').value = currentValues.name;
+        document.getElementById('birthYear').value = currentValues.birthYear;
+        document.getElementById('birthMonth').value = currentValues.birthMonth;
+        document.getElementById('birthDay').value = currentValues.birthDay;
+        
+        // 등록번호가 있었다면 다시 확인
+        if (currentValues.registration) {
+          this.checkRegistrationNumber(currentValues.registration);
+        }
       }
     });
   }
@@ -370,6 +404,24 @@ style.textContent = `
     text-align: center;
     color: #333;
     margin-bottom: 30px;
+  }
+  
+  .language-selector {
+    background: #f0f7ff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border: 2px solid #2196F3;
+  }
+  
+  .language-selector label {
+    color: #1976D2;
+    font-weight: bold;
+  }
+  
+  .language-selector select {
+    font-size: 18px;
+    padding: 12px;
   }
   
   .divider {
