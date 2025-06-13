@@ -286,11 +286,11 @@ export class CNTTask {
   getLocalizedTaskName(task) {
     const t = (key) => translationService.t(key);
     const names = {
-      task1: t('stroopTask'),
-      task2: t('nBackTask'),
-      task3: t('goNoGoTask'),
-      task4: t('emotionTask'),
-      task5: t('rotationTask')
+      task1: t('stroopTest'),
+      task2: t('nBackTest'),
+      task3: t('goNoGoTest'),
+      task4: t('emotionRecognitionTest'),
+      task5: t('mentalRotationTest')
     };
     
     return names[task] || this.taskConfigs[task].name;
