@@ -76,43 +76,9 @@ export class CNTTask {
       return;
     }
 
-    const t = (key, params) => translationService.t(key, params);
-    const currentTask = this.tasks[this.currentTaskIndex];
-    const config = this.taskConfigs[currentTask];
-    
-    this.container.innerHTML = `
-      <div class="cnt-container">
-        <div class="cnt-header">
-          <h2>${t('cntTest')} - ${this.getLocalizedTaskName(currentTask)}</h2>
-          <div class="current-task-info">
-            <span class="task-badge">${currentTask.replace('task', 'Task ')}</span>
-            <span class="task-name">${this.getLocalizedTaskName(currentTask)}</span>
-          </div>
-          <div class="progress">
-            <div class="progress-text">
-              ${t('progress')}: ${this.currentTaskIndex}/${this.tasks.length} ${t('completed')}
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: ${(this.currentTaskIndex / this.tasks.length) * 100}%"></div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="task-instructions" id="task-instructions">
-          ${this.getTaskInstructions(config.type)}
-        </div>
-        
-        <div class="button-container">
-          <button id="start-task" onclick="window.cntInstance.startTask()">
-            ${t('startTest')}
-          </button>
-        </div>
-      </div>
-    `;
-
-    window.cntInstance = this;
+    // 바로 태스크 시작
+    this.startTask();
   }
-
   getTaskInstructions(taskType) {
     const t = (key) => translationService.t(key);
     const lang = this.patientData.language;

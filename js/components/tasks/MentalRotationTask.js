@@ -465,12 +465,21 @@ export class MentalRotationTask extends BaseTask {
 }
 
 // BaseTask 확장 - 마우스 드래그 지원
-BaseTask.prototype.handleMouseDrag = function(state, x, y, p) {
-  // 기본적으로 아무것도 하지 않음
+MentalRotationTask.prototype.handleMouseDrag = function(state, x, y, p) {
+  if (state.isDragging) {
+    const dx = x - state.lastMouseX;
+    const dy = y - state.lastMouseY;
+    
+    state.rotation.x += dy * 0.01;
+    state.rotation.y += dx * 0.01;
+    
+    state.lastMouseX = x;
+    state.lastMouseY = y;
+  }
 };
 
-BaseTask.prototype.handleMouseRelease = function(state, p) {
-  // 기본적으로 아무것도 하지 않음
+MentalRotationTask.prototype.handleMouseRelease = function(state, p) {
+  state.isDragging = false;
 };
 
 // p5 스케치에 마우스 이벤트 추가

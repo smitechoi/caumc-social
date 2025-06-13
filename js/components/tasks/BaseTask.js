@@ -94,6 +94,18 @@ export class BaseTask {
           this.handleMousePress(state, p.mouseX, p.mouseY, p);
         };
         
+        p.mouseDragged = () => {
+          if (this.handleMouseDrag) {
+            this.handleMouseDrag(state, p.mouseX, p.mouseY, p);
+          }
+        };
+        
+        p.mouseReleased = () => {
+          if (this.handleMouseRelease) {
+            this.handleMouseRelease(state, p);
+          }
+        };
+        
         p.touchStarted = () => {
           if (p.touches.length > 0) {
             const touch = p.touches[0];
@@ -108,6 +120,21 @@ export class BaseTask {
             }
             
             this.handleMousePress(state, touch.x, touch.y, p);
+          }
+          return false;
+        };
+        
+        p.touchMoved = () => {
+          if (p.touches.length > 0 && this.handleMouseDrag) {
+            const touch = p.touches[0];
+            this.handleMouseDrag(state, touch.x, touch.y, p);
+          }
+          return false;
+        };
+        
+        p.touchEnded = () => {
+          if (this.handleMouseRelease) {
+            this.handleMouseRelease(state, p);
           }
           return false;
         };
@@ -187,6 +214,14 @@ export class BaseTask {
     }
   
     handleKeyPress(state, key, p) {
+      // 기본적으로 아무것도 하지 않음
+    }
+    
+    handleMouseDrag(state, x, y, p) {
+      // 기본적으로 아무것도 하지 않음  
+    }
+    
+    handleMouseRelease(state, p) {
       // 기본적으로 아무것도 하지 않음
     }
   
