@@ -22,7 +22,7 @@ export class PatientLogin {
         <form id="patient-form">
           <div class="form-group language-selector">
             <label for="language">${t('selectLanguage')}: <span style="color: red;">*</span></label>
-            <select id="language" required>
+            <select id="language">
               <option value="ko" ${currentLanguage === 'ko' ? 'selected' : ''}>한국어</option>
               <option value="en" ${currentLanguage === 'en' ? 'selected' : ''}>English</option>
               <option value="ja" ${currentLanguage === 'ja' ? 'selected' : ''}>日本語</option>
@@ -48,19 +48,19 @@ export class PatientLogin {
           
           <div class="form-group">
             <label for="name">${t('name')}: <span style="color: red;">*</span></label>
-            <input type="text" id="name" required>
+            <input type="text" id="name">
           </div>
           
           <div class="form-group">
             <label>${t('birthDate')}: <span style="color: red;">*</span></label>
             <div style="display: flex; gap: 10px;">
-              <select id="birthYear" style="flex: 1;" required>
+              <select id="birthYear" style="flex: 1;">
                 <option value="">${t('year')}</option>
               </select>
-              <select id="birthMonth" style="flex: 1;" required>
+              <select id="birthMonth" style="flex: 1;">
                 <option value="">${t('month')}</option>
               </select>
-              <select id="birthDay" style="flex: 1;" required>
+              <select id="birthDay" style="flex: 1;">
                 <option value="">${t('day')}</option>
               </select>
             </div>
@@ -254,52 +254,68 @@ export class PatientLogin {
       const day = document.getElementById('birthDay').value;
       const language = document.getElementById('language').value;
 
-      if (!name || !year || !month || !day || !language) {
-        throw new Error(translationService.t('allFieldsRequired'));
+      // 등록번호가 없을 때만 모든 필드 필수 체크
+      if (!registrationNumber) {
+        if (!name || !year || !month || !day || !language) {
+          throw new Error(translationService.t('allFieldsRequired'));
+        }
       }
 
-      const birthDate = `${year}-${month}-${day}`;
+      // 이름과 생년월일이 있으면 조회 시도
+      if (name && year && month && day) {
+        const birthDate = `${year}-${month}-${day}`;
 
-      // 환자 존재 여부 확인
-      const exists = await checkPatientExists(name, birthDate);
+        // 환자 존재 여부 확인
+        const exists = await checkPatientExists(name, birthDate);
 
-      if (exists) {
-        // 기존 환자 데이터 조회
-        this.patientData = await getPatient(name, birthDate);
+        if (exists) {
+          // 기존 환자 데이터 조회
+          this.patientData = await getPatient(name, birthDate);
 
-        // 언어 설정이 다른 경우 알림
-        if (this.patientData.language !== language) {
-          const confirmChange = confirm(
-            translationService.t('languageChangeConfirm', {
-              previousLang: translationService.getLanguageName(this.patientData.language),
-              newLang: translationService.getLanguageName(language)
-            })
-          );
+          // 언어 설정이 다른 경우 알림
+          if (language && this.patientData.language !== language) {
+            const confirmChange = confirm(
+              translationService.t('languageChangeConfirm', {
+                previousLang: translationService.getLanguageName(this.patientData.language),
+                newLang: translationService.getLanguageName(language)
+              })
+            );
 
-          if (!confirmChange) {
-            document.getElementById('language').value = this.patientData.language;
-            this.showLoading(false);
-            return;
+            if (!confirmChange) {
+              document.getElementById('language').value = this.patientData.language;
+              this.showLoading(false);
+              return;
+            }
           }
+          
+          this.showLoading(false);
+          this.onLoginSuccess(this.patientData);
+        } else {
+          // 신규 환자 - 등록번호 필수
+          if (!registrationNumber) {
+            throw new Error(translationService.t('newPatientRegistrationRequired'));
+          }
+
+          // 모든 필드 필수
+          if (!language) {
+            throw new Error(translationService.t('allFieldsRequired'));
+          }
+
+          // 등록번호 중복 체크
+          const existingPatient = await getPatientByRegistrationNumber(registrationNumber);
+          if (existingPatient) {
+            throw new Error(translationService.t('registrationNumberInUse'));
+          }
+
+          // 새 환자 생성
+          this.patientData = await createPatient(name, birthDate, language, registrationNumber);
+          this.showLoading(false);
+          this.onLoginSuccess(this.patientData);
         }
       } else {
-        // 신규 환자 - 등록번호 필수
-        if (!registrationNumber) {
-          throw new Error(translationService.t('newPatientRegistrationRequired'));
-        }
-
-        // 등록번호 중복 체크
-        const existingPatient = await getPatientByRegistrationNumber(registrationNumber);
-        if (existingPatient) {
-          throw new Error(translationService.t('registrationNumberInUse'));
-        }
-
-        // 새 환자 생성
-        this.patientData = await createPatient(name, birthDate, language, registrationNumber);
+        // 등록번호는 있지만 못 찾았고, 다른 정보도 불충분한 경우
+        throw new Error(translationService.t('registrationNumberNotFound'));
       }
-
-      this.showLoading(false);
-      this.onLoginSuccess(this.patientData);
 
     } catch (error) {
       console.error('오류 발생:', error);
