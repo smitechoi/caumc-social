@@ -50,7 +50,8 @@ export class EmotionRecognitionTask extends BaseTask {
     // 시행 순서 생성 (균형잡힌 무작위)
     state.trials = this.generateTrialSequence(state);
     state.currentTrialData = state.trials[state.currentTrial];
-    
+    state.responded = false;
+    state.processingResponse = false;
     // 이미지 프리로드
     this.preloadImages(state, p);
   }
@@ -141,7 +142,7 @@ export class EmotionRecognitionTask extends BaseTask {
     return pg;
   }
 
-  render(state, p) {
+    render(state, p) {
     if (state.currentTrial >= state.maxTrials) {
       this.completeTask();
       return;
@@ -156,14 +157,9 @@ export class EmotionRecognitionTask extends BaseTask {
     // 진행 상황 표시
     this.drawProgress(state, p);
     
-    // 로딩 상태 확인
-    if (state.loadedCount < state.totalImages) {
-      p.push();
-      p.textAlign(p.CENTER);
-      p.textSize(24);
-      p.fill(100);
-      p.text(`이미지 로딩 중... (${state.loadedCount}/${state.totalImages})`, p.width/2, p.height/2);
-      p.pop();
+    // 응답 처리 중이면 대기
+    if (state.processingResponse) {
+      this.drawFeedback(state, p);
       return;
     }
     
@@ -181,23 +177,19 @@ export class EmotionRecognitionTask extends BaseTask {
       p.textAlign(p.CENTER);
       p.textSize(24);
       p.fill(100);
-      p.text(`남은 시간: ${remainingTime}초`, p.width/2, p.height * 0.88);
+      p.text(`남은 시간: ${remainingTime}초`, p.width/2, p.height * 0.9);
       p.pop();
     }
-    // 시간 초과 또는 응답 완료
-    else {
-      if (!state.responded) {
-        // 무응답으로 기록
-        this.recordResponse(state, null, p);
-      }
+    // 시간 초과
+    else if (!state.responded && !state.processingResponse) {
+      // 무응답으로 기록하고 다음으로
+      state.processingResponse = true;
+      this.recordResponse(state, null, p);
       
-      // 피드백 표시 (옵션)
-      if (state.showFeedback && state.feedbackEndTime > currentTime) {
-        this.drawFeedback(state, p);
-      } else {
-        // 다음 시행으로
+      setTimeout(() => {
         this.nextTrial(state, p);
-      }
+        state.processingResponse = false;
+      }, 1000);
     }
   }
 
@@ -363,25 +355,25 @@ export class EmotionRecognitionTask extends BaseTask {
   }
 
   handleMousePress(state, x, y, p) {
-    if (!state.buttons || state.responded) return;
+    if (!state.buttons || state.responded || state.processingResponse) return;
     
     for (let button of state.buttons) {
       if (x >= button.x && x <= button.x + button.width &&
           y >= button.y && y <= button.y + button.height) {
         
-        this.recordResponse(state, button.emotion, p);
+        // 응답 처리 중 표시
         state.responded = true;
+        state.processingResponse = true;
         state.lastResponse = button.emotion;
         
-        // 피드백 표시 설정
-        if (state.showFeedback) {
-          state.feedbackEndTime = p.millis() + 1500;
-        } else {
-          // 피드백 없이 바로 다음 시행
-          setTimeout(() => {
-            this.nextTrial(state, p);
-          }, 500);
-        }
+        // 응답 기록
+        this.recordResponse(state, button.emotion, p);
+        
+        // 피드백 후 다음 시행으로
+        setTimeout(() => {
+          this.nextTrial(state, p);
+          state.processingResponse = false;
+        }, 1500);
         
         break;
       }
