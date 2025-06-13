@@ -1,33 +1,89 @@
 import { SurveyManager } from './survey/SurveyManager.js';
+import { translationService } from '../services/TranslationService.js';
 
 export class Survey {
   constructor(containerId, patientData) {
+    this.container = document.getElementById(containerId);
+    this.patientData = patientData;
     this.manager = new SurveyManager(containerId, patientData);
+  }
+  
+  // SurveyManager의 메서드들을 위임
+  submitScale() {
+    this.manager.submitScale();
   }
   
   scrollToQuestion(index) {
     this.manager.scrollToQuestion(index);
   }
+  
+  updateResponse(questionIndex, value) {
+    this.manager.updateResponse(questionIndex, value);
+  }
+  
   getScaleId(scaleKey) {
     const scaleMapping = {
-      'scale1': 'ces-dc',    // 아동 우울 척도
-      'scale2': 'bai',       // 벡 불안 척도
-      'scale3': 'k-aq',      // 한국판 공격성 질문지
-      'scale4': 'k-ars'      // 한국형 ADHD 평가척도
+      'scale1': 'ces-dc',
+      'scale2': 'bai',
+      'scale3': 'k-aq',
+      'scale4': 'k-ars'
     };
     
     return scaleMapping[scaleKey] || scaleKey;
   }
   
+  destroy() {
+    // 컴포넌트 정리
+    this.container.innerHTML = '';
+  }
 }
 
-// ================================================
-// CSS 스타일 (survey-styles.css)
+// CSS 스타일
 const surveyStyles = `
   .survey-container {
     max-width: 800px;
     margin: 20px auto;
     padding: 20px;
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  .survey-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+  
+  .survey-header h2 {
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .scale-description {
+    color: #666;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  
+  .survey-instruction {
+    background: #f0f7ff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border-left: 4px solid #2196F3;
+  }
+  
+  .survey-instruction p {
+    margin: 0;
+    color: #1565c0;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  
+  .questions-container {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 10px;
   }
   
   .question-item {
@@ -76,137 +132,87 @@ const surveyStyles = `
     color: white;
     border-radius: 50%;
     font-weight: bold;
-    font-size: 16px;
-  }
-  
-  .question-item.answered .question-number {
-    background: #4CAF50;
   }
   
   .question-status {
     color: #4CAF50;
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 20px;
+  }
+  
+  .question-text {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .likert-scale {
+    margin-top: 20px;
   }
   
   .likert-options {
     display: flex;
-    justify-content: space-between;
-    gap: 8px;
-    margin-top: 20px;
+    justify-content: space-around;
+    gap: 10px;
+    flex-wrap: wrap;
   }
   
   .likert-label {
     flex: 1;
+    min-width: 80px;
     text-align: center;
-    padding: 12px 8px;
+    padding: 15px 10px;
+    background: white;
     border: 2px solid #e0e0e0;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s;
-    background: white;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .likert-label::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #2196F3;
-    transform: scaleY(0);
-    transform-origin: bottom;
-    transition: transform 0.3s ease;
-    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
   }
   
   .likert-label:hover {
+    border-color: #2196F3;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   }
   
   .likert-label.selected {
-    border-color: #2196F3;
     background: #2196F3;
     color: white;
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+    border-color: #1976D2;
   }
   
-  .likert-label.selected::before {
-    transform: scaleY(1);
-  }
-  
-  .likert-value {
-    display: block;
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 4px;
-    position: relative;
-    z-index: 1;
-  }
-  
-  .likert-text {
-    display: block;
-    font-size: 12px;
-    line-height: 1.2;
-    position: relative;
-    z-index: 1;
+  .likert-label.selected .likert-value {
+    background: white;
+    color: #2196F3;
   }
   
   .likert-label input[type="radio"] {
     display: none;
   }
   
-  .survey-navigation {
-    margin: 40px 0;
-    padding: 20px;
+  .likert-value {
+    width: 36px;
+    height: 36px;
     background: #f5f5f5;
-    border-radius: 8px;
-  }
-  
-  .question-progress {
-    margin-bottom: 20px;
-  }
-  
-  .answered-count {
-    font-size: 16px;
-    font-weight: bold;
-    color: #333;
-    margin-bottom: 10px;
-  }
-  
-  .question-dots {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-  
-  .question-dots .dot {
-    width: 12px;
-    height: 12px;
     border-radius: 50%;
-    background: #e0e0e0;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  
-  .question-dots .dot:hover {
-    transform: scale(1.2);
-  }
-  
-  .question-dots .dot.answered {
-    background: #4CAF50;
-  }
-  
-  .nav-buttons {
     display: flex;
-    justify-content: space-between;
-    gap: 20px;
-  }.survey-navigation {
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  
+  .likert-text {
+    font-size: 12px;
+    line-height: 1.3;
+    text-align: center;
+  }
+  
+  .survey-navigation {
     margin: 30px 0;
     padding: 20px;
     background: #f5f5f5;
@@ -250,93 +256,106 @@ const surveyStyles = `
   .dot:hover {
     transform: scale(1.2);
   }
-  .survey-complete {
+  
+  .button-container { 
+    margin-top: 40px;
     text-align: center;
-    padding: 60px 40px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
   }
   
-  .complete-icon {
-    font-size: 80px;
-    color: #4CAF50;
-    margin-bottom: 20px;
-    animation: checkmark 0.6s ease-in-out;
-  }
-  
-  @keyframes checkmark {
-    0% { transform: scale(0) rotate(45deg); }
-    50% { transform: scale(1.2) rotate(45deg); }
-    100% { transform: scale(1) rotate(0); }
-  }
-  
-  .score-display {
-    display: flex;
-    align-items: baseline;
-    justify-content: center;
-    gap: 10px;
-    margin: 30px 0;
-  }
-  
-  .score-value {
-    font-size: 72px;
-    font-weight: bold;
-    color: #2196F3;
-  }
-  
-  .score-label {
-    font-size: 24px;
-    color: #666;
-  }
-  
-  .score-interpretation {
-    margin: 30px 0;
-    padding: 20px;
-    background: #f5f5f5;
+  .submit-btn {
+    min-width: 200px;
+    padding: 16px 48px;
+    background: #2196F3;
+    color: white;
+    border: none;
     border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
   }
   
-  .interpretation-level {
-    display: inline-block;
-    padding: 8px 20px;
-    border-radius: 20px;
+  .submit-btn:hover {
+    background: #1976D2;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
+  }
+  
+  .submit-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+  
+  .question-item.critical {
+    border-color: #ff9800;
+    background: #fff8e1;
+  }
+  
+  .critical-indicator {
+    background: #ff9800;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
     font-weight: bold;
-    margin-bottom: 10px;
   }
   
-  .interpretation-level.level-low {
-    background: #4CAF50;
-    color: white;
-  }
-  
-  .interpretation-level.level-mild {
-    background: #FFC107;
-    color: #333;
-  }
-  
-  .interpretation-level.level-moderate {
-    background: #FF9800;
-    color: white;
-  }
-  
-  .interpretation-level.level-severe {
-    background: #F44336;
-    color: white;
-  }
-  
+  /* 반응형 디자인 */
   @media (max-width: 768px) {
+    .survey-container {
+      padding: 15px;
+    }
+    
+    .question-item {
+      padding: 20px;
+    }
+    
     .likert-options {
-      flex-direction: column;
+      gap: 5px;
     }
     
     .likert-label {
-      padding: 15px;
+      min-width: 60px;
+      padding: 10px 5px;
+    }
+    
+    .likert-value {
+      width: 30px;
+      height: 30px;
+      font-size: 16px;
+    }
+    
+    .likert-text {
+      font-size: 11px;
+    }
+  }
+  
+  /* 언어별 스타일 조정 */
+  body.lang-ja .question-text,
+  body.lang-zh .question-text {
+    font-size: 15px;
+  }
+  
+  body.lang-th .question-text {
+    font-size: 17px;
+    line-height: 1.8;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 `;
 
-// 스타일 적용
 const styleElement = document.createElement('style');
 styleElement.textContent = surveyStyles;
 document.head.appendChild(styleElement);

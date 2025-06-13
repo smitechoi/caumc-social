@@ -3,16 +3,16 @@ import { BaseTask } from './BaseTask.js';
 export class NBackTask extends BaseTask {
   getTutorial() {
     return {
-      title: '2-Back 검사 연습',
+      title: '1-Back 검사 연습',
       content: `
         <p>화면에 숫자가 하나씩 나타납니다.</p>
-        <p>현재 숫자가 <strong>2개 전</strong> 숫자와 같은지 판단하세요.</p>
+        <p>현재 숫자가 <strong>바로 전</strong> 숫자와 같은지 판단하세요.</p>
         <div style="text-align: center; margin: 30px 0; font-size: 24px;">
-          <div style="margin: 10px;">3 → 5 → <span style="color: red; font-weight: bold;">3</span> (같음)</div>
+          <div style="margin: 10px;">3 → 5 → <span style="color: red; font-weight: bold;">5</span> (같음)</div>
           <div style="margin: 10px;">7 → 2 → <span style="color: blue; font-weight: bold;">9</span> (다름)</div>
         </div>
         <p>화면 하단의 <strong>'같음'</strong> 또는 <strong>'다름'</strong> 버튼을 터치하세요.</p>
-        <p>처음 2개는 비교할 대상이 없으므로 버튼이 나타나지 않습니다.</p>
+        <p>처음 1개는 비교할 대상이 없으므로 버튼이 나타나지 않습니다.</p>
       `
     };
   }
@@ -29,7 +29,7 @@ export class NBackTask extends BaseTask {
     state.stimulusOnset = p.millis();
     state.stimulusDuration = 2000; // 2초 표시
     state.interStimulusInterval = 500; // 0.5초 간격
-    state.nLevel = 2; // 2-back
+    state.nLevel = 1; // 2-back
     state.responded = false;
     
     // 시퀀스 생성 (1-9 숫자, 일부는 n-back 일치하도록)

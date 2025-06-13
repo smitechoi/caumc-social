@@ -1,4 +1,5 @@
 import { surveyQuestionLoader } from '../../services/SurveyQuestionLoader.js';
+import { translationService } from '../../services/TranslationService.js';
 
 export class SurveyRenderer {
   constructor(manager) {
@@ -77,7 +78,7 @@ export class SurveyRenderer {
              id="question-${index}">
           <div class="question-header">
             <span class="question-number">${index + 1}</span>
-            ${isCritical ? '<span class="critical-indicator">중요</span>' : ''}
+            ${isCritical ? `<span class="critical-indicator">${this.getCriticalLabel()}</span>` : ''}
             <span class="question-status">${isAnswered ? '✓' : ''}</span>
           </div>
           <p class="question-text">
@@ -104,7 +105,7 @@ export class SurveyRenderer {
           <label class="likert-label ${value === option.value ? 'selected' : ''}">
             <input type="radio" 
                    name="q${questionIndex}" 
-                   value="${option.value}" 
+                   value="${option.value}"
                    ${value === option.value ? 'checked' : ''}
                    onchange="window.surveyInstance.updateResponse(${questionIndex}, ${option.value})">
             <span class="likert-value">${option.value}</span>
@@ -113,6 +114,19 @@ export class SurveyRenderer {
         `).join('')}
       </div>
     `;
+  }
+
+  getCriticalLabel() {
+    const lang = this.manager.patientData.language;
+    const labels = {
+      ko: '중요',
+      en: 'Important',
+      ja: '重要',
+      zh: '重要',
+      vn: 'Quan trọng',
+      th: 'สำคัญ'
+    };
+    return labels[lang] || labels.ko;
   }
 
   getScaleId(currentScale) {
@@ -125,102 +139,27 @@ export class SurveyRenderer {
     
     return mapping[currentScale] || currentScale;
   }
+
   getSubmitButtonText() {
+    const t = (key, params) => translationService.t(key, params);
     const answered = this.manager.currentResponses.filter(r => r !== undefined).length;
     const total = this.questionData?.questions?.length || 0;
-    const language = this.manager.patientData.language;
-
-    // 언어별 텍스트 정의
-    const texts = {
-      ko: {
-        incomplete: `완료 (${answered}/${total} 답변됨)`,
-        complete: '이 척도 완료'
-      },
-      en: {
-        incomplete: `Complete (${answered}/${total} answered)`,
-        complete: 'Complete this scale'
-      },
-      ja: {
-        incomplete: `完了 (${answered}/${total} 回答済み)`,
-        complete: 'このスケールを完了'
-      },
-      zh: {
-        incomplete: `完成 (${answered}/${total} 已回答)`,
-        complete: '完成此量表'
-      },
-      vn: {
-        incomplete: `Hoàn thành (${answered}/${total} đã trả lời)`,
-        complete: 'Hoàn thành thang đo này'
-      },
-      th: {
-        incomplete: `เสร็จสิ้น (ตอบแล้ว ${answered}/${total})`,
-        complete: 'เสร็จสิ้นแบบประเมินนี้'
-      }
-    };
-
-    // 언어가 없으면 한국어로 폴백
-    const langTexts = texts[language] || texts.ko;
-    return langTexts.complete;
-  }
-  getLocalizedScaleName(scale) {
-    const lang = this.manager.patientData.language;
-    const names = {
-      ko: {
-        scale1: '아동 우울 척도 (CES-DC)',
-        scale2: '벡 불안 척도 (BAI)',
-        scale3: '한국판 공격성 질문지 (K-AQ)',
-        scale4: '한국형 ADHD 평가척도 (K-ARS)'
-      },
-      en: {
-        scale1: 'Depression Scale (CES-DC)',
-        scale2: 'Anxiety Scale (BAI)',
-        scale3: 'Aggression Questionnaire (K-AQ)',
-        scale4: 'ADHD Rating Scale (K-ARS)'
-      },
-      ja: {
-        scale1: 'うつ病評価尺度 (CES-DC)',
-        scale2: '不安尺度 (BAI)',
-        scale3: '攻撃性質問紙 (K-AQ)',
-        scale4: 'ADHD評価尺度 (K-ARS)'
-      },
-      zh: {
-        scale1: '儿童抑郁量表 (CES-DC)',
-        scale2: '贝克焦虑量表 (BAI)',
-        scale3: '攻击性问卷 (K-AQ)',
-        scale4: 'ADHD评定量表 (K-ARS)'
-      },
-      vn: {
-        scale1: 'Thang đo trầm cảm (CES-DC)',
-        scale2: 'Thang đo lo âu (BAI)',
-        scale3: 'Bảng câu hỏi hung tính (K-AQ)',
-        scale4: 'Thang đánh giá ADHD (K-ARS)'
-      },
-      th: {
-        scale1: 'แบบประเมินภาวะซึมเศร้า (CES-DC)',
-        scale2: 'แบบประเมินความวิตกกังวล (BAI)',
-        scale3: 'แบบสอบถามความก้าวร้าว (K-AQ)',
-        scale4: 'แบบประเมิน ADHD (K-ARS)'
-      }
-    };
-
-    return names[lang]?.[scale] || names.ko[scale] || scale;
+    
+    if (answered < total) {
+      return t('answer') + ` (${answered}/${total})`;
+    }
+    
+    return t('completeScale');
   }
 
   renderProgressIndicator(progress) {
-    const lang = this.manager.patientData.language;
-
-    const answeredTexts = {
-      ko: `답변: ${progress.answered}/${progress.totalQuestions}`,
-      en: `Answered: ${progress.answered}/${progress.totalQuestions}`,
-      ja: `回答済み: ${progress.answered}/${progress.totalQuestions}`,
-      zh: `已回答: ${progress.answered}/${progress.totalQuestions}`,
-      vn: `Đã trả lời: ${progress.answered}/${progress.totalQuestions}`,
-      th: `ตอบแล้ว: ${progress.answered}/${progress.totalQuestions}`
-    };
-
+    const t = (key, params) => translationService.t(key, params);
+    
     return `
       <div class="progress-indicator">
-        <span class="answered-count">${answeredTexts[lang] || answeredTexts.ko}</span>
+        <span class="answered-count">
+          ${t('answer')}: ${progress.answered}/${progress.totalQuestions}
+        </span>
         <div class="question-dots">
           ${this.renderQuestionDots()}
         </div>
@@ -235,38 +174,15 @@ export class SurveyRenderer {
     for (let i = 0; i < config.questions; i++) {
       const isAnswered = this.manager.currentResponses[i] !== undefined;
       dots += `<span class="dot ${isAnswered ? 'answered' : ''}" 
-                       onclick="window.surveyInstance.scrollToQuestion(${i})"></span>`;
+                     onclick="window.surveyInstance.scrollToQuestion(${i})"></span>`;
     }
 
     return dots;
   }
 
-  renderNavigationButtons() {
-    return `
-        <div class="nav-buttons">
-          <button onclick="window.surveyInstance.previousQuestion()" 
-                  class="nav-btn prev-btn">이전</button>
-          <button onclick="window.surveyInstance.nextQuestion()" ㅎㄷ시ㅐ
-                  class="nav-btn next-btn">다음</button>
-        </div>
-      `;
-  }
   renderComplete() {
     // 개별 척도 완료 시 바로 survey-selection으로 이동
     window.location.hash = '#survey-selection';
-  }
-
-  renderScoreInterpretation(scale, data) {
-    const interpretation = this.getScoreInterpretation(scale, data.score, data.questions.length);
-
-    return `
-        <div class="score-interpretation">
-          <div class="interpretation-level ${interpretation.level}">
-            ${interpretation.label}
-          </div>
-          <p class="interpretation-text">${interpretation.description}</p>
-        </div>
-      `;
   }
 
   updateQuestionUI(questionIndex, value) {
@@ -291,10 +207,12 @@ export class SurveyRenderer {
   }
 
   updateProgressIndicator() {
+    const t = (key, params) => translationService.t(key, params);
     const answered = this.manager.currentResponses.filter(r => r !== undefined).length;
     const total = this.manager.getScaleConfig().questions;
 
-    document.querySelector('.answered-count').textContent = `답변: ${answered}/${total}`;
+    document.querySelector('.answered-count').textContent = 
+      `${t('answer')}: ${answered}/${total}`;
 
     // 점 업데이트
     const dots = document.querySelectorAll('.question-dots .dot');
@@ -303,6 +221,12 @@ export class SurveyRenderer {
         dots[idx].classList.add('answered');
       }
     });
+
+    // 제출 버튼 텍스트 업데이트
+    const submitBtn = document.getElementById('submit-scale');
+    if (submitBtn) {
+      submitBtn.textContent = this.getSubmitButtonText();
+    }
   }
 
   highlightQuestion(questionIndex) {
@@ -338,234 +262,4 @@ export class SurveyRenderer {
       });
     });
   }
-
-  // 다국어 지원 메서드들
-  getLocalizedScaleName(scale) {
-    const lang = this.manager.patientData.language;
-    const names = {
-      ko: {
-        scale1: '우울 척도',
-        scale2: '불안 척도',
-        scale3: '스트레스 척도',
-        scale4: '삶의 질'
-      },
-      en: {
-        scale1: 'Depression Scale',
-        scale2: 'Anxiety Scale',
-        scale3: 'Stress Scale',
-        scale4: 'Quality of Life'
-      }
-    };
-
-    return names[lang]?.[scale] || surveyConfig.scales[scale]?.name || scale;
-  }
-
-  getLocalizedQuestion(scale, index) {
-    const lang = this.manager.patientData.language;
-    // 실제로는 외부 파일에서 로드
-    return `${scale} 질문 ${index + 1} (${lang})`;
-  }
-
-
-  getLocalizedLikertLabels() {
-    const lang = this.manager.patientData.language;
-    const labels = {
-      ko: ['전혀 아니다', '아니다', '보통이다', '그렇다', '매우 그렇다'],
-      en: ['Not at all', 'Rarely', 'Sometimes', 'Often', 'Very often'],
-      ja: ['全くない', 'めったにない', '時々', 'よくある', 'いつも'],
-      zh: ['完全没有', '很少', '有时', '经常', '总是'],
-      vn: ['Hoàn toàn không', 'Hiếm khi', 'Đôi khi', 'Thường xuyên', 'Luôn luôn'],
-      th: ['ไม่เลย', 'นานๆครั้ง', 'บางครั้ง', 'บ่อย', 'ตลอดเวลา']
-    };
-
-    return labels[lang] || labels.ko;
-  }
-
-  getScoreInterpretation(scale, score, questionCount) {
-    // questionData는 이미 renderSurvey에서 로드됨
-    const scaleData = this.questionData;
-    
-    // JSON에서 해석 정보 가져오기
-    if (scaleData?.scale?.scoring?.ranges) {
-      const ranges = scaleData.scale.scoring.ranges;
-      
-      // 점수에 맞는 범위 찾기
-      for (const range of ranges) {
-        if (score >= range.min && score <= range.max) {
-          return {
-            level: `level-${range.level}`,
-            label: range.label,
-            description: range.description || this.getDefaultDescription(range.level)
-          };
-        }
-      }
-    }
-    
-    // 폴백: JSON에 데이터가 없으면 기본 해석
-    const maxScore = questionCount * (scaleData?.response_options?.length - 1 || 4);
-    const percentage = (score / maxScore) * 100;
-    
-    let level, label, description;
-    if (percentage < 25) {
-      level = 'low';
-      label = '정상';
-      description = '증상이 거의 없는 정상 범위입니다.';
-    } else if (percentage < 50) {
-      level = 'mild';
-      label = '경도';
-      description = '경미한 증상이 있을 수 있습니다.';
-    } else if (percentage < 75) {
-      level = 'moderate';
-      label = '중등도';
-      description = '중간 정도의 증상이 있습니다.';
-    } else {
-      level = 'severe';
-      label = '심각';
-      description = '전문가 상담이 권장됩니다.';
-    }
-    
-    return {
-      level: `level-${level}`,
-      label: label,
-      description: description
-    };
-  }
-  
-  getDefaultDescription(level) {
-    const descriptions = {
-      normal: '증상이 거의 없는 정상 범위입니다.',
-      minimal: '최소한의 증상만 있습니다.',
-      mild: '경미한 증상이 있을 수 있습니다.',
-      moderate: '중간 정도의 증상이 있습니다.',
-      severe: '심각한 증상이 있습니다. 전문가 상담이 권장됩니다.'
-    };
-    return descriptions[level] || '';
-  }
 }
-
-
-
-const additionalStyles = `
-.survey-instruction {
-  background: #f0f7ff;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 30px;
-  border-left: 4px solid #2196F3;
-}
-
-.survey-instruction p {
-  margin: 0;
-  color: #1565c0;
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-.scale-description {
-  color: #666;
-  font-size: 14px;
-  margin-top: 10px;
-}
-
-.question-item.critical {
-  border-color: #ff9800;
-  background: #fff8e1;
-}
-
-.critical-indicator {
-  background: #ff9800;
-  color: white;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.question-category {
-  display: inline-block;
-  background: #e3f2fd;
-  color: #1976d2;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  margin-left: 8px;
-}
-.button-container { 
-  margin-top: 40px;
-  text-align: center;
-}
-
-.submit-btn {
-  min-width: 200px;
-  padding: 16px 48px;
-  background: #2196F3;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 18px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(33, 150, 243, 0.3);
-}
-
-.submit-btn:hover {
-  background: #1976D2;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
-}
-
-.submit-btn:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
-}
-.survey-navigation {
-  margin: 30px 0;
-  padding: 20px;
-  background: #f5f5f5;
-  border-radius: 8px;
-}
-
-.progress-indicator {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.answered-count {
-  font-size: 16px;
-  font-weight: 600;
-  color: #2196F3;
-}
-
-.question-dots {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-top: 10px;
-}
-
-.dot {
-  width: 10px;
-  height: 10px;
-  background: #e0e0e0;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.dot.answered {
-  background: #4CAF50;
-}
-
-.dot:hover {
-  transform: scale(1.2);
-}
-`;
-const styleElement = document.createElement('style');
-styleElement.textContent = additionalStyles;
-document.head.appendChild(styleElement);

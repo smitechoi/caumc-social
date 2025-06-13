@@ -4,6 +4,7 @@ import { NBackTask } from './tasks/NBackTask.js';
 import { GoNoGoTask } from './tasks/GoNoGoTask.js';
 import { EmotionRecognitionTask } from './tasks/EmotionRecognitionTask.js';
 import { MentalRotationTask } from './tasks/MentalRotationTask.js';
+import { translationService } from '../services/TranslationService.js';
 
 export class CNTTask {
   constructor(containerId, patientData) {
@@ -41,10 +42,10 @@ export class CNTTask {
         duration: 150000
       },
       task4: { 
-        name: 'Trail Making Test', 
-        type: 'trail',
+        name: 'Emotion Recognition', 
+        type: 'emotion',
         class: EmotionRecognitionTask,
-        duration: 300000
+        duration: 180000
       },
       task5: { 
         name: 'Mental Rotation', 
@@ -75,20 +76,21 @@ export class CNTTask {
       return;
     }
 
+    const t = (key, params) => translationService.t(key, params);
     const currentTask = this.tasks[this.currentTaskIndex];
     const config = this.taskConfigs[currentTask];
     
     this.container.innerHTML = `
       <div class="cnt-container">
         <div class="cnt-header">
-          <h2>CNT 검사 - ${this.getLocalizedTaskName(currentTask)}</h2>
+          <h2>${t('cntTest')} - ${this.getLocalizedTaskName(currentTask)}</h2>
           <div class="current-task-info">
             <span class="task-badge">${currentTask.replace('task', 'Task ')}</span>
             <span class="task-name">${this.getLocalizedTaskName(currentTask)}</span>
           </div>
           <div class="progress">
             <div class="progress-text">
-              진행률: ${this.currentTaskIndex}/${this.tasks.length} 완료
+              ${t('progress')}: ${this.currentTaskIndex}/${this.tasks.length} ${t('completed')}
             </div>
             <div class="progress-bar">
               <div class="progress-fill" style="width: ${(this.currentTaskIndex / this.tasks.length) * 100}%"></div>
@@ -102,7 +104,7 @@ export class CNTTask {
         
         <div class="button-container">
           <button id="start-task" onclick="window.cntInstance.startTask()">
-            검사 시작
+            ${t('startTest')}
           </button>
         </div>
       </div>
@@ -112,50 +114,44 @@ export class CNTTask {
   }
 
   getTaskInstructions(taskType) {
+    const t = (key) => translationService.t(key);
     const lang = this.patientData.language;
+    
+    // 태스크별 지시문
     const instructions = {
-      ko: {
-        stroop: `
-          <h3>스트룹 검사</h3>
-          <p>화면에 나타나는 색깔 단어를 보고, 단어의 의미가 아닌 <strong>글자의 색깔</strong>을 선택하세요.</p>
-          <p>예: <span style="color: red;">파랑</span> → 빨강을 선택</p>
-        `,
-        nback: `
-          <h3>N-Back 검사</h3>
-          <p>화면에 연속으로 나타나는 숫자를 보고, 현재 숫자가 2개 전 숫자와 같은지 판단하세요.</p>
-          <p>같으면 '같음', 다르면 '다름'을 터치하세요.</p>
-        `,
-        gonogo: `
-          <h3>Go/No-Go 검사</h3>
-          <p>화면에 나타나는 숫자를 보고:</p>
-          <ul>
-            <li>짝수가 나타나면 → 화면을 터치하세요 (Go)</li>
-            <li>홀수가 나타나면 → 터치하지 마세요 (No-Go)</li>
-          </ul>
-        `,
-        trail: `
-          <h3>선로 잇기 검사</h3>
-          <p>화면에 나타난 숫자들을 순서대로 터치하여 연결하세요.</p>
-          <p>1 → 2 → 3 → 4 순서로 가능한 빠르게 연결해주세요.</p>
-        `,
-        rotation: `
-          <h3>회전 도형 검사</h3>
-          <p>두 개의 도형이 같은지 다른지 판단하세요.</p>
-          <p>오른쪽 도형이 왼쪽 도형을 회전시킨 것이면 '같음'을 선택하세요.</p>
-          <p>거울상(좌우반전)은 '다름'입니다.</p>
-        `
-      },
-      en: {
-        stroop: `
-          <h3>Stroop Task</h3>
-          <p>Look at the color words on screen and select the <strong>color of the text</strong>, not the meaning.</p>
-          <p>Example: <span style="color: red;">BLUE</span> → Select Red</p>
-        `,
-        // ... 다른 언어 추가
-      }
+      stroop: `
+        <h3>${t('stroopTitle')}</h3>
+        <p>${t('stroopInstruction1')}</p>
+        <p>${t('stroopExample')}</p>
+      `,
+      nback: `
+        <h3>${t('nBackTitle')}</h3>
+        <p>${t('nBackInstruction1')}</p>
+        <p>${t('nBackInstruction2')}</p>
+      `,
+      gonogo: `
+        <h3>${t('goNoGoTitle')}</h3>
+        <p>${t('goNoGoInstruction1')}</p>
+        <ul>
+          <li>${t('goNoGoEven')}</li>
+          <li>${t('goNoGoOdd')}</li>
+        </ul>
+      `,
+      emotion: `
+        <h3>${t('emotionTitle')}</h3>
+        <p>${t('emotionInstruction1')}</p>
+        <p>${t('emotionInstruction2')}</p>
+        <p>${t('emotionInstruction3')}</p>
+      `,
+      rotation: `
+        <h3>${t('rotationTitle')}</h3>
+        <p>${t('rotationInstruction1')}</p>
+        <p>${t('rotationInstruction2')}</p>
+        <p>${t('rotationNote')}</p>
+      `
     };
     
-    return instructions[lang]?.[taskType] || instructions['ko'][taskType];
+    return instructions[taskType] || '';
   }
 
   startTask() {
@@ -218,7 +214,7 @@ export class CNTTask {
       
     } catch (error) {
       console.error('Task 저장 오류:', error);
-      alert('저장 중 오류가 발생했습니다.');
+      alert(translationService.t('saveError'));
       this.removeFullscreen();
     }
   }
@@ -239,67 +235,71 @@ export class CNTTask {
   }
 
   renderTaskComplete() {
+    const t = (key, params) => translationService.t(key, params);
+    
     this.container.innerHTML = `
       <div class="cnt-complete">
-        <h2>${this.getLocalizedTaskName(this.currentTask)} 완료!</h2>
-        <p>인지 검사를 완료하셨습니다.</p>
+        <h2>${this.getLocalizedTaskName(this.currentTask)} ${t('complete')}!</h2>
+        <p>${t('taskCompleteMessage')}</p>
         <div class="score-summary">
-          <h3>점수</h3>
-          <p>${this.patientData.cnt[this.currentTask].score}점</p>
+          <h3>${t('score')}</h3>
+          <p>${this.patientData.cnt[this.currentTask].score}</p>
         </div>
         <button onclick="window.location.hash='#cnt-selection'">
-          다른 검사 선택하기
+          ${t('selectOtherTest')}
         </button>
       </div>
     `;
   }
 
   renderComplete() {
+    const t = (key) => translationService.t(key);
+    
     this.container.innerHTML = `
       <div class="cnt-complete">
-        <h2>CNT 검사 완료!</h2>
-        <p>모든 인지 검사를 완료하셨습니다.</p>
+        <h2>${t('cntComplete')}</h2>
+        <p>${t('allTestsCompleted')}</p>
         <div class="score-summary">
-          <h3>검사 결과</h3>
+          <h3>${t('testResults')}</h3>
           ${this.renderScoreSummary()}
         </div>
         <button onclick="window.location.hash='#report'">
-          리포트 생성하기
+          ${t('generateReport')}
         </button>
       </div>
     `;
   }
 
   renderScoreSummary() {
+    const t = (key) => translationService.t(key);
     let html = '<ul>';
+    
     for (const task of this.tasks) {
       const data = this.patientData.cnt[task];
-      html += `<li>${this.getLocalizedTaskName(task)}: ${data.score}점</li>`;
+      html += `<li>${this.getLocalizedTaskName(task)}: ${data.score} ${t('points')}</li>`;
     }
+    
     html += '</ul>';
     return html;
   }
 
   getLocalizedTaskName(task) {
-    const lang = this.patientData.language;
+    const t = (key) => translationService.t(key);
     const names = {
-      ko: {
-        task1: '스트룹 검사',
-        task2: 'N-Back 검사',
-        task3: 'Go/No-Go 검사',
-        task4: '선로 잇기 검사',
-        task5: '회전 도형 검사'
-      },
-      en: {
-        task1: 'Stroop Task',
-        task2: 'N-Back Task',
-        task3: 'Go/No-Go Task',
-        task4: 'Trail Making Test',
-        task5: 'Mental Rotation Task'
-      }
+      task1: t('stroopTask'),
+      task2: t('nBackTask'),
+      task3: t('goNoGoTask'),
+      task4: t('emotionTask'),
+      task5: t('rotationTask')
     };
     
-    return names[lang]?.[task] || this.taskConfigs[task].name;
+    return names[task] || this.taskConfigs[task].name;
+  }
+
+  destroy() {
+    // 컴포넌트 정리
+    this.removeFullscreen();
+    this.container.innerHTML = '';
   }
 }
 
@@ -310,6 +310,17 @@ style.textContent = `
     max-width: 900px;
     margin: 20px auto;
     padding: 20px;
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  .cnt-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .cnt-header h2 {
+    color: #333;
+    margin-bottom: 20px;
   }
   
   .current-task-info {
@@ -320,6 +331,7 @@ style.textContent = `
     border-radius: 8px;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 15px;
     box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
   }
@@ -337,15 +349,56 @@ style.textContent = `
     font-weight: bold;
   }
   
+  .progress {
+    margin-top: 20px;
+  }
+  
+  .progress-text {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #666;
+    font-size: 14px;
+  }
+  
+  .progress-bar {
+    width: 100%;
+    height: 20px;
+    background: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background: #4CAF50;
+    transition: width 0.3s ease;
+  }
+  
   .task-instructions {
     background: #f9f9f9;
     padding: 30px;
     border-radius: 8px;
     margin: 20px 0;
+    border: 1px solid #e0e0e0;
   }
   
   .task-instructions h3 {
     margin-bottom: 15px;
+    color: #333;
+  }
+  
+  .task-instructions p {
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  
+  .task-instructions ul {
+    margin: 10px 0;
+    padding-left: 30px;
+  }
+  
+  .task-instructions li {
+    margin: 5px 0;
   }
   
   .button-container {
@@ -358,10 +411,11 @@ style.textContent = `
     background: #4CAF50;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 8px;
     font-size: 18px;
     cursor: pointer;
     transition: all 0.3s;
+    font-weight: bold;
   }
   
   #start-task:hover {
@@ -375,6 +429,11 @@ style.textContent = `
     padding: 40px;
   }
   
+  .cnt-complete h2 {
+    color: #4CAF50;
+    margin-bottom: 20px;
+  }
+  
   .score-summary {
     margin: 30px 0;
     padding: 20px;
@@ -382,8 +441,77 @@ style.textContent = `
     border-radius: 8px;
   }
   
+  .score-summary h3 {
+    margin-bottom: 15px;
+    color: #333;
+  }
+  
+  .score-summary ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .score-summary li {
+    padding: 5px 0;
+    font-size: 16px;
+  }
+  
+  .cnt-complete button {
+    padding: 12px 30px;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .cnt-complete button:hover {
+    background: #1976D2;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  
   #task-fullscreen-container {
     touch-action: none;
+  }
+  
+  /* 언어별 스타일 조정 */
+  body.lang-ja .task-instructions,
+  body.lang-zh .task-instructions {
+    font-size: 14px;
+  }
+  
+  body.lang-th .task-instructions {
+    font-size: 16px;
+    line-height: 1.8;
+  }
+  
+  @media (max-width: 768px) {
+    .cnt-container {
+      padding: 15px;
+    }
+    
+    .task-instructions {
+      padding: 20px;
+    }
+    
+    .current-task-info {
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 `;
 document.head.appendChild(style);

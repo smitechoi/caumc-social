@@ -1,53 +1,56 @@
 import { checkPatientExists, createPatient, getPatient, getPatientByRegistrationNumber } from '../firebase/crud.js';
+import { translationService } from '../services/TranslationService.js';
 
 export class PatientLogin {
   constructor(containerId) {
     this.container = document.getElementById(containerId);
     this.patientData = null;
-    this.matchedPatientData = null; // 매칭된 환자 데이터 저장
+    this.matchedPatientData = null;
     this.render();
   }
 
   render() {
+    const t = (key, params) => translationService.t(key, params);
+    
     this.container.innerHTML = `
       <div class="patient-login-form">
-        <h2>환자 정보 입력</h2>
+        <h2>${t('patientInfoInput')}</h2>
         
         <form id="patient-form">
           <div class="form-group">
-            <label for="registration">등록번호:</label>
-            <input type="text" id="registration" placeholder="등록번호 입력 (예: A1234)">
-            <small style="color: #666;">등록번호가 있으면 입력해주세요</small>
+            <label for="registration">${t('registrationNumber')}:</label>
+            <input type="text" id="registration" placeholder="${t('registrationNumberPlaceholder')}">
+            <small style="color: #666;">${t('registrationNumberInfo')}</small>
           </div>
           
           <div class="divider">
-            <span>본인 확인</span>
+            <span>${t('identityVerification')}</span>
           </div>
           
           <div class="form-group">
-            <label for="name">이름: <span style="color: red;">*</span></label>
+            <label for="name">${t('name')}: <span style="color: red;">*</span></label>
             <input type="text" id="name" required>
           </div>
           
           <div class="form-group">
-            <label>생년월일: <span style="color: red;">*</span></label>
+            <label>${t('birthDate')}: <span style="color: red;">*</span></label>
             <div style="display: flex; gap: 10px;">
               <select id="birthYear" style="flex: 1;" required>
-                <option value="">년도</option>
+                <option value="">${t('year')}</option>
               </select>
               <select id="birthMonth" style="flex: 1;" required>
-                <option value="">월</option>
+                <option value="">${t('month')}</option>
               </select>
               <select id="birthDay" style="flex: 1;" required>
-                <option value="">일</option>
+                <option value="">${t('day')}</option>
               </select>
             </div>
           </div>
           
           <div class="form-group">
-            <label for="language">언어 선택: <span style="color: red;">*</span></label>
+            <label for="language">${t('selectLanguage')}: <span style="color: red;">*</span></label>
             <select id="language" required>
-              <option value="">선택하세요</option>
+              <option value="">${t('selectPlease')}</option>
               <option value="ko">한국어</option>
               <option value="en">English</option>
               <option value="ja">日本語</option>
@@ -57,116 +60,123 @@ export class PatientLogin {
             </select>
           </div>
           
-          <button type="submit" id="submit-btn">시작하기</button>
+          <div id="error-message" style="display: none; color: red; margin-bottom: 10px;"></div>
+          <div id="success-message" style="display: none;"></div>
+          
+          <button type="submit" id="submit-btn">
+            <span id="button-text">${t('startButton')}</span>
+            <span id="loading-spinner" style="display: none;">${t('processing')}</span>
+          </button>
         </form>
-        
-        <div id="loading" style="display: none;">
-          <p>처리 중입니다...</p>
-        </div>
-        
-        <div id="error-message" style="display: none; color: red;"></div>
-        <div id="success-message" style="display: none; color: green;"></div>
       </div>
     `;
 
-    window.loginInstance = this;
     this.attachEventListeners();
-    this.populateDateDropdowns();
+    this.initializeDateSelectors();
   }
 
+  initializeDateSelectors() {
+    const yearSelect = document.getElementById('birthYear');
+    const monthSelect = document.getElementById('birthMonth');
+    const daySelect = document.getElementById('birthDay');
+
+    // 연도 옵션 (100년 전부터 현재까지)
+    const currentYear = new Date().getFullYear();
+    for (let year = currentYear; year >= currentYear - 100; year--) {
+      const option = document.createElement('option');
+      option.value = year;
+      option.textContent = year;
+      yearSelect.appendChild(option);
+    }
+
+    // 월 옵션
+    for (let month = 1; month <= 12; month++) {
+      const option = document.createElement('option');
+      option.value = month.toString().padStart(2, '0');
+      option.textContent = month;
+      monthSelect.appendChild(option);
+    }
+
+    // 일 옵션
+    for (let day = 1; day <= 31; day++) {
+      const option = document.createElement('option');
+      option.value = day.toString().padStart(2, '0');
+      option.textContent = day;
+      daySelect.appendChild(option);
+    }
+  }
 
   attachEventListeners() {
-    const form = document.getElementById('patient-form');
-    form.addEventListener('submit', async (e) => {
+    // 폼 제출 이벤트
+    document.getElementById('patient-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       await this.handleSubmit();
     });
 
-    // 등록번호 입력 시 자동 체크
-    const registrationInput = document.getElementById('registration');
-    registrationInput.addEventListener('input', async (e) => {
-      const registrationNumber = e.target.value.trim();
+    // 등록번호 입력 시 자동 조회
+    document.getElementById('registration').addEventListener('input', 
+      this.debounce((e) => this.checkRegistrationNumber(e.target.value), 500)
+    );
 
-      // 등록번호가 변경되면 항상 matchedPatientData 초기화
-      this.matchedPatientData = null;
-
-      // 등록번호가 일정 길이 이상이면 자동으로 조회
-      if (registrationNumber.length >= 3) {
-        await this.checkRegistrationNumber(registrationNumber);
-      } else {
-        // 등록번호가 짧으면 다른 필드 활성화
-        this.enableOtherFields(true);
-        this.showSuccess(''); // 성공 메시지 숨기기
+    // 언어 변경 이벤트
+    document.getElementById('language').addEventListener('change', (e) => {
+      const newLang = e.target.value;
+      if (newLang) {
+        translationService.setLanguage(newLang);
+        document.body.className = `lang-${newLang}`;
+        this.render();
       }
     });
-
-    // 다른 필드들이 변경되면 matchedPatientData 초기화
-    const fieldsToWatch = ['name', 'birthYear', 'birthMonth', 'birthDay'];
-    fieldsToWatch.forEach(fieldId => {
-      document.getElementById(fieldId).addEventListener('input', () => {
-        // 다른 필드가 수정되면 매칭된 데이터 무효화
-        if (this.matchedPatientData) {
-          this.matchedPatientData = null;
-          this.enableOtherFields(true);
-          this.showSuccess('');
-        }
-      });
-    });
-
-    // 이름/생년월일 입력 시 기존 환자 체크
-    const checkExistingPatient = async () => {
-      const registrationNumber = document.getElementById('registration').value.trim();
-      // 등록번호가 입력되어 있으면 다른 필드 체크 안함
-      if (registrationNumber) return;
-
-      const name = document.getElementById('name').value.trim();
-      const year = document.getElementById('birthYear').value;
-      const month = document.getElementById('birthMonth').value;
-      const day = document.getElementById('birthDay').value;
-
-      if (name && year && month && day) {
-        const birthDate = `${year}-${month}-${day}`;
-        const exists = await checkPatientExists(name, birthDate);
-
-        if (exists) {
-          // 기존 환자면 등록번호 입력란 숨김
-          document.getElementById('registration').disabled = true;
-          document.getElementById('registration').placeholder = '기존 환자';
-        } else {
-          // 신규 환자면 등록번호 입력란 활성화
-          document.getElementById('registration').disabled = false;
-          document.getElementById('registration').placeholder = '신규 환자는 등록번호 필수';
-        }
-      }
-    };
-
-    document.getElementById('name').addEventListener('blur', checkExistingPatient);
-    document.getElementById('birthDay').addEventListener('change', checkExistingPatient);
-
-    // 월 선택 시 일수 조정
-    document.getElementById('birthMonth').addEventListener('change', () => this.updateDays());
-    document.getElementById('birthYear').addEventListener('change', () => this.updateDays());
   }
 
+  // Debounce 헬퍼 함수
+  debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
 
-  async checkRegistrationNumber(registrationNumber) {
+  async checkRegistrationNumber(regNumber) {
+    if (!regNumber || regNumber.length < 2) {
+      this.enableOtherFields(true);
+      this.matchedPatientData = null;
+      return;
+    }
+
     this.showLoading(true);
-    this.showError('');
 
     try {
-      // 등록번호로 환자 조회
-      const patientData = await getPatientByRegistrationNumber(registrationNumber);
-
+      const patientData = await getPatientByRegistrationNumber(regNumber);
+      
       if (patientData) {
-        // 환자를 찾으면 데이터 저장하지만 폼에는 채우지 않음
+        // 환자를 찾으면 정보 자동 입력
         this.matchedPatientData = patientData;
-        this.showLoading(false);
-
-        // 다른 필드들을 비활성화하여 입력 불필요함을 표시
+        
+        // 필드 비활성화
         this.enableOtherFields(false);
-
-        // 성공 메시지 표시
-        this.showSuccess('등록번호가 확인되었습니다. 시작하기 버튼을 눌러주세요.');
+        
+        // 정보 자동 입력
+        document.getElementById('name').value = patientData.name;
+        
+        const birthParts = patientData.birthDate.split('-');
+        document.getElementById('birthYear').value = birthParts[0];
+        document.getElementById('birthMonth').value = birthParts[1];
+        document.getElementById('birthDay').value = birthParts[2];
+        document.getElementById('language').value = patientData.language;
+        
+        // 언어 설정 적용
+        translationService.setLanguage(patientData.language);
+        document.body.className = `lang-${patientData.language}`;
+        
+        this.showLoading(false);
+        this.showSuccess(translationService.t('existingPatient') + ' - ' + 
+                        translationService.t('registrationConfirmed'));
 
       } else {
         // 찾지 못하면 다른 필드 활성화
@@ -181,7 +191,6 @@ export class PatientLogin {
       this.matchedPatientData = null;
     }
   }
-
 
   enableOtherFields(enable) {
     const fields = ['name', 'birthYear', 'birthMonth', 'birthDay', 'language'];
@@ -230,7 +239,7 @@ export class PatientLogin {
       const language = document.getElementById('language').value;
 
       if (!name || !year || !month || !day || !language) {
-        throw new Error('모든 필드를 입력해주세요.');
+        throw new Error(translationService.t('allFieldsRequired'));
       }
 
       const birthDate = `${year}-${month}-${day}`;
@@ -245,8 +254,10 @@ export class PatientLogin {
         // 언어 설정이 다른 경우 알림
         if (this.patientData.language !== language) {
           const confirmChange = confirm(
-            `이전에 ${this.getLanguageName(this.patientData.language)}로 진행하셨습니다. ` +
-            `${this.getLanguageName(language)}로 변경하시겠습니까?`
+            translationService.t('languageChangeConfirm', {
+              previousLang: translationService.getLanguageName(this.patientData.language),
+              newLang: translationService.getLanguageName(language)
+            })
           );
 
           if (!confirmChange) {
@@ -258,13 +269,13 @@ export class PatientLogin {
       } else {
         // 신규 환자 - 등록번호 필수
         if (!registrationNumber) {
-          throw new Error('신규 환자는 등록번호를 입력해야 합니다.');
+          throw new Error(translationService.t('newPatientRegistrationRequired'));
         }
 
         // 등록번호 중복 체크
         const existingPatient = await getPatientByRegistrationNumber(registrationNumber);
         if (existingPatient) {
-          throw new Error('이미 사용 중인 등록번호입니다.');
+          throw new Error(translationService.t('registrationNumberInUse'));
         }
 
         // 새 환자 생성
@@ -276,81 +287,19 @@ export class PatientLogin {
 
     } catch (error) {
       console.error('오류 발생:', error);
-      this.showError(error.message || '처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+      this.showError(error.message || translationService.t('error'));
       this.showLoading(false);
     }
   }
 
-  populateDateDropdowns() {
-    const yearSelect = document.getElementById('birthYear');
-    const monthSelect = document.getElementById('birthMonth');
-    const daySelect = document.getElementById('birthDay');
-
-    // 년도 (현재년도부터 100년 전까지)
-    const currentYear = new Date().getFullYear();
-    for (let year = currentYear; year >= currentYear - 100; year--) {
-      const option = document.createElement('option');
-      option.value = year;
-      option.textContent = year + '년';
-      yearSelect.appendChild(option);
-    }
-
-    // 월
-    for (let month = 1; month <= 12; month++) {
-      const option = document.createElement('option');
-      option.value = month.toString().padStart(2, '0');
-      option.textContent = month + '월';
-      monthSelect.appendChild(option);
-    }
-
-    // 일
-    for (let day = 1; day <= 31; day++) {
-      const option = document.createElement('option');
-      option.value = day.toString().padStart(2, '0');
-      option.textContent = day + '일';
-      daySelect.appendChild(option);
-    }
-  }
-
-  updateDays() {
-    const yearSelect = document.getElementById('birthYear');
-    const monthSelect = document.getElementById('birthMonth');
-    const daySelect = document.getElementById('birthDay');
-
-    const year = parseInt(yearSelect.value);
-    const month = parseInt(monthSelect.value);
-
-    if (!year || !month) return;
-
-    const daysInMonth = new Date(year, month, 0).getDate();
-    const currentDay = parseInt(daySelect.value) || 1;
-
-    // 일 옵션 재생성
-    daySelect.innerHTML = '<option value="">일</option>';
-    for (let day = 1; day <= daysInMonth; day++) {
-      const option = document.createElement('option');
-      option.value = day.toString().padStart(2, '0');
-      option.textContent = day + '일';
-      if (day === currentDay && currentDay <= daysInMonth) {
-        option.selected = true;
-      }
-      daySelect.appendChild(option);
-    }
-  }
-
-  getLanguageName(code) {
-    const languages = {
-      ko: '한국어',
-      en: 'English',
-      ja: '日本語',
-      zh: '中文'
-    };
-    return languages[code] || code;
-  }
-
-  showLoading(show) {
-    document.getElementById('loading').style.display = show ? 'block' : 'none';
-    document.getElementById('submit-btn').disabled = show;
+  showLoading(isLoading) {
+    const buttonText = document.getElementById('button-text');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    buttonText.style.display = isLoading ? 'none' : 'inline';
+    loadingSpinner.style.display = isLoading ? 'inline' : 'none';
+    submitBtn.disabled = isLoading;
   }
 
   showError(message) {
@@ -369,19 +318,25 @@ export class PatientLogin {
     errorDiv.style.display = 'none';
   }
 
+  getLanguageName(code) {
+    return translationService.getLanguageName(code);
+  }
+
   onLoginSuccess(patientData) {
+    const t = (key, params) => translationService.t(key, params);
+    
     // 이벤트 발생
     const event = new CustomEvent('patientLoginSuccess', {
       detail: patientData
     });
     document.dispatchEvent(event);
 
-    // 또는 직접 다음 화면으로 전환
+    // 성공 메시지 표시
     this.container.innerHTML = `
       <div class="login-success">
-        <h3>환영합니다, ${patientData.name}님!</h3>
-        <p>언어: ${this.getLanguageName(patientData.language)}</p>
-        <p>검사를 시작합니다...</p>
+        <h3>${t('welcome')}, ${patientData.name}!</h3>
+        <p>${t('languageLabel')}: ${this.getLanguageName(patientData.language)}</p>
+        <p>${t('startingTest')}</p>
       </div>
     `;
 
@@ -391,18 +346,30 @@ export class PatientLogin {
       window.location.hash = '#dashboard';
     }, 2000);
   }
+
+  destroy() {
+    // 컴포넌트 정리
+    this.container.innerHTML = '';
+  }
 }
 
 // CSS 스타일
 const style = document.createElement('style');
 style.textContent = `
   .patient-login-form {
-    max-width: 400px;
+    max-width: 450px;
     margin: 50px auto;
     padding: 30px;
     border: 1px solid #ddd;
     border-radius: 8px;
     background: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .patient-login-form h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
   }
   
   .divider {
@@ -437,21 +404,31 @@ style.textContent = `
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
+    color: #555;
   }
   
   .form-group input,
   .form-group select {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 16px;
-    transition: opacity 0.3s;
+    transition: all 0.3s;
+    background-color: white;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
   }
   
   .form-group input:disabled,
   .form-group select:disabled {
     background: #f0f0f0;
+    cursor: not-allowed;
   }
   
   #registration {
@@ -460,7 +437,6 @@ style.textContent = `
   }
   
   #registration:focus {
-    outline: none;
     border-color: #1976D2;
     box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
   }
@@ -473,6 +449,17 @@ style.textContent = `
     border-radius: 4px;
     color: #2e7d32;
     font-size: 14px;
+    text-align: center;
+  }
+  
+  #error-message {
+    padding: 10px;
+    background: #ffebee;
+    border: 1px solid #f44336;
+    border-radius: 4px;
+    color: #c62828;
+    font-size: 14px;
+    text-align: center;
   }
   
   #submit-btn {
@@ -484,10 +471,14 @@ style.textContent = `
     border-radius: 4px;
     font-size: 18px;
     cursor: pointer;
+    transition: all 0.3s;
+    font-weight: bold;
   }
   
-  #submit-btn:hover {
+  #submit-btn:hover:not(:disabled) {
     background: #0056b3;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   }
   
   #submit-btn:disabled {
@@ -498,12 +489,53 @@ style.textContent = `
   .login-success {
     text-align: center;
     padding: 40px;
+    animation: fadeIn 0.5s;
+  }
+  
+  .login-success h3 {
+    color: #4caf50;
+    margin-bottom: 15px;
   }
   
   small {
     font-size: 12px;
     display: block;
     margin-top: 5px;
+    color: #666;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* 언어별 스타일 조정 */
+  body.lang-ja .patient-login-form,
+  body.lang-zh .patient-login-form {
+    font-size: 14px;
+  }
+  
+  body.lang-th .patient-login-form {
+    font-size: 16px;
+  }
+  
+  /* 반응형 디자인 */
+  @media (max-width: 600px) {
+    .patient-login-form {
+      margin: 20px;
+      padding: 20px;
+    }
+    
+    .form-group input,
+    .form-group select {
+      font-size: 14px;
+    }
   }
 `;
 document.head.appendChild(style);

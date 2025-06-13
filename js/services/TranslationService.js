@@ -1576,4 +1576,4 @@ export class TranslationService {
   }
   
   // Singleton instance
-  export const translationService = new TranslationService();
+  export const translationService = new TranslationService();S
