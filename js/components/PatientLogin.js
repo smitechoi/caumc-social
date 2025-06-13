@@ -5,7 +5,6 @@ export class PatientLogin {
   constructor(containerId) {
     this.container = document.getElementById(containerId);
     this.patientData = null;
-    this.matchedPatientData = null;
     this.selectedLanguage = translationService.currentLanguage || 'ko'; // 기본값을 한국어로
     this.render();
   }
@@ -120,11 +119,6 @@ export class PatientLogin {
       await this.handleSubmit();
     });
 
-    // 등록번호 입력 시 자동 조회
-    document.getElementById('registration').addEventListener('input', 
-      this.debounce((e) => this.checkRegistrationNumber(e.target.value), 500)
-    );
-
     // 언어 변경 이벤트
     document.getElementById('language').addEventListener('change', (e) => {
       const newLang = e.target.value;
@@ -154,11 +148,6 @@ export class PatientLogin {
         document.getElementById('birthYear').value = currentValues.birthYear;
         document.getElementById('birthMonth').value = currentValues.birthMonth;
         document.getElementById('birthDay').value = currentValues.birthDay;
-        
-        // 등록번호가 있었다면 다시 확인
-        if (currentValues.registration) {
-          this.checkRegistrationNumber(currentValues.registration);
-        }
       }
     });
   }
@@ -246,18 +235,11 @@ export class PatientLogin {
     try {
       const registrationNumber = document.getElementById('registration').value.trim();
 
-      // 이미 매칭된 환자 데이터가 있으면 바로 로그인
-      if (this.matchedPatientData && registrationNumber) {
-        this.patientData = this.matchedPatientData;
-        this.showLoading(false);
-        this.onLoginSuccess(this.patientData);
-        return;
-      }
-
-      // 등록번호가 있지만 매칭되지 않은 경우 다시 확인
-      if (registrationNumber && !this.matchedPatientData) {
+      // 등록번호가 있으면 먼저 조회 시도
+      if (registrationNumber) {
         const patientData = await getPatientByRegistrationNumber(registrationNumber);
         if (patientData) {
+          // 등록번호로 찾은 경우 바로 로그인
           this.patientData = patientData;
           this.showLoading(false);
           this.onLoginSuccess(patientData);
@@ -265,7 +247,7 @@ export class PatientLogin {
         }
       }
 
-      // 일반 로그인 처리 (등록번호 없이 이름+생년월일로 로그인)
+      // 등록번호로 못 찾았거나 없으면 일반 로그인 처리
       const name = document.getElementById('name').value.trim();
       const year = document.getElementById('birthYear').value;
       const month = document.getElementById('birthMonth').value;
