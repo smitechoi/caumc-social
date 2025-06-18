@@ -3,109 +3,190 @@ import { BaseTask } from './BaseTask.js';
 export class CardSortingTask extends BaseTask {
   getTutorial() {
     return {
-      title: '카드 분류 검사 연습',
+      title: '카드 정렬 검사 연습',
       content: `
-        <p>화면에 4개의 기준 카드가 상단에 나타납니다.</p>
-        <p>하단에 새로운 카드가 하나씩 제시됩니다.</p>
-        <p>이 카드를 <strong>어떤 규칙에 따라</strong> 기준 카드 중 하나와 매칭시켜야 합니다.</p>
+        <p>화면 상단에 <strong>목표 배열</strong>이 제시됩니다.</p>
+        <p>하단의 카드들을 이동시켜 목표와 같은 배열을 만드세요.</p>
         <div style="text-align: center; margin: 30px 0;">
-          <p style="font-size: 20px; color: #2196F3;">규칙은 다음 중 하나입니다:</p>
-          <p><strong>색상</strong> (빨강, 초록, 파랑, 노랑)</p>
-          <p><strong>모양</strong> (원, 십자가, 삼각형, 별)</p>
-          <p><strong>개수</strong> (1개, 2개, 3개, 4개)</p>
+          <p style="font-size: 20px; color: #2196F3;">규칙:</p>
+          <p>• 한 번에 <strong>한 장</strong>의 카드만 이동 가능</p>
+          <p>• 각 열의 <strong>맨 위 카드</strong>만 이동 가능</p>
+          <p>• 빈 열에도 카드를 놓을 수 있습니다</p>
+          <p>• 최소한의 이동으로 목표를 달성하세요</p>
         </div>
-        <p style="color: #f44336; font-weight: bold;">주의: 규칙은 알려주지 않으며, 예고 없이 바뀝니다!</p>
-        <p>정답/오답 피드백을 보고 현재 규칙을 추측하세요.</p>
+        <p style="color: #666;">카드를 클릭한 후, 목표 위치를 클릭하세요.</p>
       `
     };
   }
 
   getTaskName() {
-    return 'Wisconsin Card Sorting Task';
+    return 'Card Sorting Task';
   }
 
   initializeState(state, p) {
-    // 카드 속성
-    state.colors = ['red', 'green', 'blue', 'yellow'];
-    state.shapes = ['circle', 'cross', 'triangle', 'star'];
-    state.numbers = [1, 2, 3, 4];
-    
-    // 기준 카드 (고정)
-    state.referenceCards = [
-      { color: 'red', shape: 'triangle', number: 1 },
-      { color: 'green', shape: 'star', number: 2 },
-      { color: 'blue', shape: 'cross', number: 3 },
-      { color: 'yellow', shape: 'circle', number: 4 }
+    // 카드 종류 (색상과 숫자)
+    state.cardTypes = [
+      { color: [244, 67, 54], number: 1 },    // 빨강 1
+      { color: [33, 150, 243], number: 2 },   // 파랑 2
+      { color: [76, 175, 80], number: 3 },    // 초록 3
+      { color: [255, 193, 7], number: 4 },    // 노랑 4
+      { color: [156, 39, 176], number: 5 }    // 보라 5
     ];
     
-    // 규칙 설정
-    state.rules = ['color', 'shape', 'number'];
-    state.currentRuleIndex = 0;
-    state.currentRule = state.rules[state.currentRuleIndex];
+    // 난이도별 문제 설정
+    state.problems = this.generateProblems();
+    state.currentProblem = 0;
+    state.maxProblems = 12;
     
-    // 게임 상태
-    state.currentCard = this.generateCard(state);
-    state.totalTrials = 128; // 표준 WCST
-    state.currentTrial = 0;
-    state.consecutiveCorrect = 0;
-    state.categoriesCompleted = 0;
-    state.criteriaForChange = 10; // 10번 연속 정답 시 규칙 변경
+    // 현재 문제 설정
+    this.setupProblem(state, state.problems[state.currentProblem]);
     
-    // 반응 기록
-    state.responded = false;
-    state.lastResponse = null;
-    state.showFeedback = false;
-    state.feedbackEndTime = 0;
+    // 상호작용 상태
+    state.selectedCard = null;
+    state.selectedColumn = -1;
+    state.moves = 0;
+    state.startTime = p.millis();
     
-    // 카드 위치 설정
-    const cardWidth = 120;
-    const cardHeight = 160;
-    const spacing = 30;
-    const totalWidth = 4 * cardWidth + 3 * spacing;
-    const startX = (p.width - totalWidth) / 2;
+    // 레이아웃 설정
+    const cardWidth = 80;
+    const cardHeight = 100;
+    const columnWidth = 120;
+    const spacing = 40;
     
-    state.referencePositions = [];
-    for (let i = 0; i < 4; i++) {
-      state.referencePositions.push({
-        x: startX + i * (cardWidth + spacing),
-        y: 100,
-        width: cardWidth,
-        height: cardHeight
-      });
-    }
+    // 목표 배열 위치
+    state.targetLayout = {
+      x: p.width / 2 - (3 * columnWidth) / 2,
+      y: 80,
+      columns: 3,
+      columnWidth: columnWidth,
+      cardWidth: cardWidth,
+      cardHeight: cardHeight
+    };
     
-    state.testCardPosition = {
-      x: p.width / 2 - cardWidth / 2,
-      y: p.height - 300,
-      width: cardWidth,
-      height: cardHeight
+    // 현재 배열 위치
+    state.currentLayout = {
+      x: p.width / 2 - (3 * columnWidth) / 2,
+      y: p.height / 2 + 50,
+      columns: 3,
+      columnWidth: columnWidth,
+      cardWidth: cardWidth,
+      cardHeight: cardHeight
     };
   }
 
-  generateCard(state) {
-    // 기준 카드와 겹치지 않는 카드 생성
-    let card;
-    do {
-      card = {
-        color: p5.random(state.colors),
-        shape: p5.random(state.shapes),
-        number: Math.floor(Math.random() * 4) + 1
-      };
-    } while (this.isDuplicateOfReference(card, state.referenceCards));
-    
-    return card;
+  generateProblems() {
+    return [
+      // 난이도 1: 간단한 이동 (2-3 moves)
+      {
+        difficulty: 1,
+        minMoves: 2,
+        target: [[1], [2], [3]],
+        initial: [[1, 2, 3], [], []],
+        description: "기본 이동"
+      },
+      {
+        difficulty: 1,
+        minMoves: 3,
+        target: [[3], [2], [1]],
+        initial: [[1, 2, 3], [], []],
+        description: "역순 정렬"
+      },
+      
+      // 난이도 2: 중간 복잡도 (4-5 moves)
+      {
+        difficulty: 2,
+        minMoves: 4,
+        target: [[1, 3], [2], [4]],
+        initial: [[1, 2], [3, 4], []],
+        description: "교차 이동"
+      },
+      {
+        difficulty: 2,
+        minMoves: 5,
+        target: [[2, 4], [1, 3], []],
+        initial: [[1, 2, 3, 4], [], []],
+        description: "분할 정렬"
+      },
+      
+      // 난이도 3: 복잡한 패턴 (6-7 moves)
+      {
+        difficulty: 3,
+        minMoves: 6,
+        target: [[4], [3, 2], [1]],
+        initial: [[1, 2], [3], [4]],
+        description: "피라미드"
+      },
+      {
+        difficulty: 3,
+        minMoves: 7,
+        target: [[1, 4], [2, 5], [3]],
+        initial: [[1, 2, 3], [4, 5], []],
+        description: "교대 배치"
+      },
+      
+      // 난이도 4: 매우 복잡 (8+ moves)
+      {
+        difficulty: 4,
+        minMoves: 8,
+        target: [[5, 1], [4, 2], [3]],
+        initial: [[1, 2, 3, 4, 5], [], []],
+        description: "지그재그"
+      },
+      {
+        difficulty: 4,
+        minMoves: 9,
+        target: [[3, 1], [4], [5, 2]],
+        initial: [[1, 2], [3, 4, 5], []],
+        description: "복잡한 재배열"
+      },
+      
+      // 추가 문제들
+      {
+        difficulty: 2,
+        minMoves: 4,
+        target: [[2], [1, 4], [3]],
+        initial: [[1, 2, 3], [4], []],
+        description: "중간 삽입"
+      },
+      {
+        difficulty: 3,
+        minMoves: 6,
+        target: [[4, 2], [3], [5, 1]],
+        initial: [[1], [2, 3, 4], [5]],
+        description: "분산 재배열"
+      },
+      {
+        difficulty: 3,
+        minMoves: 7,
+        target: [[1], [2, 4], [3, 5]],
+        initial: [[5, 4, 3, 2, 1], [], []],
+        description: "역순 분할"
+      },
+      {
+        difficulty: 4,
+        minMoves: 10,
+        target: [[5, 3, 1], [4, 2], []],
+        initial: [[1], [2, 3], [4, 5]],
+        description: "최종 도전"
+      }
+    ];
   }
 
-  isDuplicateOfReference(card, referenceCards) {
-    return referenceCards.some(ref => 
-      ref.color === card.color && 
-      ref.shape === card.shape && 
-      ref.number === card.number
-    );
+  setupProblem(state, problem) {
+    // 목표 상태 설정
+    state.targetState = problem.target.map(col => [...col]);
+    
+    // 초기 상태 설정
+    state.currentState = problem.initial.map(col => [...col]);
+    
+    // 문제 정보
+    state.currentDifficulty = problem.difficulty;
+    state.minMoves = problem.minMoves;
+    state.problemDescription = problem.description;
   }
 
   render(state, p) {
-    if (state.currentTrial >= state.totalTrials) {
+    if (state.currentProblem >= state.maxProblems) {
       this.completeTask();
       return;
     }
@@ -116,44 +197,23 @@ export class CardSortingTask extends BaseTask {
     // 진행 상황
     this.drawProgress(state, p);
     
-    // 기준 카드 그리기
-    for (let i = 0; i < 4; i++) {
-      this.drawCard(
-        state.referenceCards[i], 
-        state.referencePositions[i], 
-        p,
-        state.lastResponse === i && state.showFeedback
-      );
+    // 목표 상태 그리기
+    this.drawCardArray(state, p, state.targetState, state.targetLayout, '목표 배열', false);
+    
+    // 현재 상태 그리기
+    this.drawCardArray(state, p, state.currentState, state.currentLayout, '현재 배열', true);
+    
+    // 이동 정보
+    this.drawMoveInfo(state, p);
+    
+    // 선택된 카드 하이라이트
+    if (state.selectedCard !== null) {
+      this.highlightPossibleMoves(state, p);
     }
     
-    // 테스트 카드 그리기
-    if (!state.responded || state.showFeedback) {
-      this.drawCard(state.currentCard, state.testCardPosition, p, false, true);
-    }
-    
-    // 피드백 표시
-    if (state.showFeedback) {
-      this.drawFeedback(state, p);
-      
-      // 피드백 시간 종료 확인
-      if (p.millis() > state.feedbackEndTime) {
-        state.showFeedback = false;
-        state.responded = false;
-        state.lastResponse = null;
-        
-        // 다음 카드
-        state.currentCard = this.generateCard(state);
-        state.currentTrial++;
-      }
-    }
-    
-    // 현재 규칙 표시 (디버그용 - 실제로는 제거)
-    if (false) { // 디버그 모드
-      p.push();
-      p.fill(0);
-      p.textAlign(p.LEFT);
-      p.text(`Current Rule: ${state.currentRule}`, 10, p.height - 20);
-      p.pop();
+    // 성공 체크
+    if (this.checkSuccess(state)) {
+      this.handleSuccess(state, p);
     }
   }
 
@@ -163,273 +223,278 @@ export class CardSortingTask extends BaseTask {
     p.noStroke();
     p.rect(0, 0, p.width, 60);
     
-    // 텍스트 정보
     p.fill(0);
     p.textAlign(p.LEFT);
     p.textSize(16);
-    p.text(`시행: ${state.currentTrial + 1} / ${state.totalTrials}`, 20, 25);
-    p.text(`완성된 범주: ${state.categoriesCompleted}`, 20, 45);
+    p.text(`문제: ${state.currentProblem + 1} / ${state.maxProblems}`, 20, 25);
+    p.text(`난이도: ${'★'.repeat(state.currentDifficulty)}`, 20, 45);
     
     // 진행률 바
-    const progressWidth = (state.currentTrial / state.totalTrials) * 200;
+    const progressWidth = (state.currentProblem / state.maxProblems) * 200;
     p.fill(230);
     p.rect(p.width - 220, 20, 200, 20, 10);
     p.fill(76, 175, 80);
     p.rect(p.width - 220, 20, progressWidth, 20, 10);
+    
     p.pop();
   }
 
-  drawCard(card, pos, p, isSelected = false, isTestCard = false) {
+  drawCardArray(state, p, cardArray, layout, title, isInteractive) {
     p.push();
+    
+    // 제목
+    p.textAlign(p.CENTER);
+    p.textSize(18);
+    p.fill(0);
+    p.text(title, layout.x + (layout.columns * layout.columnWidth) / 2, layout.y - 20);
+    
+    // 열 그리기
+    for (let col = 0; col < layout.columns; col++) {
+      const x = layout.x + col * layout.columnWidth;
+      
+      // 열 배경
+      p.fill(240);
+      p.stroke(200);
+      p.strokeWeight(2);
+      p.rect(x, layout.y, layout.cardWidth, 300, 5);
+      
+      // 열 번호
+      p.fill(150);
+      p.noStroke();
+      p.textAlign(p.CENTER);
+      p.textSize(14);
+      p.text(col + 1, x + layout.cardWidth / 2, layout.y + 320);
+      
+      // 카드 그리기
+      const cards = cardArray[col] || [];
+      for (let i = 0; i < cards.length; i++) {
+        const cardNum = cards[i];
+        const cardType = state.cardTypes[cardNum - 1];
+        const cardY = layout.y + 200 - i * 30; // 아래에서 위로 쌓기
+        
+        const isSelected = isInteractive && 
+                          state.selectedColumn === col && 
+                          i === cards.length - 1;
+        
+        this.drawCard(p, x + (layout.cardWidth - layout.cardWidth * 0.8) / 2, 
+                     cardY, layout.cardWidth * 0.8, layout.cardHeight * 0.8, 
+                     cardType, isSelected);
+      }
+    }
+    
+    p.pop();
+  }
+
+  drawCard(p, x, y, width, height, cardType, isSelected) {
+    p.push();
+    
+    // 카드 그림자
+    if (isSelected) {
+      p.fill(0, 0, 0, 50);
+      p.noStroke();
+      p.rect(x + 4, y + 4, width, height, 8);
+    }
     
     // 카드 배경
     p.fill(255);
-    if (isSelected) {
-      p.strokeWeight(4);
-      p.stroke(255, 193, 7); // 노란색 강조
-    } else {
-      p.strokeWeight(2);
-      p.stroke(0);
+    p.stroke(isSelected ? [255, 193, 7] : 0);
+    p.strokeWeight(isSelected ? 4 : 2);
+    p.rect(x, y, width, height, 8);
+    
+    // 카드 색상
+    p.fill(cardType.color);
+    p.noStroke();
+    p.rect(x + 10, y + 10, width - 20, height - 40, 5);
+    
+    // 카드 숫자
+    p.fill(255);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.textSize(32);
+    p.textStyle(p.BOLD);
+    p.text(cardType.number, x + width / 2, y + height / 2 - 5);
+    
+    p.pop();
+  }
+
+  drawMoveInfo(state, p) {
+    p.push();
+    p.fill(0);
+    p.textAlign(p.CENTER);
+    p.textSize(16);
+    
+    const infoY = state.currentLayout.y - 40;
+    p.text(`이동 횟수: ${state.moves} / 최소 이동: ${state.minMoves}`, p.width / 2, infoY);
+    
+    if (state.selectedCard !== null) {
+      p.fill(33, 150, 243);
+      p.text('카드를 놓을 위치를 선택하세요', p.width / 2, infoY + 25);
     }
-    p.rect(pos.x, pos.y, pos.width, pos.height, 8);
     
-    // 카드 내용 그리기
-    const shapeSize = 25;
-    const startY = pos.y + 30;
-    const spacing = (pos.height - 60) / 4;
-    
-    // 색상 설정
-    const colorMap = {
-      'red': [244, 67, 54],
-      'green': [76, 175, 80],
-      'blue': [33, 150, 243],
-      'yellow': [255, 193, 7]
-    };
-    p.fill(colorMap[card.color]);
+    p.pop();
+  }
+
+  highlightPossibleMoves(state, p) {
+    p.push();
+    p.fill(33, 150, 243, 50);
     p.noStroke();
     
-    // 모양 그리기
-    for (let i = 0; i < card.number; i++) {
-      const y = startY + i * spacing;
-      const x = pos.x + pos.width / 2;
-      
-      this.drawShape(card.shape, x, y, shapeSize, p);
+    for (let col = 0; col < state.currentLayout.columns; col++) {
+      if (col !== state.selectedColumn) {
+        const x = state.currentLayout.x + col * state.currentLayout.columnWidth;
+        p.rect(x, state.currentLayout.y, state.currentLayout.cardWidth, 300, 5);
+      }
     }
-    
-    // 테스트 카드 표시
-    if (isTestCard) {
-      p.fill(0);
-      p.textAlign(p.CENTER);
-      p.textSize(14);
-      p.text('이 카드를 분류하세요', pos.x + pos.width/2, pos.y - 10);
-    }
-    
-    p.pop();
-  }
-
-  drawShape(shape, x, y, size, p) {
-    p.push();
-    p.translate(x, y);
-    
-    switch(shape) {
-      case 'circle':
-        p.ellipse(0, 0, size * 2);
-        break;
-        
-      case 'cross':
-        p.rectMode(p.CENTER);
-        p.rect(0, 0, size * 2, size * 0.4);
-        p.rect(0, 0, size * 0.4, size * 2);
-        break;
-        
-      case 'triangle':
-        p.beginShape();
-        p.vertex(0, -size);
-        p.vertex(-size * 0.866, size * 0.5);
-        p.vertex(size * 0.866, size * 0.5);
-        p.endShape(p.CLOSE);
-        break;
-        
-      case 'star':
-        // 5각 별
-        p.beginShape();
-        for (let i = 0; i < 10; i++) {
-          const angle = p.TWO_PI * i / 10 - p.HALF_PI;
-          const r = i % 2 === 0 ? size : size * 0.5;
-          p.vertex(r * p.cos(angle), r * p.sin(angle));
-        }
-        p.endShape(p.CLOSE);
-        break;
-    }
-    
-    p.pop();
-  }
-
-  drawFeedback(state, p) {
-    p.push();
-    p.textAlign(p.CENTER);
-    p.textSize(48);
-    p.textStyle(p.BOLD);
-    
-    if (state.wasCorrect) {
-      p.fill(76, 175, 80);
-      p.text('정답!', p.width/2, p.height/2);
-    } else {
-      p.fill(244, 67, 54);
-      p.text('오답', p.width/2, p.height/2);
-    }
-    
     p.pop();
   }
 
   handleMousePress(state, x, y, p) {
-    if (state.responded || state.showFeedback) return;
+    // 현재 배열 영역 확인
+    const layout = state.currentLayout;
     
-    // 기준 카드 클릭 확인
-    for (let i = 0; i < 4; i++) {
-      const pos = state.referencePositions[i];
-      if (x >= pos.x && x <= pos.x + pos.width &&
-          y >= pos.y && y <= pos.y + pos.height) {
-        
-        // 정답 확인
-        const isCorrect = this.checkAnswer(
-          state.currentCard, 
-          state.referenceCards[i], 
-          state.currentRule
-        );
-        
-        // 응답 기록
-        this.taskData.responses.push({
-          trial: state.currentTrial,
-          card: {...state.currentCard},
-          selectedReference: i,
-          rule: state.currentRule,
-          correct: isCorrect,
-          rt: p.millis() - (state.trialStartTime || p.millis()),
-          categoriesCompleted: state.categoriesCompleted
-        });
-        
-        // 상태 업데이트
-        state.responded = true;
-        state.lastResponse = i;
-        state.wasCorrect = isCorrect;
-        state.showFeedback = true;
-        state.feedbackEndTime = p.millis() + 1000;
-        
-        // 연속 정답 처리
-        if (isCorrect) {
-          state.consecutiveCorrect++;
-          
-          // 규칙 변경 확인
-          if (state.consecutiveCorrect >= state.criteriaForChange) {
-            state.categoriesCompleted++;
-            state.consecutiveCorrect = 0;
-            
-            // 다음 규칙으로
-            state.currentRuleIndex = (state.currentRuleIndex + 1) % state.rules.length;
-            state.currentRule = state.rules[state.currentRuleIndex];
-            
-            // 규칙 변경 기록
-            this.taskData.events.push({
-              type: 'ruleChange',
-              trial: state.currentTrial,
-              newRule: state.currentRule,
-              categoriesCompleted: state.categoriesCompleted
-            });
+    if (y >= layout.y && y <= layout.y + 300) {
+      const col = Math.floor((x - layout.x) / layout.columnWidth);
+      
+      if (col >= 0 && col < layout.columns) {
+        if (state.selectedCard === null) {
+          // 카드 선택
+          if (state.currentState[col].length > 0) {
+            state.selectedCard = state.currentState[col][state.currentState[col].length - 1];
+            state.selectedColumn = col;
           }
         } else {
-          state.consecutiveCorrect = 0;
+          // 카드 이동
+          if (col !== state.selectedColumn) {
+            this.moveCard(state, state.selectedColumn, col);
+            state.selectedCard = null;
+            state.selectedColumn = -1;
+            state.moves++;
+          } else {
+            // 선택 취소
+            state.selectedCard = null;
+            state.selectedColumn = -1;
+          }
         }
-        
-        // 에러 타입 분류
-        if (!isCorrect && state.currentTrial > 0) {
-          const errorType = this.classifyError(state, i);
-          this.taskData.responses[this.taskData.responses.length - 1].errorType = errorType;
-        }
-        
-        break;
       }
     }
   }
 
-  checkAnswer(testCard, referenceCard, rule) {
-    switch(rule) {
-      case 'color':
-        return testCard.color === referenceCard.color;
-      case 'shape':
-        return testCard.shape === referenceCard.shape;
-      case 'number':
-        return testCard.number === referenceCard.number;
-      default:
+  moveCard(state, fromCol, toCol) {
+    if (state.currentState[fromCol].length > 0) {
+      const card = state.currentState[fromCol].pop();
+      state.currentState[toCol].push(card);
+      
+      // 이동 기록
+      this.taskData.responses.push({
+        problem: state.currentProblem,
+        move: state.moves + 1,
+        from: fromCol,
+        to: toCol,
+        card: card,
+        timestamp: Date.now() - state.startTime
+      });
+    }
+  }
+
+  checkSuccess(state) {
+    for (let col = 0; col < 3; col++) {
+      if (state.currentState[col].length !== state.targetState[col].length) {
         return false;
-    }
-  }
-
-  classifyError(state, selectedIndex) {
-    const lastResponse = this.taskData.responses[this.taskData.responses.length - 2];
-    if (!lastResponse) return 'other';
-    
-    // 보속 오류: 이전에 맞았던 규칙을 계속 사용
-    const previousRules = state.rules.filter(r => r !== state.currentRule);
-    for (let rule of previousRules) {
-      if (this.checkAnswer(state.currentCard, state.referenceCards[selectedIndex], rule)) {
-        return 'perseverative';
+      }
+      for (let i = 0; i < state.currentState[col].length; i++) {
+        if (state.currentState[col][i] !== state.targetState[col][i]) {
+          return false;
+        }
       }
     }
+    return true;
+  }
+
+  handleSuccess(state, p) {
+    // 성공 데이터 기록
+    const problemData = {
+      problem: state.currentProblem,
+      difficulty: state.currentDifficulty,
+      moves: state.moves,
+      minMoves: state.minMoves,
+      efficiency: state.minMoves / state.moves,
+      time: p.millis() - state.startTime,
+      success: true
+    };
     
-    return 'non-perseverative';
+    this.taskData.events.push(problemData);
+    
+    // 성공 메시지 표시
+    p.push();
+    p.fill(255, 255, 255, 240);
+    p.rect(0, 0, p.width, p.height);
+    
+    p.textAlign(p.CENTER, p.CENTER);
+    p.textSize(48);
+    p.fill(76, 175, 80);
+    p.text('완료!', p.width / 2, p.height / 2 - 50);
+    
+    p.textSize(24);
+    p.fill(0);
+    p.text(`이동 횟수: ${state.moves} (최소: ${state.minMoves})`, p.width / 2, p.height / 2);
+    
+    if (state.moves === state.minMoves) {
+      p.fill(255, 193, 7);
+      p.text('완벽한 해결! ⭐', p.width / 2, p.height / 2 + 40);
+    }
+    p.pop();
+    
+    // 다음 문제로
+    setTimeout(() => {
+      state.currentProblem++;
+      if (state.currentProblem < state.maxProblems) {
+        this.setupProblem(state, state.problems[state.currentProblem]);
+        state.moves = 0;
+        state.selectedCard = null;
+        state.selectedColumn = -1;
+        state.startTime = p.millis();
+      }
+    }, 2000);
   }
 
   calculateScore() {
-    const responses = this.taskData.responses;
-    if (responses.length === 0) return 0;
+    const events = this.taskData.events;
+    if (events.length === 0) return 0;
     
-    // WCST 표준 지표들
-    const totalErrors = responses.filter(r => !r.correct).length;
-    const perseverativeErrors = responses.filter(r => r.errorType === 'perseverative').length;
-    const nonPerseverativeErrors = responses.filter(r => r.errorType === 'non-perseverative').length;
-    const categoriesCompleted = Math.max(...responses.map(r => r.categoriesCompleted || 0));
+    // 평균 효율성 (최소 이동 / 실제 이동)
+    const avgEfficiency = events.reduce((sum, e) => sum + e.efficiency, 0) / events.length;
     
-    // 반응시간 분석
-    const correctResponses = responses.filter(r => r.correct);
-    const avgRT = correctResponses.length > 0
-      ? correctResponses.reduce((sum, r) => sum + r.rt, 0) / correctResponses.length
-      : 0;
-    
-    // 학습 곡선 분석 (첫 범주 완성까지 걸린 시행 수)
-    const firstCategoryTrial = responses.findIndex(r => r.categoriesCompleted > 0);
-    const trialsToFirstCategory = firstCategoryTrial >= 0 ? firstCategoryTrial + 1 : responses.length;
-    
-    // 개념 형성 수준 (Conceptual Level Response)
-    let conceptualResponses = 0;
-    for (let i = 0; i < responses.length - 2; i++) {
-      if (responses[i].correct && responses[i+1].correct && responses[i+2].correct) {
-        conceptualResponses += 3;
-        i += 2;
+    // 난이도별 성공률
+    const difficultyScores = {};
+    for (let d = 1; d <= 4; d++) {
+      const problems = events.filter(e => e.difficulty === d);
+      if (problems.length > 0) {
+        const perfectSolutions = problems.filter(e => e.efficiency === 1).length;
+        difficultyScores[d] = perfectSolutions / problems.length;
       }
     }
-    const conceptualLevel = (conceptualResponses / responses.length) * 100;
     
-    // 분석 결과 저장
-    this.taskData.analysis = {
-      totalTrials: responses.length,
-      totalErrors: totalErrors,
-      perseverativeErrors: perseverativeErrors,
-      nonPerseverativeErrors: nonPerseverativeErrors,
-      categoriesCompleted: categoriesCompleted,
-      trialsToFirstCategory: trialsToFirstCategory,
-      conceptualLevel: conceptualLevel,
-      averageRT: avgRT
-    };
+    // 평균 해결 시간
+    const avgTime = events.reduce((sum, e) => sum + e.time, 0) / events.length;
+    const timeBonus = Math.max(0, 20 - avgTime / 3000); // 3초당 1점 감점
     
-    // 종합 점수 계산
-    // 범주 완성 수를 주요 지표로, 오류율을 보조 지표로 사용
-    const categoryScore = (categoriesCompleted / 6) * 50; // 최대 6개 범주
-    const errorPenalty = (totalErrors / responses.length) * 30;
-    const efficiencyBonus = Math.max(0, 20 - (trialsToFirstCategory - 10));
+    // 난이도 가중 점수
+    let weightedScore = 0;
+    let totalWeight = 0;
+    for (let d = 1; d <= 4; d++) {
+      if (difficultyScores[d] !== undefined) {
+        weightedScore += difficultyScores[d] * d * 10;
+        totalWeight += d;
+      }
+    }
     
-    return Math.round(Math.max(0, Math.min(100, 
-      categoryScore + efficiencyBonus + (50 - errorPenalty)
-    )));
+    const difficultyBonus = totalWeight > 0 ? weightedScore / totalWeight : 0;
+    
+    // 종합 점수
+    const efficiencyScore = avgEfficiency * 40; // 최대 40점
+    const completionRate = (events.length / this.taskData.maxProblems) * 20; // 최대 20점
+    
+    return Math.round(Math.min(100, 
+      efficiencyScore + difficultyBonus + completionRate + timeBonus
+    ));
   }
 }
