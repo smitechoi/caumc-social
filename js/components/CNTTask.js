@@ -1,6 +1,6 @@
 import { updateCNTTask } from '../firebase/crud.js';
 //import { StroopTask } from './tasks/StroopTask.js';
-import { CardSortingTask, NBackTask } from './tasks/CardSortingTask.js';
+import { CardSortingTask } from './tasks/CardSortingTask.js';
 import { NBackTask } from './tasks/NBackTask.js';
 import { GoNoGoTask } from './tasks/GoNoGoTask.js';
 import { EmotionRecognitionTask } from './tasks/EmotionRecognitionTask.js';
