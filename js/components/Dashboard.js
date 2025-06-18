@@ -176,7 +176,7 @@ export class Dashboard {
   getTaskName(key) {
     const t = (key) => translationService.t(key);
     const names = {
-      task1: t('stroopTest'),
+      task1: t('cardSortingTest'),
       task2: t('nBackTest'),
       task3: t('goNoGoTest'),
       task4: t('emotionRecognitionTest'),

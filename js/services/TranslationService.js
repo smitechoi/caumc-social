@@ -1,3 +1,5 @@
+import { CardSortingTask } from "../components/tasks/CardSortingTask";
+
 export class TranslationService {
     constructor() {
       this.currentLanguage = 'ko';
@@ -80,6 +82,7 @@ export class TranslationService {
           minutes: '분',
           
           // CNT Tasks
+          cardSortingTest: '카드 정렬 검사',
           stroopTest: '스트룹 검사',
           nBackTest: 'N-Back 검사',
           goNoGoTest: 'Go/No-Go 검사',
@@ -333,7 +336,7 @@ export class TranslationService {
           minutes: 'min',
           
           // CNT Tasks
-          stroopTest: 'Stroop Task',
+          cardSortingTest: 'Card Sorting Task',
           nBackTest: 'N-Back Task',
           goNoGoTest: 'Go/No-Go Task',
           emotionRecognitionTest: 'Emotion Recognition Task',
@@ -586,7 +589,7 @@ export class TranslationService {
           minutes: '分',
           
           // CNT Tasks
-          stroopTest: 'ストループ課題',
+          cardSortingTest: 'カード選別課題',
           nBackTest: 'Nバック課題',
           goNoGoTest: 'Go/No-Go課題',
           emotionRecognitionTest: '表情認識課題',
@@ -839,7 +842,7 @@ export class TranslationService {
           minutes: '分钟',
           
           // CNT Tasks
-          stroopTest: '斯特鲁普任务',
+          stroopTest: '卡片排序任务',
           nBackTest: 'N-Back任务',
           goNoGoTest: 'Go/No-Go任务',
           emotionRecognitionTest: '表情识别任务',
@@ -1092,7 +1095,7 @@ export class TranslationService {
           minutes: 'phút',
           
           // CNT Tasks
-          stroopTest: 'Nhiệm vụ Stroop',
+          cardSortingTest: 'Nhiệm vụ phân loại thẻ',
           nBackTest: 'Nhiệm vụ N-Back',
           goNoGoTest: 'Nhiệm vụ Go/No-Go',
           emotionRecognitionTest: 'Nhiệm vụ nhận diện cảm xúc',

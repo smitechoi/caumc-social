@@ -421,10 +421,10 @@ export class Report {
     const t = (key) => translationService.t(key);
     
     const interpretations = {
-      task1: { // Stroop
-        high: t('stroopHigh'),
-        average: t('stroopAverage'),
-        low: t('stroopLow')
+      task1: { // cardSorting
+        high: t('cardSortingHigh'),
+        average: t('cardSortingAverage'),
+        low: t('cardSortingLow')
       },
       task2: { // N-Back
         high: t('nBackHigh'),
@@ -525,7 +525,7 @@ export class Report {
   getTaskName(key) {
     const t = (key) => translationService.t(key);
     const names = {
-      task1: t('stroopTask'),
+      task1: t('cardSortingTask'),
       task2: t('nBackTask'),
       task3: t('goNoGoTask'),
       task4: t('emotionTask'),

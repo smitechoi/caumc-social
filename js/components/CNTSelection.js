@@ -83,13 +83,13 @@ export class CNTSelection {
 
   getTaskIcon(key) {
     const icons = {
-      task1: '🎨',
-      task2: '🧠',
-      task3: '🚦',
-      task4: '😊',
-      task5: '🔲'
+      task1: '',//'🎨',
+      task2: '',//'🧠',
+      task3: '',//'🚦',
+      task4: '',//'😊',
+      task5: ''//'🔲'
     };
-    return icons[key] || '📝';
+    return icons[key] || '';//'📝';
   }
 
   getTaskDuration(key) {

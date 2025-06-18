@@ -28,7 +28,7 @@ export class PatientLogin {
               <option value="ja" ${currentLanguage === 'ja' ? 'selected' : ''}>日本語</option>
               <option value="zh" ${currentLanguage === 'zh' ? 'selected' : ''}>中文</option>
               <option value="vn" ${currentLanguage === 'vn' ? 'selected' : ''}>Tiếng Việt</option>
-              <option value="th" ${currentLanguage === 'th' ? 'selected' : ''}>ภาษาไทย</option>
+              <!-- <option value="th" ${currentLanguage === 'th' ? 'selected' : ''}>ภาษาไทย</option>-->
             </select>
           </div>
           

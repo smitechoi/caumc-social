@@ -1,5 +1,6 @@
 import { updateCNTTask } from '../firebase/crud.js';
-import { StroopTask } from './tasks/StroopTask.js';
+//import { StroopTask } from './tasks/StroopTask.js';
+import { CardSortingTask, NBackTask } from './tasks/CardSortingTask.js';
 import { NBackTask } from './tasks/NBackTask.js';
 import { GoNoGoTask } from './tasks/GoNoGoTask.js';
 import { EmotionRecognitionTask } from './tasks/EmotionRecognitionTask.js';
@@ -24,10 +25,10 @@ export class CNTTask {
     // 각 Task 설정
     this.taskConfigs = {
       task1: { 
-        name: 'Stroop Task', 
-        type: 'stroop',
-        class: StroopTask,
-        duration: 120000
+        name: 'Card Sorting Task', 
+        type: 'cardsorting',
+        class: CardSortingTask,
+        duration: 300000
       },
       task2: { 
         name: 'N-Back Task', 
@@ -252,7 +253,7 @@ export class CNTTask {
   getLocalizedTaskName(task) {
     const t = (key) => translationService.t(key);
     const names = {
-      task1: t('stroopTest'),
+      task1: t('cardSortingTest'),
       task2: t('nBackTest'),
       task3: t('goNoGoTest'),
       task4: t('emotionRecognitionTest'),
