@@ -72,7 +72,7 @@ export class CNTSelection {
   getTaskName(key) {
     const t = (key) => translationService.t(key);
     const names = {
-      task1: t('stroopTest'),
+      task1: t('cardSortingTest'),
       task2: t('nBackTest'),
       task3: t('goNoGoTest'),
       task4: t('emotionRecognitionTest'),
@@ -107,7 +107,7 @@ export class CNTSelection {
     };
     
     const durations = {
-      task1: 2,
+      task1: 5,
       task2: 3,
       task3: 2.5,
       task4: 3,
@@ -123,7 +123,7 @@ export class CNTSelection {
   getTaskDescription(key) {
     const t = (key) => translationService.t(key);
     const descriptions = {
-      task1: t('stroopDesc'),
+      task1: t('cardSortingDesc'),
       task2: t('nBackDesc'),
       task3: t('goNoGoDesc'),
       task4: t('emotionDesc'),

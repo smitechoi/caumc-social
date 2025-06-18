@@ -1,5 +1,3 @@
-import { CardSortingTask } from "../components/tasks/CardSortingTask";
-
 export class TranslationService {
     constructor() {
       this.currentLanguage = 'ko';
