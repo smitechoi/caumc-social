@@ -109,52 +109,12 @@ export class SurveySelection {
 // CSS 스타일
 const style = document.createElement('style');
 style.textContent = `
-/* 선택 화면 스크롤 활성화 */
-.selection-container {
-  width: 100%;
-  height: 100vh;
-  overflow-y: auto !important;
-  overflow-x: hidden;
-  padding: 20px;
-}
-
-.dashboard-container {
-  width: 100%;
-  height: 100vh;
-  overflow-y: auto !important;
-  overflow-x: hidden;
-  padding: 20px;
-}
-
-/* 스크롤바 스타일링 */
-.selection-container::-webkit-scrollbar,
-.dashboard-container::-webkit-scrollbar,
-.survey-container::-webkit-scrollbar,
-.report-wrapper::-webkit-scrollbar {
-  width: 8px;
-}
-
-.selection-container::-webkit-scrollbar-track,
-.dashboard-container::-webkit-scrollbar-track,
-.survey-container::-webkit-scrollbar-track,
-.report-wrapper::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.selection-container::-webkit-scrollbar-thumb,
-.dashboard-container::-webkit-scrollbar-thumb,
-.survey-container::-webkit-scrollbar-thumb,
-.report-wrapper::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-.selection-container::-webkit-scrollbar-thumb:hover,
-.dashboard-container::-webkit-scrollbar-thumb:hover,
-.survey-container::-webkit-scrollbar-thumb:hover,
-.report-wrapper::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
+  .selection-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    animation: fadeIn 0.3s ease-out;
+  }
   
   .selection-header {
     display: flex;

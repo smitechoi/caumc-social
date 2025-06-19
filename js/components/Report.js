@@ -12,7 +12,7 @@ export class Report {
     const t = (key, params) => translationService.t(key, params);
     
     this.container.innerHTML = `
-      <div class="report-wrapper" style="overflow-y: auto !important; height: 100vh;">
+      <div class="report-wrapper">
         <div class="report-actions-fixed">
           <button onclick="window.location.hash='#dashboard'" class="back-btn">← ${t('backToDashboard')}</button>
           <div class="action-buttons-group">
@@ -28,7 +28,7 @@ export class Report {
           </div>
         </div>
         
-        <div class="report-container" id="report-content" style="margin-top: 80px;">
+        <div class="report-container" id="report-content">
           <div class="report-header">
             <h1>${t('comprehensiveReport')}</h1>
             <div class="report-date">${t('reportDate')}: ${new Date().toLocaleDateString(this.getLocaleDateFormat())}</div>
@@ -1182,7 +1182,7 @@ style.textContent = `
     
     .report-actions {
       flex-direction: column;
-      align-items: stretch;
+      align-items: stretch;1
     }
     
     .action-btn, .save-btn {
