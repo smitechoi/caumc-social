@@ -17,12 +17,19 @@ export class SurveyRenderer {
 
     const progress = this.calculateProgress();
 
+    // 메인 app 컨테이너에 스크롤 강제 적용
+    const appContainer = document.getElementById('app');
+    if (appContainer) {
+      appContainer.style.overflowY = 'auto';
+      appContainer.style.height = '100vh';
+    }
+
     this.manager.container.innerHTML = `
-      <div class="survey-container">
+      <div class="survey-container" style="overflow-y: visible !important; min-height: 100vh;">
         ${this.renderHeader()}
         ${this.renderInstruction()}
         
-        <div id="scale-questions">
+        <div id="scale-questions" style="overflow-y: visible !important;">
           ${this.renderQuestions()}
         </div>
         

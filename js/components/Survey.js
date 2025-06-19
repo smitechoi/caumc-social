@@ -40,11 +40,19 @@ export class Survey {
 
 // CSS 스타일
 const surveyStyles = `
+  /* 전체 컨테이너 스크롤 활성화 */
+  #app {
+    overflow-y: auto !important;
+    height: 100vh !important;
+  }
+  
   .survey-container {
     max-width: 800px;
     margin: 20px auto;
     padding: 20px;
     animation: fadeIn 0.3s ease-out;
+    overflow-y: visible !important;
+    min-height: 100vh;
   }
   
   .survey-header {
@@ -81,62 +89,53 @@ const surveyStyles = `
   }
   
   .questions-container {
-    max-height: 60vh;
-    overflow-y: auto;
-    padding: 10px;
+    margin-bottom: 30px;
+    overflow-y: visible !important;
   }
   
   .question-item {
-    margin-bottom: 30px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
     padding: 25px;
-    background: #f8f9fa;
-    border-radius: 12px;
-    border: 2px solid transparent;
+    margin-bottom: 20px;
     transition: all 0.3s ease;
   }
   
   .question-item:hover {
-    border-color: #e3f2fd;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    border-color: #2196F3;
   }
   
   .question-item.answered {
-    background: #e8f5e9;
+    background: #f8f9fa;
     border-color: #4CAF50;
-  }
-  
-  .question-item.highlight {
-    animation: highlight 0.5s ease-in-out;
-    border-color: #ff5252;
-  }
-  
-  @keyframes highlight {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.02); }
   }
   
   .question-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    gap: 10px;
   }
   
   .question-number {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
     background: #2196F3;
     color: white;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-weight: bold;
+    font-size: 16px;
   }
   
   .question-status {
     color: #4CAF50;
     font-size: 20px;
+    margin-left: auto;
   }
   
   .question-text {
@@ -147,30 +146,28 @@ const surveyStyles = `
   }
   
   .likert-scale {
-    margin-top: 20px;
+    display: flex;
+    justify-content: center;
   }
   
   .likert-options {
     display: flex;
-    justify-content: space-around;
     gap: 10px;
+    justify-content: center;
     flex-wrap: wrap;
   }
   
   .likert-label {
-    flex: 1;
-    min-width: 80px;
-    text-align: center;
-    padding: 15px 10px;
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    cursor: pointer;
+    min-width: 80px;
+    padding: 15px 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    background: white;
   }
   
   .likert-label:hover {
@@ -181,13 +178,8 @@ const surveyStyles = `
   
   .likert-label.selected {
     background: #2196F3;
+    border-color: #2196F3;
     color: white;
-    border-color: #1976D2;
-  }
-  
-  .likert-label.selected .likert-value {
-    background: white;
-    color: #2196F3;
   }
   
   .likert-label input[type="radio"] {
@@ -195,21 +187,31 @@ const surveyStyles = `
   }
   
   .likert-value {
+    font-size: 20px;
+    font-weight: bold;
     width: 36px;
     height: 36px;
-    background: #f5f5f5;
-    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    font-size: 18px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    margin-bottom: 5px;
+  }
+  
+  .likert-label.selected .likert-value {
+    background: white;
+    color: #2196F3;
   }
   
   .likert-text {
     font-size: 12px;
-    line-height: 1.3;
     text-align: center;
+    color: #666;
+  }
+  
+  .likert-label.selected .likert-text {
+    color: white;
   }
   
   .survey-navigation {
@@ -223,28 +225,24 @@ const surveyStyles = `
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
   }
   
   .answered-count {
-    font-size: 16px;
-    font-weight: 600;
-    color: #2196F3;
+    font-weight: bold;
+    color: #333;
   }
   
   .question-dots {
     display: flex;
-    gap: 6px;
+    gap: 5px;
     flex-wrap: wrap;
-    justify-content: center;
-    margin-top: 10px;
   }
   
   .dot {
-    width: 10px;
-    height: 10px;
-    background: #e0e0e0;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
+    background: #e0e0e0;
     cursor: pointer;
     transition: all 0.2s;
   }
@@ -254,17 +252,17 @@ const surveyStyles = `
   }
   
   .dot:hover {
-    transform: scale(1.2);
+    transform: scale(1.5);
   }
   
-  .button-container { 
-    margin-top: 40px;
+  .button-container {
     text-align: center;
+    margin: 40px 0;
+    padding-bottom: 40px;
   }
   
   .submit-btn {
-    min-width: 200px;
-    padding: 16px 48px;
+    padding: 15px 40px;
     background: #2196F3;
     color: white;
     border: none;
