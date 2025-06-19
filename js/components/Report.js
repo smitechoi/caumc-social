@@ -51,6 +51,12 @@ export class Report {
         </section>
         
         <div class="report-actions">
+          <button onclick="window.reportInstance.downloadPDF()" class="action-btn pdf-btn">
+            <span class="btn-icon">📄</span> ${t('downloadPDF') || 'PDF 다운로드'}
+          </button>
+          <button onclick="window.print()" class="action-btn print-btn">
+            <span class="btn-icon">🖨️</span> ${t('print') || '인쇄'}
+          </button>
           <button onclick="window.reportInstance.saveReport()" class="save-btn">
             <span class="btn-icon">💾</span> ${t('saveToGoogleDrive')}
           </button>
@@ -122,277 +128,321 @@ export class Report {
                 ${exceeded ? t('exceededCutoff') : t('normalRange')}
               </span>
             </td>
-            <td class="interpretation">${interpretation.label}</td>
+            <td class="interpretation">${interpretation.label}: ${interpretation.description}</td>
           </tr>
         `;
       }
     });
     
-    // 완료된 척도가 없는 경우
-    const completedScales = Object.values(this.patientData.survey).filter(s => s.isDone).length;
-    if (completedScales === 0) {
-      html += `<tr><td colspan="5" class="no-data">${t('noCompletedScale')}</td></tr>`;
+    html += '</table>';
+    
+    if (Object.values(this.patientData.survey).filter(s => s.isDone).length === 0) {
+      html = `<p class="no-data">${t('noCompletedScale')}</p>`;
     }
     
-    html += '</table>';
     return html;
   }
 
   renderCNTDetails() {
-    const t = (key, params) => translationService.t(key, params);
+    const t = (key) => translationService.t(key);
     let html = '<table class="results-table">';
     html += `<tr>
       <th>${t('test')}</th>
       <th>${t('score')}</th>
       <th>${t('performanceLevel')}</th>
-      <th>${t('interpretation')}</th>
     </tr>`;
     
     Object.entries(this.patientData.cnt).forEach(([key, value]) => {
       if (value.isDone) {
-        const performanceLevel = this.getCNTPerformanceLevel(value.score);
-        const interpretation = this.getCNTInterpretation(key, value.score);
+        const performance = this.getPerformanceLevel(key, value.score);
         
         html += `
           <tr>
             <td>${this.getTaskName(key)}</td>
-            <td>${value.score}/100</td>
-            <td class="performance-${performanceLevel.level}">${performanceLevel.label}</td>
-            <td class="interpretation">${interpretation}</td>
+            <td>${value.score}</td>
+            <td class="performance-${performance.toLowerCase().replace(' ', '-')}">
+              ${performance}
+            </td>
           </tr>
         `;
       }
     });
     
-    // 완료된 검사가 없는 경우
-    const completedTasks = Object.values(this.patientData.cnt).filter(t => t.isDone).length;
-    if (completedTasks === 0) {
-      html += `<tr><td colspan="4" class="no-data">${t('noCompletedTest')}</td></tr>`;
+    html += '</table>';
+    
+    if (Object.values(this.patientData.cnt).filter(t => t.isDone).length === 0) {
+      html = `<p class="no-data">${t('noCompletedTest')}</p>`;
     }
     
-    html += '</table>';
     return html;
   }
 
   renderOverallImpression() {
     const t = (key, params) => translationService.t(key, params);
+    const surveyDone = Object.values(this.patientData.survey).filter(s => s.isDone).length;
+    const cntDone = Object.values(this.patientData.cnt).filter(t => t.isDone).length;
+    
     let html = '<div class="overall-content">';
     
-    // 검사 완료율
-    const surveyCompleted = Object.values(this.patientData.survey).filter(s => s.isDone).length;
-    const cntCompleted = Object.values(this.patientData.cnt).filter(t => t.isDone).length;
-    const surveyProgress = (surveyCompleted / 4) * 100;
-    const cntProgress = (cntCompleted / 5) * 100;
-    
+    // 1. 검사 완료율
     html += `<h3>${t('testCompletionRate')}</h3>`;
-    html += `<p>${t('clinicalScaleCompletion', { percent: Math.round(surveyProgress) })}</p>`;
-    html += `<p>${t('cognitiveTestCompletion', { percent: Math.round(cntProgress) })}</p>`;
+    html += `<p>- ${t('clinicalScaleCompletion', { percent: Math.round(surveyDone / 4 * 100) })}</p>`;
+    html += `<p>- ${t('cognitiveTestCompletion', { percent: Math.round(cntDone / 5 * 100) })}</p>`;
     
-    // 주요 소견
+    // 2. 주요 소견
     html += `<h3>${t('mainFindings')}</h3>`;
     
-    // 임상 척도 중 경계값 초과 항목
+    // 임상 척도 중 cutoff 초과한 항목
     const exceededScales = Object.entries(this.patientData.survey)
-      .filter(([key, value]) => value.isDone && value.score >= this.getCutoffScore(key));
+      .filter(([key, value]) => value.isDone && value.score >= this.getCutoffScore(key))
+      .map(([key, value]) => ({ 
+        name: this.getScaleName(key), 
+        score: value.score,
+        cutoff: this.getCutoffScore(key)
+      }));
     
     if (exceededScales.length > 0) {
-      html += `<p>${t('exceededClinicalCutoff')}</p><ul>`;
-      exceededScales.forEach(([key, value]) => {
-        html += `<li>${this.getScaleName(key)}: ${value.score}/${this.getMaxScore(key)} (${t('criterion')}: ${this.getCutoffScore(key)})</li>`;
+      html += `<p>${t('exceededClinicalCutoff')}</p>`;
+      html += '<ul>';
+      exceededScales.forEach(scale => {
+        html += `<li>${scale.name}: ${scale.score}점 (${t('criterion')} ${scale.cutoff}점)</li>`;
       });
       html += '</ul>';
-    } else if (surveyCompleted > 0) {
+    } else if (surveyDone > 0) {
       html += `<p>${t('allScalesNormal')}</p>`;
     }
     
-    // 인지 기능 검사 요약
-    if (cntCompleted > 0) {
-      html += `<h3>${t('cognitiveSummary')}</h3>`;
-      const avgScore = Object.values(this.patientData.cnt)
-        .filter(t => t.isDone)
-        .reduce((sum, t) => sum + t.score, 0) / cntCompleted;
-      
-      html += `<p>${t('averageScore', { score: Math.round(avgScore) })}</p>`;
-      
-      if (avgScore >= 80) {
-        html += `<p>${t('excellentCognitive')}</p>`;
-      } else if (avgScore >= 60) {
-        html += `<p>${t('averageCognitive')}</p>`;
-      } else {
-        html += `<p>${t('difficultyCognitive')}</p>`;
-      }
+    // 인지 기능 검사 특이사항
+    const poorPerformanceTasks = Object.entries(this.patientData.cnt)
+      .filter(([key, value]) => {
+        if (!value.isDone) return false;
+        const performance = this.getPerformanceLevel(key, value.score);
+        return performance === t('below') || performance === t('poor');
+      })
+      .map(([key]) => this.getTaskName(key));
+    
+    if (poorPerformanceTasks.length > 0) {
+      html += `<p>${t('belowAverageCognitive')}</p>`;
+      html += '<ul>';
+      poorPerformanceTasks.forEach(task => {
+        html += `<li>${task}</li>`;
+      });
+      html += '</ul>';
     }
     
-    // 권장사항
-    html += `<h3>${t('recommendations')}</h3><ul>`;
+    // 3. 권고사항
+    html += `<h3>${t('recommendations')}</h3>`;
     
-    if (exceededScales.length > 0) {
-      html += `<li>${t('consultSpecialist')}</li>`;
+    if (exceededScales.length > 0 || poorPerformanceTasks.length > 0) {
+      html += `<p>${t('detailedEvalRecommended')}</p>`;
+    } else if (surveyDone === 4 && cntDone === 5) {
+      html += `<p>${t('allTestsNormalRange')}</p>`;
+    } else {
+      html += `<p>${t('incompleteTestsRecommended')}</p>`;
     }
-    
-    if (surveyCompleted < 4 || cntCompleted < 5) {
-      html += `<li>${t('completeAllTests')}</li>`;
-    }
-    
-    html += `<li>${t('screeningPurpose')}</li>`;
-    html += `<li>${t('professionalEvaluation')}</li>`;
-    html += '</ul>';
     
     html += '</div>';
+    
     return html;
   }
 
-  // Chart drawing methods
   drawSurveyChart() {
-    const completedScales = Object.entries(this.patientData.survey)
-      .filter(([_, value]) => value.isDone);
+    const t = (key) => translationService.t(key);
+    const container = d3.select('#survey-chart');
+    container.selectAll('*').remove();
     
-    if (completedScales.length === 0) return;
+    // 완료된 검사만 필터링
+    const data = Object.entries(this.patientData.survey)
+      .filter(([key, value]) => value.isDone)
+      .map(([key, value]) => ({
+        name: this.getScaleName(key),
+        score: value.score,
+        cutoff: this.getCutoffScore(key),
+        max: this.getMaxScore(key)
+      }));
     
-    const data = completedScales.map(([key, value]) => ({
-      scale: this.getScaleName(key),
-      score: value.score,
-      cutoff: this.getCutoffScore(key),
-      max: this.getMaxScore(key)
-    }));
+    if (data.length === 0) {
+      container.append('p')
+        .attr('class', 'no-data')
+        .text(t('noCompletedScale'));
+      return;
+    }
     
-    const margin = { top: 20, right: 30, bottom: 60, left: 60 };
+    const margin = { top: 20, right: 30, bottom: 50, left: 60 };
     const width = 600 - margin.left - margin.right;
     const height = 300 - margin.top - margin.bottom;
     
-    const svg = d3.select('#survey-chart')
-      .append('svg')
+    const svg = container.append('svg')
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
     
-    // Scales
+    // 스케일 설정
     const x = d3.scaleBand()
-      .domain(data.map(d => d.scale))
+      .domain(data.map(d => d.name))
       .range([0, width])
-      .padding(0.3);
+      .padding(0.2);
     
     const y = d3.scaleLinear()
-      .domain([0, d3.max(data, d => Math.max(d.score, d.cutoff, d.max))])
-      .nice()
+      .domain([0, d3.max(data, d => Math.max(d.score, d.cutoff) * 1.1)])
       .range([height, 0]);
     
-    // Axes
-    svg.append('g')
-      .attr('transform', `translate(0,${height})`)
-      .call(d3.axisBottom(x))
-      .selectAll('text')
-      .style('text-anchor', 'end')
-      .attr('dx', '-.8em')
-      .attr('dy', '.15em')
-      .attr('transform', 'rotate(-45)');
-    
-    svg.append('g')
-      .call(d3.axisLeft(y));
-    
-    // Bars
+    // 막대 그래프
     svg.selectAll('.bar')
       .data(data)
       .enter().append('rect')
       .attr('class', 'bar')
-      .attr('x', d => x(d.scale))
-      .attr('width', x.bandwidth())
+      .attr('x', d => x(d.name))
       .attr('y', d => y(d.score))
+      .attr('width', x.bandwidth())
       .attr('height', d => height - y(d.score))
-      .attr('fill', d => d.score >= d.cutoff ? '#f44336' : '#4CAF50');
+      .attr('fill', d => d.score >= d.cutoff ? '#f44336' : '#4caf50');
     
-    // Cutoff lines
+    // cutoff 선
     svg.selectAll('.cutoff-line')
       .data(data)
       .enter().append('line')
       .attr('class', 'cutoff-line')
-      .attr('x1', d => x(d.scale))
-      .attr('x2', d => x(d.scale) + x.bandwidth())
+      .attr('x1', d => x(d.name))
+      .attr('x2', d => x(d.name) + x.bandwidth())
       .attr('y1', d => y(d.cutoff))
       .attr('y2', d => y(d.cutoff))
       .attr('stroke', '#ff9800')
       .attr('stroke-width', 2)
       .attr('stroke-dasharray', '5,5');
+    
+    // 점수 라벨
+    svg.selectAll('.score-label')
+      .data(data)
+      .enter().append('text')
+      .attr('class', 'score-label')
+      .attr('x', d => x(d.name) + x.bandwidth() / 2)
+      .attr('y', d => y(d.score) - 5)
+      .attr('text-anchor', 'middle')
+      .text(d => d.score);
+    
+    // X축
+    svg.append('g')
+      .attr('transform', `translate(0,${height})`)
+      .call(d3.axisBottom(x))
+      .selectAll('text')
+      .style('text-anchor', 'middle');
+    
+    // Y축
+    svg.append('g')
+      .call(d3.axisLeft(y));
+    
+    // Y축 라벨
+    svg.append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('y', 0 - margin.left)
+      .attr('x', 0 - (height / 2))
+      .attr('dy', '1em')
+      .style('text-anchor', 'middle')
+      .text(t('score'));
   }
 
   drawCNTChart() {
-    const completedTasks = Object.entries(this.patientData.cnt)
-      .filter(([_, value]) => value.isDone);
+    const t = (key) => translationService.t(key);
+    const container = d3.select('#cnt-chart');
+    container.selectAll('*').remove();
     
-    if (completedTasks.length === 0) return;
+    // 완료된 검사만 필터링
+    const data = Object.entries(this.patientData.cnt)
+      .filter(([key, value]) => value.isDone)
+      .map(([key, value]) => ({
+        name: this.getTaskName(key),
+        score: value.score,
+        performance: this.getPerformanceLevel(key, value.score)
+      }));
     
-    const data = completedTasks.map(([key, value]) => ({
-      task: this.getTaskName(key),
-      score: value.score
-    }));
+    if (data.length === 0) {
+      container.append('p')
+        .attr('class', 'no-data')
+        .text(t('noCompletedTest'));
+      return;
+    }
     
-    const margin = { top: 20, right: 30, bottom: 60, left: 60 };
+    const margin = { top: 20, right: 30, bottom: 50, left: 60 };
     const width = 600 - margin.left - margin.right;
     const height = 300 - margin.top - margin.bottom;
     
-    const svg = d3.select('#cnt-chart')
-      .append('svg')
+    const svg = container.append('svg')
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
     
-    // Scales
+    // 스케일 설정
     const x = d3.scaleBand()
-      .domain(data.map(d => d.task))
+      .domain(data.map(d => d.name))
       .range([0, width])
-      .padding(0.3);
+      .padding(0.2);
     
     const y = d3.scaleLinear()
-      .domain([0, 100])
+      .domain([0, d3.max(data, d => d.score) * 1.1])
       .range([height, 0]);
     
-    // Axes
-    svg.append('g')
-      .attr('transform', `translate(0,${height})`)
-      .call(d3.axisBottom(x))
-      .selectAll('text')
-      .style('text-anchor', 'end')
-      .attr('dx', '-.8em')
-      .attr('dy', '.15em')
-      .attr('transform', 'rotate(-45)');
+    // 성과 수준에 따른 색상
+    const getColor = (performance) => {
+      const performanceColors = {
+        [t('excellent')]: '#4caf50',
+        [t('good')]: '#8bc34a',
+        [t('average')]: '#ff9800',
+        [t('below')]: '#ff5722',
+        [t('poor')]: '#f44336'
+      };
+      return performanceColors[performance] || '#666';
+    };
     
-    svg.append('g')
-      .call(d3.axisLeft(y));
-    
-    // Bars with gradient colors
-    const colorScale = d3.scaleSequential()
-      .domain([0, 100])
-      .interpolator(d3.interpolateRdYlGn);
-    
+    // 막대 그래프
     svg.selectAll('.bar')
       .data(data)
       .enter().append('rect')
       .attr('class', 'bar')
-      .attr('x', d => x(d.task))
-      .attr('width', x.bandwidth())
+      .attr('x', d => x(d.name))
       .attr('y', d => y(d.score))
+      .attr('width', x.bandwidth())
       .attr('height', d => height - y(d.score))
-      .attr('fill', d => colorScale(d.score));
+      .attr('fill', d => getColor(d.performance));
     
-    // Score labels
+    // 점수 라벨
     svg.selectAll('.score-label')
       .data(data)
       .enter().append('text')
       .attr('class', 'score-label')
-      .attr('x', d => x(d.task) + x.bandwidth() / 2)
+      .attr('x', d => x(d.name) + x.bandwidth() / 2)
       .attr('y', d => y(d.score) - 5)
       .attr('text-anchor', 'middle')
       .text(d => d.score);
+    
+    // X축
+    svg.append('g')
+      .attr('transform', `translate(0,${height})`)
+      .call(d3.axisBottom(x))
+      .selectAll('text')
+      .style('text-anchor', 'middle');
+    
+    // Y축
+    svg.append('g')
+      .call(d3.axisLeft(y));
+    
+    // Y축 라벨
+    svg.append('text')
+      .attr('transform', 'rotate(-90)')
+      .attr('y', 0 - margin.left)
+      .attr('x', 0 - (height / 2))
+      .attr('dy', '1em')
+      .style('text-anchor', 'middle')
+      .text(t('score'));
   }
 
-  // Helper methods
   getCutoffScore(scale) {
     const cutoffs = {
       scale1: 16,  // CES-DC
       scale2: 22,  // BAI
-      scale3: 65,  // K-AQ
+      scale3: 81,  // K-AQ
       scale4: 19   // K-ARS
     };
     return cutoffs[scale] || 0;
@@ -400,84 +450,90 @@ export class Report {
 
   getMaxScore(scale) {
     const maxScores = {
-      scale1: 60,  // CES-DC: 20문항 × 3
-      scale2: 63,  // BAI: 21문항 × 3
-      scale3: 135, // K-AQ: 27문항 × 5
-      scale4: 54   // K-ARS: 18문항 × 3
+      scale1: 60,   // CES-DC
+      scale2: 63,   // BAI
+      scale3: 135,  // K-AQ
+      scale4: 54    // K-ARS
     };
     return maxScores[scale] || 100;
   }
 
-  getCNTPerformanceLevel(score) {
-    const t = (key) => translationService.t(key);
-    if (score >= 90) return { level: 'excellent', label: t('veryExcellent') };
-    if (score >= 75) return { level: 'good', label: t('excellent') };
-    if (score >= 50) return { level: 'average', label: t('average') };
-    if (score >= 25) return { level: 'below', label: t('belowAverage') };
-    return { level: 'poor', label: t('suspected') };
-  }
-
-  getCNTInterpretation(task, score) {
+  getPerformanceLevel(task, score) {
     const t = (key) => translationService.t(key);
     
-    const interpretations = {
-      task1: { // cardSorting
-        high: t('cardSortingHigh'),
-        average: t('cardSortingAverage'),
-        low: t('cardSortingLow')
-      },
-      task2: { // N-Back
-        high: t('nBackHigh'),
-        average: t('nBackAverage'),
-        low: t('nBackLow')
-      },
-      task3: { // Go/No-Go
-        high: t('goNoGoHigh'),
-        average: t('goNoGoAverage'),
-        low: t('goNoGoLow')
-      },
-      task4: { // Emotion Recognition
-        high: t('emotionHigh'),
-        average: t('emotionAverage'),
-        low: t('emotionLow')
-      },
-      task5: { // Mental Rotation
-        high: t('rotationHigh'),
-        average: t('rotationAverage'),
-        low: t('rotationLow')
-      }
+    // 간단한 성과 수준 판단 (실제로는 더 복잡한 기준 필요)
+    const levels = {
+      task1: [ // Card Sorting
+        { min: 90, level: t('excellent') },
+        { min: 70, level: t('good') },
+        { min: 50, level: t('average') },
+        { min: 30, level: t('below') },
+        { min: 0, level: t('poor') }
+      ],
+      task2: [ // N-Back
+        { min: 80, level: t('excellent') },
+        { min: 60, level: t('good') },
+        { min: 40, level: t('average') },
+        { min: 20, level: t('below') },
+        { min: 0, level: t('poor') }
+      ],
+      task3: [ // Go/No-Go
+        { min: 85, level: t('excellent') },
+        { min: 70, level: t('good') },
+        { min: 55, level: t('average') },
+        { min: 40, level: t('below') },
+        { min: 0, level: t('poor') }
+      ],
+      task4: [ // Emotion
+        { min: 80, level: t('excellent') },
+        { min: 65, level: t('good') },
+        { min: 50, level: t('average') },
+        { min: 35, level: t('below') },
+        { min: 0, level: t('poor') }
+      ],
+      task5: [ // Rotation
+        { min: 75, level: t('excellent') },
+        { min: 60, level: t('good') },
+        { min: 45, level: t('average') },
+        { min: 30, level: t('below') },
+        { min: 0, level: t('poor') }
+      ]
     };
     
-    const taskInterpretations = interpretations[task];
-    if (!taskInterpretations) return '';
+    const taskLevels = levels[task] || levels.task1;
     
-    if (score >= 75) return taskInterpretations.high;
-    if (score >= 50) return taskInterpretations.average;
-    return taskInterpretations.low;
+    for (const level of taskLevels) {
+      if (score >= level.min) {
+        return level.level;
+      }
+    }
+    
+    return t('poor');
   }
 
   getDefaultInterpretation(scale, score) {
-    // 기본 해석 로직
+    const t = (key) => translationService.t(key);
+    
     const interpretations = {
       scale1: { // CES-DC
         ranges: [
           { max: 15, level: 'normal', label: '정상', description: '우울 증상이 거의 없습니다.' },
-          { max: 20, level: 'mild', label: '경도 우울', description: '가벼운 우울 증상이 있습니다.' },
-          { max: 25, level: 'moderate', label: '중등도 우울', description: '중간 정도의 우울 증상이 있습니다.' },
-          { max: 60, level: 'severe', label: '중증 우울', description: '심한 우울 증상이 있습니다.' }
+          { max: 20, level: 'mild', label: '경미한 우울', description: '가벼운 우울 증상이 있습니다.' },
+          { max: 24, level: 'moderate', label: '중등도 우울', description: '중간 정도의 우울 증상이 있습니다.' },
+          { max: 60, level: 'severe', label: '심한 우울', description: '심각한 우울 증상이 있습니다.' }
         ]
       },
       scale2: { // BAI
         ranges: [
-          { max: 21, level: 'normal', label: '정상', description: '불안 증상이 거의 없습니다.' },
-          { max: 26, level: 'mild', label: '경도 불안', description: '가벼운 불안 증상이 있습니다.' },
-          { max: 35, level: 'moderate', label: '중등도 불안', description: '중간 정도의 불안 증상이 있습니다.' },
-          { max: 63, level: 'severe', label: '중증 불안', description: '심한 불안 증상이 있습니다.' }
+          { max: 7, level: 'minimal', label: '정상', description: '불안이 거의 없습니다.' },
+          { max: 15, level: 'mild', label: '경미한 불안', description: '가벼운 불안이 있습니다.' },
+          { max: 25, level: 'moderate', label: '중등도 불안', description: '중간 정도의 불안이 있습니다.' },
+          { max: 63, level: 'severe', label: '심한 불안', description: '심각한 불안이 있습니다.' }
         ]
       },
       scale3: { // K-AQ
         ranges: [
-          { max: 58, level: 'low', label: '낮은 공격성', description: '공격성이 낮은 편입니다.' },
+          { max: 68, level: 'low', label: '낮은 공격성', description: '공격성이 평균보다 낮습니다.' },
           { max: 81, level: 'average', label: '평균 공격성', description: '일반적인 수준입니다.' },
           { max: 108, level: 'high', label: '높은 공격성', description: '평균 이상의 공격성입니다.' },
           { max: 135, level: 'very_high', label: '매우 높은 공격성', description: '전문가 상담을 권장합니다.' }
@@ -534,6 +590,95 @@ export class Report {
     return names[key] || key;
   }
 
+  async downloadPDF() {
+    const t = (key) => translationService.t(key);
+    
+    try {
+      // PDF 버튼 비활성화
+      const pdfBtn = document.querySelector('.pdf-btn');
+      pdfBtn.disabled = true;
+      pdfBtn.innerHTML = `<span class="btn-icon">⏳</span> ${t('generating') || 'PDF 생성 중...'}`;
+      
+      // jsPDF 라이브러리 동적 로드
+      if (!window.jspdf) {
+        await this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+      }
+      if (!window.html2canvas) {
+        await this.loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+      }
+      
+      const reportElement = document.getElementById('report-content');
+      const { jsPDF } = window.jspdf;
+      
+      // html2canvas로 캡처
+      const canvas = await html2canvas(reportElement, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        windowWidth: reportElement.scrollWidth,
+        windowHeight: reportElement.scrollHeight
+      });
+      
+      // PDF 생성
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+      
+      // 첫 페이지 추가
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      
+      // 추가 페이지가 필요한 경우
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      
+      // PDF 다운로드
+      const timestamp = new Date().toISOString().replace(/[:.T]/g, '-').slice(0, -5);
+      const fileName = `${this.patientData.name}_${this.patientData.birthDate.replace(/-/g, '')}_${timestamp}.pdf`;
+      pdf.save(fileName);
+      
+      // PDF 버튼 복원
+      pdfBtn.disabled = false;
+      pdfBtn.innerHTML = `<span class="btn-icon">✓</span> ${t('downloadComplete') || 'PDF 저장 완료'}`;
+      
+      // 3초 후 버튼 텍스트 원래대로
+      setTimeout(() => {
+        pdfBtn.innerHTML = `<span class="btn-icon">📄</span> ${t('downloadPDF') || 'PDF 다운로드'}`;
+      }, 3000);
+      
+    } catch (error) {
+      console.error('PDF 생성 오류:', error);
+      alert(t('pdfError') || 'PDF 생성 중 오류가 발생했습니다.');
+      
+      const pdfBtn = document.querySelector('.pdf-btn');
+      pdfBtn.disabled = false;
+      pdfBtn.innerHTML = `<span class="btn-icon">📄</span> ${t('downloadPDF') || 'PDF 다운로드'}`;
+    }
+  }
+
+  async loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+  }
+
   async saveReport() {
     const t = (key) => translationService.t(key);
     
@@ -572,7 +717,7 @@ export class Report {
 
   async generatePDF(element) {
     // Apps Script 엔드포인트로 PDF 생성 요청
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    const timestamp = new Date().toISOString().replace(/[:.T]/g, '-').slice(0, -5);
     const fileName = `${this.patientData.name}_${this.patientData.birthDate.replace(/-/g, '')}_${timestamp}.pdf`;
     
     // HTML 콘텐츠를 Apps Script로 전송
@@ -593,7 +738,7 @@ export class Report {
 
   async generateImage(element) {
     // Apps Script 엔드포인트로 이미지 생성 요청
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+    const timestamp = new Date().toISOString().replace(/[:.T]/g, '-').slice(0, -5);
     const fileName = `${this.patientData.name}_${this.patientData.birthDate.replace(/-/g, '')}_${timestamp}.jpg`;
     
     // HTML 콘텐츠를 Apps Script로 전송
@@ -801,20 +946,49 @@ style.textContent = `
   .report-actions {
     text-align: center;
     margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
   }
   
-  .save-btn {
-    padding: 15px 40px;
-    background: #4caf50;
-    color: white;
+  .action-btn, .save-btn {
+    padding: 15px 30px;
     border: none;
     border-radius: 8px;
-    font-size: 18px;
+    font-size: 16px;
     cursor: pointer;
     transition: all 0.2s;
     display: inline-flex;
     align-items: center;
     gap: 10px;
+  }
+  
+  .pdf-btn {
+    background: #dc3545;
+    color: white;
+  }
+  
+  .pdf-btn:hover:not(:disabled) {
+    background: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+  }
+  
+  .print-btn {
+    background: #007bff;
+    color: white;
+  }
+  
+  .print-btn:hover:not(:disabled) {
+    background: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+  }
+  
+  .save-btn {
+    background: #4caf50;
+    color: white;
   }
   
   .save-btn:hover:not(:disabled) {
@@ -823,13 +997,13 @@ style.textContent = `
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
   }
   
-  .save-btn:disabled {
+  .action-btn:disabled, .save-btn:disabled {
     background: #ccc;
     cursor: not-allowed;
   }
   
   .btn-icon {
-    font-size: 24px;
+    font-size: 20px;
   }
   
   /* D3.js 차트 스타일 */
@@ -852,15 +1026,34 @@ style.textContent = `
   
   /* 인쇄 스타일 */
   @media print {
+    body {
+      background: white;
+    }
+    
     .back-btn,
     .report-actions {
-      display: none;
+      display: none !important;
     }
     
     .report-container {
       box-shadow: none;
       margin: 0;
       padding: 20px;
+      max-width: 100%;
+    }
+    
+    .report-header {
+      page-break-after: avoid;
+    }
+    
+    .survey-results,
+    .cnt-results,
+    .overall-impression {
+      page-break-inside: avoid;
+    }
+    
+    .chart-container {
+      page-break-inside: avoid;
     }
   }
   
@@ -883,6 +1076,15 @@ style.textContent = `
     .chart-container svg {
       max-width: 100%;
       height: auto;
+    }
+    
+    .report-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .action-btn, .save-btn {
+      width: 100%;
     }
   }
   

@@ -70,53 +70,51 @@ export class MentalRotationTask extends BaseTask {
     state.lastMouseY = 0;
     
     // 난이도 더 빠르게 증가
-    state.trialDifficulty = Math.floor(state.currentTrial / 4) + 1; // 4시행마다 난이도 증가
+    state.trialDifficulty = Math.floor(state.currentTrial / 3) + 1; // 3시행마다 난이도 증가
+    
+    // 피드백 오버레이 관련
+    state.feedbackOverlay = {
+      active: false,
+      opacity: 0,
+      targetOpacity: 0,
+      response: null,
+      buttonIndex: null
+    };
     
     this.generateTrial(state);
   }
 
   generateTrial(state) {
-    // 난이도에 따른 패턴 선택 (최대 난이도 4)
-    const difficultyIndex = Math.min(state.trialDifficulty - 1, 3);
+    // 난이도에 따른 패턴 선택
+    const difficultyIndex = Math.min(state.trialDifficulty - 1, state.blockPatterns.length - 1);
     const patterns = state.blockPatterns[difficultyIndex];
-    const pattern = patterns[Math.floor(Math.random() * patterns.length)];
+    state.basePattern = patterns[Math.floor(Math.random() * patterns.length)];
     
-    state.basePattern = pattern;
+    // 같음/다름 결정
+    state.isSame = Math.random() < 0.5;
+    state.isMirrored = false;
     
-    // 난이도에 따라 같음/다름 비율 조정
-    // 높은 난이도일수록 거울상이 많이 나옴
-    const sameProbability = 0.5 - (difficultyIndex * 0.1);
-    state.isSame = Math.random() < sameProbability;
+    // 타겟 회전각 생성
+    state.targetRotation = {
+      x: Math.floor(Math.random() * 4) * Math.PI / 2,
+      y: Math.floor(Math.random() * 4) * Math.PI / 2,
+      z: 0 // Z축 회전은 너무 어려워서 제거
+    };
     
-    if (state.isSame) {
-      // 같은 패턴, 회전만
-      state.comparisonPattern = [...pattern];
-      // 난이도가 높을수록 더 복잡한 회전
-      const rotationComplexity = Math.min(difficultyIndex + 1, 3);
-      state.targetRotation = {
-        x: Math.floor(Math.random() * rotationComplexity) * Math.PI / 2,
-        y: Math.floor(Math.random() * 4) * Math.PI / 2,
-        z: Math.floor(Math.random() * rotationComplexity) * Math.PI / 2
-      };
-      state.isMirrored = false;
-    } else {
-      if (Math.random() < 0.5 || difficultyIndex < 1) {
-        // 다른 패턴 (낮은 난이도에서 주로 사용)
+    // 다른 경우 처리
+    if (!state.isSame) {
+      // 50% 확률로 거울상 또는 다른 패턴
+      if (Math.random() < 0.5 && difficultyIndex > 0) {
+        // 다른 패턴
         let otherPattern;
         do {
           otherPattern = patterns[Math.floor(Math.random() * patterns.length)];
-        } while (otherPattern === pattern && patterns.length > 1);
-        
-        state.comparisonPattern = otherPattern;
-        state.targetRotation = {
-          x: Math.floor(Math.random() * 4) * Math.PI / 2,
-          y: Math.floor(Math.random() * 4) * Math.PI / 2,
-          z: Math.floor(Math.random() * 4) * Math.PI / 2
-        };
-        state.isMirrored = false;
+        } while (otherPattern === state.basePattern);
+        state.basePattern = patterns[Math.floor(Math.random() * patterns.length)];
+        state.targetPattern = otherPattern;
       } else {
-        // 같은 패턴의 거울상 (높은 난이도에서 주로 사용)
-        state.comparisonPattern = pattern.map(block => ({
+        // 거울상
+        state.targetPattern = state.basePattern.map(block => ({
           x: -block.x,
           y: block.y,
           z: block.z
@@ -187,7 +185,7 @@ export class MentalRotationTask extends BaseTask {
       // 오른쪽 블록 (비교)
       p.push();
       p.translate(p.width/2 + viewWidth/2 + spacing/2, p.height * 0.35);
-      this.draw3DBlocks(state.comparisonPattern, state.rightRotation, state.blockSize, viewWidth, viewHeight, p);
+      this.draw3DBlocks(state.targetPattern || state.basePattern, state.rightRotation, state.blockSize, viewWidth, viewHeight, p);
       p.pop();
       
       // 라벨
@@ -200,39 +198,33 @@ export class MentalRotationTask extends BaseTask {
       
       // 자동 회전
       if (state.autoRotate) {
-        // 왼쪽 블록 회전
         state.leftRotation.y += state.autoRotateSpeed;
-        state.leftRotation.x = -0.3 + Math.sin(state.leftRotation.y * 0.5) * 0.2;
-        
-        // 오른쪽 블록도 회전 (반대 방향)
-        state.rightRotation.y -= state.autoRotateSpeed * 0.8;
-        state.rightRotation.x = -0.3 + Math.cos(state.rightRotation.y * 0.5) * 0.15;
+        state.rightRotation.y += state.autoRotateSpeed;
       }
       
       // 응답 버튼
       this.drawResponseButtons(state, p);
       
-      // 진행 상황
+      // 진행률 표시
       p.push();
-      p.textAlign(p.CENTER);
-      p.textSize(20);
+      p.textAlign(p.LEFT);
+      p.textSize(18);
       p.fill(100);
-      p.text(`${state.currentTrial + 1} / ${state.maxTrials}`, p.width/2, 40);
-      
-      // 난이도 표시
-      p.textSize(16);
-      p.text(`난이도: ${'★'.repeat(state.trialDifficulty)}`, p.width/2, 60);
+      p.text(`진행: ${state.currentTrial + 1} / ${state.maxTrials}`, 20, 30);
       p.pop();
+      
+      // 피드백 오버레이 렌더링
+      this.renderFeedbackOverlay(state, p);
     }
   }
 
   draw3DBlocks(pattern, rotation, blockSize, viewWidth, viewHeight, p) {
     p.push();
     
-    // 3D -> 2D 투영을 위한 원근법
+    // 원근감 설정
     const perspective = 800;
     
-    // 패턴의 중심 계산
+    // 패턴의 중심점 계산
     let centerX = 0, centerY = 0, centerZ = 0;
     pattern.forEach(block => {
       centerX += block.x;
@@ -243,15 +235,15 @@ export class MentalRotationTask extends BaseTask {
     centerY /= pattern.length;
     centerZ /= pattern.length;
     
-    // 모든 블록의 모든 면을 수집
+    // 모든 큐브의 면들을 저장할 배열
     const allFaces = [];
     
+    // 각 블록에 대해
     pattern.forEach((block, blockIndex) => {
-      // 큐브의 8개 정점 정의
+      // 큐브의 8개 정점 계산
       const vertices = [];
-      const halfSize = 0.45; // 블록 간 간격
+      const halfSize = 0.5;
       
-      // 8개 정점 생성 (이진 인덱싱)
       for (let i = 0; i < 8; i++) {
         const dx = (i & 1) ? halfSize : -halfSize;
         const dy = (i & 2) ? halfSize : -halfSize;
@@ -387,11 +379,17 @@ export class MentalRotationTask extends BaseTask {
       y: buttonY,
       width: buttonWidth,
       height: buttonHeight,
-      response: true
+      response: true,
+      index: 0
     });
     
     p.push();
-    p.fill(76, 175, 80);
+    // 피드백 오버레이가 활성화되고 이 버튼이 선택된 경우 약간 어둡게
+    if (state.feedbackOverlay.active && state.feedbackOverlay.buttonIndex === 0) {
+      p.fill(56, 155, 60);
+    } else {
+      p.fill(76, 175, 80);
+    }
     p.noStroke();
     p.rect(sameX, buttonY, buttonWidth, buttonHeight, 10);
     p.fill(255);
@@ -408,11 +406,17 @@ export class MentalRotationTask extends BaseTask {
       y: buttonY,
       width: buttonWidth,
       height: buttonHeight,
-      response: false
+      response: false,
+      index: 1
     });
     
     p.push();
-    p.fill(244, 67, 54);
+    // 피드백 오버레이가 활성화되고 이 버튼이 선택된 경우 약간 어둡게
+    if (state.feedbackOverlay.active && state.feedbackOverlay.buttonIndex === 1) {
+      p.fill(224, 47, 34);
+    } else {
+      p.fill(244, 67, 54);
+    }
     p.noStroke();
     p.rect(diffX, buttonY, buttonWidth, buttonHeight, 10);
     p.fill(255);
@@ -421,6 +425,62 @@ export class MentalRotationTask extends BaseTask {
     p.textStyle(p.BOLD);
     p.text('다름', diffX + buttonWidth/2, buttonY + buttonHeight/2);
     p.pop();
+  }
+
+  renderFeedbackOverlay(state, p) {
+    const overlay = state.feedbackOverlay;
+    
+    // 오버레이 투명도 애니메이션
+    if (overlay.active) {
+      overlay.opacity = p.lerp(overlay.opacity, overlay.targetOpacity, 0.3);
+      
+      // 선택된 버튼 위치 찾기
+      const button = state.buttons[overlay.buttonIndex];
+      if (button) {
+        p.push();
+        
+        // 반투명 오버레이
+        p.fill(255, 255, 255, overlay.opacity * 150);
+        p.noStroke();
+        p.rect(button.x - 10, button.y - 10, button.width + 20, button.height + 20, 15);
+        
+        // 선택 표시 (체크마크 또는 파동 효과)
+        if (overlay.opacity > 0.5) {
+          p.push();
+          p.translate(button.x + button.width/2, button.y + button.height/2);
+          
+          // 파동 효과
+          const rippleSize = p.map(overlay.opacity, 0.5, 1, 0, 100);
+          p.noFill();
+          p.stroke(255, 255, 255, (1 - overlay.opacity) * 255);
+          p.strokeWeight(3);
+          p.circle(0, 0, rippleSize);
+          
+          // 체크마크
+          p.stroke(255);
+          p.strokeWeight(5);
+          p.fill(255);
+          p.textSize(60);
+          p.textAlign(p.CENTER, p.CENTER);
+          if (overlay.response) {
+            p.text('✓', 0, -5);
+          } else {
+            p.text('✗', 0, -5);
+          }
+          
+          p.pop();
+        }
+        
+        p.pop();
+      }
+      
+      // 애니메이션 종료 확인
+      if (Math.abs(overlay.opacity - overlay.targetOpacity) < 0.01) {
+        if (overlay.targetOpacity === 0) {
+          overlay.active = false;
+        }
+      }
+    }
   }
 
   handleMousePress(state, x, y, p) {
@@ -447,6 +507,18 @@ export class MentalRotationTask extends BaseTask {
         
         state.responded = true;
         
+        // 피드백 오버레이 활성화
+        state.feedbackOverlay.active = true;
+        state.feedbackOverlay.opacity = 0;
+        state.feedbackOverlay.targetOpacity = 1;
+        state.feedbackOverlay.response = button.response;
+        state.feedbackOverlay.buttonIndex = button.index;
+        
+        // 피드백 애니메이션 후 페이드아웃
+        setTimeout(() => {
+          state.feedbackOverlay.targetOpacity = 0;
+        }, 300);
+        
         // 다음 시행 준비
         setTimeout(() => {
           state.currentTrial++;
@@ -456,6 +528,16 @@ export class MentalRotationTask extends BaseTask {
           state.leftRotation = { x: -0.3, y: 0.7, z: 0.1 };
           state.rightRotation = { x: -0.3, y: 0.7, z: 0.1 };
           state.autoRotate = true;
+          
+          // 피드백 오버레이 초기화
+          state.feedbackOverlay = {
+            active: false,
+            opacity: 0,
+            targetOpacity: 0,
+            response: null,
+            buttonIndex: null
+          };
+          
           this.generateTrial(state);
         }, 1000);
         
