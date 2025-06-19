@@ -61,10 +61,12 @@ export class BaseTask {
     createP5Sketch() {
       const sketch = (p) => {
         let state = {};
-        
         p.setup = () => {
+          const maxWidth = 1200;
+          const scale = Math.min(1, window.innerWidth / maxWidth);
           const canvas = p.createCanvas(window.innerWidth, window.innerHeight);
           canvas.parent('task-canvas');
+          p.scale(scale); // 전체 캔버스에 스케일 적용
           p.textAlign(p.CENTER, p.CENTER);
           
           // 태스크별 초기화
@@ -233,6 +235,7 @@ export class BaseTask {
   // 공통 스타일
   const style = document.createElement('style');
   style.textContent = `
+  
     .tutorial-container {
       max-width: 600px;
       margin: 50px auto;
@@ -293,6 +296,12 @@ export class BaseTask {
     
     .tutorial-exit-btn:hover {
       background: #555;
+    }  
+    #task-canvas {
+      max-width: 1200px;
+      margin: 0 auto;
+      transform-origin: top center;
+      transform: scale(min(1, 100vw / 1200px));
     }
   `;
   document.head.appendChild(style);
