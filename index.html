@@ -80,7 +80,26 @@
       background: white;
       display: flex;
       flex-direction: column;
-      overflow: visible;
+    }
+    
+    /* CNT Task를 위한 특별 처리 */
+    .cnt-task-container {
+      width: 100%;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: white;
+      z-index: 999;
+    }
+    
+    .task-content {
+      width: 100%;
+      height: 100%;
+      max-width: 1024px;
+      max-height: 768px;
+      margin: 0 auto;
+      position: relative;
     }
     
     /* 1024×768 해상도에서 최적 표시 */
@@ -97,44 +116,40 @@
       }
     }
     
-    /* 전체 화면 태스크 컨테이너 - 스크롤 가능 */
+    /* 전체 화면 태스크 컨테이너 - 수정 */
     #task-fullscreen-container {
       position: fixed;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
       background: white;
       z-index: 1000;
       display: none;
-      overflow-y: auto;
-      overflow-x: hidden;
     }
     
     #task-fullscreen-container.active {
-      display: block;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     
     #task-canvas {
       width: 100%;
+      height: 100%;
       max-width: 1024px;
-      height: auto;
-      min-height: 768px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
+      max-height: 768px;
+      position: relative;
     }
     
     /* P5.js 캔버스 최적화 */
     #task-canvas canvas {
+      position: absolute !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
       max-width: 100% !important;
-      max-height: calc(100vh - 40px) !important;
-      width: auto !important;
-      height: auto !important;
-      margin: auto;
-      display: block;
+      max-height: 100% !important;
     }
     
     /* 반응형 그리드 시스템 - 1024×768 최적화 */
@@ -832,26 +847,32 @@
       display: block !important;
     }
     
-    /* 글로벌 스크롤 활성화 */
+    /* 글로벌 스크롤 설정 - Task 제외 */
     html, body {
       overflow-y: auto !important;
       height: auto !important;
       min-height: 100vh;
     }
     
-    /* 모든 컨테이너 기본 스크롤 설정 */
-    [id$="-container"],
-    [class$="-container"],
-    [class*="container"] {
+    /* 일반 컨테이너는 스크롤 가능 */
+    .dashboard-container,
+    .selection-container,
+    .survey-container,
+    .report-wrapper {
       overflow-y: auto !important;
       overflow-x: hidden !important;
-      max-height: none !important;
     }
     
-    /* 전체 화면 모달은 예외 */
-    .modal, .fullscreen-modal {
-      overflow-y: auto !important;
-      max-height: 100vh !important;
+    /* Task 관련 컨테이너는 overflow visible */
+    .cnt-task-container,
+    .task-container,
+    #task-fullscreen-container {
+      overflow: visible !important;
+    }
+    
+    /* P5.js 캔버스 위치 조정 헬퍼 */
+    .p5Canvas {
+      position: absolute !important;
     }
   </style>
 </body>
