@@ -219,15 +219,15 @@ export class MentalRotationTask extends BaseTask {
     centerY /= pattern.length;
     centerZ /= pattern.length;
     
-    // 각 블록의 큐브 정점들을 계산
-    const cubes = [];
+    // 모든 블록의 모든 면을 수집
+    const allFaces = [];
     
-    pattern.forEach(block => {
+    pattern.forEach((block, blockIndex) => {
       // 큐브의 8개 정점 정의
       const vertices = [];
-      const halfSize = 0.45; // 블록 간 간격을 위해 0.5보다 작게
+      const halfSize = 0.45; // 블록 간 간격
       
-      // 8개 정점 생성
+      // 8개 정점 생성 (이진 인덱싱)
       for (let i = 0; i < 8; i++) {
         const dx = (i & 1) ? halfSize : -halfSize;
         const dy = (i & 2) ? halfSize : -halfSize;
@@ -259,63 +259,84 @@ export class MentalRotationTask extends BaseTask {
           x: projX,
           y: projY,
           z: z2,
-          scale: scale
+          scale: scale,
+          originalZ: z2
         });
       }
       
-      // 큐브의 6개 면 정의 (정점 인덱스, 시계방향)
-      const faces = [
-        { indices: [0, 2, 6, 4], color: [96, 195, 100] },   // 앞면 (밝은 녹색)
-        { indices: [1, 5, 7, 3], color: [56, 155, 60] },    // 뒷면 (어두운 녹색)
-        { indices: [0, 1, 3, 2], color: [76, 175, 80] },    // 아래면 (중간 녹색)
-        { indices: [4, 6, 7, 5], color: [66, 165, 70] },    // 윗면
-        { indices: [0, 4, 5, 1], color: [86, 185, 90] },    // 왼쪽면
-        { indices: [2, 3, 7, 6], color: [46, 145, 50] }     // 오른쪽면
+      // 큐브의 6개 면 정의 (정점 인덱스, 올바른 시계방향)
+      const faceDefinitions = [
+        { indices: [0, 1, 3, 2], normal: {x: 0, y: 0, z: -1}, color: [106, 205, 110] }, // 앞면
+        { indices: [5, 4, 6, 7], normal: {x: 0, y: 0, z: 1}, color: [46, 125, 50] },   // 뒷면
+        { indices: [0, 4, 5, 1], normal: {x: 0, y: -1, z: 0}, color: [76, 175, 80] },  // 아래면
+        { indices: [2, 3, 7, 6], normal: {x: 0, y: 1, z: 0}, color: [66, 165, 70] },   // 윗면
+        { indices: [0, 2, 6, 4], normal: {x: -1, y: 0, z: 0}, color: [86, 185, 90] },  // 왼쪽면
+        { indices: [1, 5, 7, 3], normal: {x: 1, y: 0, z: 0}, color: [56, 155, 60] }    // 오른쪽면
       ];
       
-      // 각 면의 평균 Z값 계산 (정렬용)
-      faces.forEach(face => {
-        const avgZ = face.indices.reduce((sum, idx) => sum + vertices[idx].z, 0) / 4;
+      faceDefinitions.forEach(faceDef => {
+        // 면의 중심점 계산
+        let centerZ = 0;
+        faceDef.indices.forEach(idx => {
+          centerZ += vertices[idx].z;
+        });
+        centerZ /= 4;
         
-        // 면의 법선 벡터 계산 (백페이스 컬링용)
-        const v0 = vertices[face.indices[0]];
-        const v1 = vertices[face.indices[1]];
-        const v2 = vertices[face.indices[2]];
+        // 면의 법선 벡터도 회전 적용
+        const nx = faceDef.normal.x;
+        const ny = faceDef.normal.y;
+        const nz = faceDef.normal.z;
         
-        // 두 변의 벡터
-        const edge1 = { x: v1.x - v0.x, y: v1.y - v0.y };
-        const edge2 = { x: v2.x - v0.x, y: v2.y - v0.y };
+        // Y축 회전
+        const nx1 = nx * Math.cos(rotation.y) - nz * Math.sin(rotation.y);
+        const nz1 = nx * Math.sin(rotation.y) + nz * Math.cos(rotation.y);
         
-        // 외적 (2D에서 z 성분만)
-        const normalZ = edge1.x * edge2.y - edge1.y * edge2.x;
+        // X축 회전
+        const ny1 = ny * Math.cos(rotation.x) - nz1 * Math.sin(rotation.x);
+        const nz2 = ny * Math.sin(rotation.x) + nz1 * Math.cos(rotation.x);
         
-        cubes.push({
-          face: face.indices,
-          avgZ: avgZ,
-          vertices: vertices,
-          color: face.color,
-          normalZ: normalZ
+        // Z축 회전
+        const nx2 = nx1 * Math.cos(rotation.z) - ny1 * Math.sin(rotation.z);
+        
+        // 카메라를 향하는 면만 렌더링 (nz2 < 0)
+        const isFacingCamera = nz2 < 0;
+        
+        allFaces.push({
+          vertices: faceDef.indices.map(idx => vertices[idx]),
+          color: faceDef.color,
+          centerZ: centerZ,
+          isFacingCamera: isFacingCamera,
+          blockIndex: blockIndex
         });
       });
     });
     
-    // 모든 면을 Z값 기준으로 정렬 (뒤에서 앞으로)
-    cubes.sort((a, b) => a.avgZ - b.avgZ);
+    // Z값으로 정렬 (뒤에서 앞으로)
+    allFaces.sort((a, b) => b.centerZ - a.centerZ);
     
     // 면 그리기
-    cubes.forEach(({ face, vertices, color, normalZ }) => {
-      // 앞면만 그리기 (normalZ > 0인 면)
-      if (normalZ > 0) {
+    allFaces.forEach(face => {
+      if (face.isFacingCamera) {
         p.push();
         
-        // 면 그리기
-        p.fill(color[0], color[1], color[2]);
-        p.stroke(0);
+        // 면 색상 적용
+        p.fill(face.color[0], face.color[1], face.color[2]);
+        p.stroke(20);
         p.strokeWeight(1);
         
+        // 면 그리기
         p.beginShape();
-        face.forEach(idx => {
-          const v = vertices[idx];
+        face.vertices.forEach(v => {
+          p.vertex(v.x, v.y);
+        });
+        p.endShape(p.CLOSE);
+        
+        // 선택적: 엣지 강조
+        p.stroke(0);
+        p.strokeWeight(0.5);
+        p.noFill();
+        p.beginShape();
+        face.vertices.forEach(v => {
           p.vertex(v.x, v.y);
         });
         p.endShape(p.CLOSE);
