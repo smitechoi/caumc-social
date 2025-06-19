@@ -7,48 +7,61 @@ export class SurveyRenderer {
     this.questionData = null;
   }
 
-  async renderSurvey() {
-    const currentScale = this.manager.getCurrentScale();
-    const scaleId = this.getScaleId(currentScale);
-    const language = this.manager.patientData.language;
+  // SurveyRenderer.js의 renderSurvey 메서드만 수정
+// 파일의 나머지 부분은 그대로 유지하고, 이 메서드만 교체하세요
 
-    // 질문 데이터 로드
-    this.questionData = await surveyQuestionLoader.loadQuestions(scaleId, language);
+async renderSurvey() {
+  const currentScale = this.manager.getCurrentScale();
+  const scaleId = this.getScaleId(currentScale);
+  const language = this.manager.patientData.language;
 
-    const progress = this.calculateProgress();
+  // 질문 데이터 로드
+  this.questionData = await surveyQuestionLoader.loadQuestions(scaleId, language);
 
-    // 메인 app 컨테이너에 스크롤 강제 적용
-    const appContainer = document.getElementById('app');
+  const progress = this.calculateProgress();
+
+  // 메인 app 컨테이너에 스크롤 설정
+  const appContainer = document.getElementById('app');
   if (appContainer) {
+    // 스타일 초기화
+    appContainer.style.cssText = '';
+    appContainer.style.overflow = 'auto';
     appContainer.style.overflowY = 'auto';
-    appContainer.style.height = 'auto';  // 100vh → auto
-    appContainer.style.minHeight = '100vh';  // 최소 높이 보장
+    appContainer.style.overflowX = 'hidden';
+    appContainer.style.height = 'auto';
+    appContainer.style.minHeight = '100vh';
+    appContainer.style.display = 'block';
+    appContainer.style.position = 'relative';
+    appContainer.style.width = '100%';
+    appContainer.style.maxWidth = '1024px';
+    appContainer.style.margin = '0 auto';
+    appContainer.style.background = 'white';
   }
+
   this.manager.container.innerHTML = `
-    <div class="survey-container" style="overflow-y: auto; height: auto; min-height: 100vh;">
-
-        ${this.renderHeader()}
-        ${this.renderInstruction()}
-        
-        <div id="scale-questions" style="overflow-y: visible !important;">
-          ${this.renderQuestions()}
-        </div>
-        
-        <div class="survey-navigation">
-          ${this.renderProgressIndicator(progress)}
-        </div>
-        
-        <div class="button-container">
-          <button id="submit-scale" class="submit-btn" onclick="window.surveyInstance.submitScale()">
-            ${this.getSubmitButtonText()}
-          </button>
-        </div>
+    <div class="survey-container" style="height: auto; min-height: 100vh; overflow: visible;">
+      ${this.renderHeader()}
+      ${this.renderInstruction()}
+      
+      <div id="scale-questions" style="overflow: visible;">
+        ${this.renderQuestions()}
       </div>
-    `;
+      
+      <div class="survey-navigation">
+        ${this.renderProgressIndicator(progress)}
+      </div>
+      
+      <div class="button-container">
+        <button id="submit-scale" class="submit-btn" onclick="window.surveyInstance.submitScale()">
+          ${this.getSubmitButtonText()}
+        </button>
+      </div>
+    </div>
+  `;
 
-    window.surveyInstance = this.manager;
-    this.attachEventListeners();
-  }
+  window.surveyInstance = this.manager;
+  this.attachEventListeners();
+}
 
   renderHeader() {
     const { scale } = this.questionData;

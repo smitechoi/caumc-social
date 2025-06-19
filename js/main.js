@@ -41,28 +41,40 @@ class App {
     this.currentView = view;
     mainContainer.innerHTML = '';
     
-    // 스크롤 강제 활성화  
-    // overflow를 auto로 변경
-  mainContainer.style.overflow = 'auto';  // visible → auto
-  mainContainer.style.overflowY = 'auto';
-  mainContainer.style.overflowX = 'hidden';
-  mainContainer.style.height = 'auto';
-  mainContainer.style.minHeight = '100vh';
-  
-  // body와 html도 확실하게 설정
-  document.body.style.overflow = 'auto';
-  document.body.style.height = 'auto';
-  document.documentElement.style.overflow = 'auto';
-  document.documentElement.style.height = 'auto';
-
-
+    // 기존 스타일 초기화
+    mainContainer.style.cssText = '';
     
-    // 스크롤 위치 초기화
-    window.scrollTo(0, 0);
+    // 기본 스크롤 설정
+    mainContainer.style.overflow = 'auto';
+    mainContainer.style.overflowY = 'auto';
+    mainContainer.style.overflowX = 'hidden';
+    mainContainer.style.height = 'auto';
+    mainContainer.style.minHeight = '100vh';
+    mainContainer.style.display = 'block';  // flex 대신 block
+    mainContainer.style.position = 'relative';
+    mainContainer.style.width = '100%';
+    mainContainer.style.maxWidth = '1024px';
+    mainContainer.style.margin = '0 auto';
+    mainContainer.style.background = 'white';
+    
+    // body와 html 스크롤 활성화
+    document.body.style.overflow = 'auto';
+    document.body.style.height = 'auto';
+    document.body.style.position = 'relative';
+    document.documentElement.style.overflow = 'auto';
+    document.documentElement.style.height = 'auto';
+    
+    // CNT Task가 아닌 경우에만 스크롤 위치 초기화
+    if (view !== 'cnt-task') {
+      window.scrollTo(0, 0);
+    }
     
     switch(view) {
       case 'login':
-        this.components.login = new PatientLogin('app');
+        this.components.login = new PatientLogin('app', (patientData) => {
+          this.patientData = patientData;
+          window.location.hash = '#dashboard';
+        });
         break;
         
       case 'dashboard':
@@ -79,7 +91,6 @@ class App {
           return;
         }
         this.components.surveySelection = new SurveySelection('app', this.patientData);
-        window.surveySelectionInstance = this.components.surveySelection;
         break;
         
       case 'survey':
@@ -87,7 +98,17 @@ class App {
           window.location.hash = '#login';
           return;
         }
-        this.components.survey = new Survey('app', this.patientData);
+        
+        // URLSearchParams로 척도 정보 가져오기
+        const params = new URLSearchParams(window.location.search);
+        const scales = params.get('scales');
+        
+        if (!scales) {
+          window.location.hash = '#survey-selection';
+          return;
+        }
+        
+        this.components.survey = new Survey('app', this.patientData, scales.split(','));
         break;
         
       case 'cnt-selection':
@@ -96,15 +117,29 @@ class App {
           return;
         }
         this.components.cntSelection = new CNTSelection('app', this.patientData);
-        window.cntSelectionInstance = this.components.cntSelection;
         break;
         
-      case 'cnt':
+      case 'cnt-task':
         if (!this.patientData) {
           window.location.hash = '#login';
           return;
         }
-        this.components.cnt = new CNTTask('app', this.patientData);
+        
+        // URL에서 태스크 정보 가져오기
+        const taskParams = new URLSearchParams(window.location.search);
+        const taskName = taskParams.get('task');
+        
+        if (!taskName) {
+          window.location.hash = '#cnt-selection';
+          return;
+        }
+        
+        // CNT Task를 위한 특별 처리
+        const cntContainer = document.createElement('div');
+        cntContainer.className = 'cnt-task-container fixed';
+        mainContainer.appendChild(cntContainer);
+        
+        this.components.cntTask = new CNTTask(cntContainer, this.patientData, taskName);
         break;
         
       case 'report':
@@ -119,84 +154,49 @@ class App {
         window.location.hash = '#login';
     }
     
-    // 렌더링 후 다시 한번 스크롤 활성화
-    setTimeout(() => {
-      document.body.style.overflow = 'auto';
-      mainContainer.style.overflow = 'visible';
-    }, 100);
+    // 스크린 리더를 위한 알림
+    if (window.announceToScreenReader) {
+      window.announceToScreenReader(`${view} 페이지로 이동했습니다.`);
+    }
   }
 
-  setPatientData(data) {
-    this.patientData = data;
-    window.currentPatient = data; // 전역 접근용
+  // 현재 환자 데이터 가져오기
+  getPatientData() {
+    return this.patientData;
+  }
+
+  // 환자 데이터 업데이트
+  updatePatientData(data) {
+    this.patientData = { ...this.patientData, ...data };
   }
 }
 
-// 전역 앱 인스턴스
-window.app = new App();
-
-// 환자 로그인 성공 이벤트 리스너
-document.addEventListener('patientLoginSuccess', (event) => {
-  window.app.setPatientData(event.detail);
+// 앱 초기화
+window.addEventListener('DOMContentLoaded', () => {
+  window.app = new App();
+  
+  // 개발자 도구 감지 (선택사항)
+  if (process.env.NODE_ENV === 'production') {
+    const devtools = { open: false, orientation: null };
+    const threshold = 160;
+    
+    setInterval(() => {
+      if (window.outerHeight - window.innerHeight > threshold || 
+          window.outerWidth - window.innerWidth > threshold) {
+        if (!devtools.open) {
+          devtools.open = true;
+          console.log('개발자 도구가 감지되었습니다.');
+        }
+      } else {
+        devtools.open = false;
+      }
+    }, 500);
+  }
+  
+  // 서비스 워커 등록 (PWA 지원)
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    navigator.serviceWorker.register('/sw.js')
+      .then(registration => console.log('Service Worker 등록 성공:', registration))
+      .catch(error => console.log('Service Worker 등록 실패:', error));
+  }
 });
-
-// 전역 스타일
-const globalStyles = `
-  * {
-    box-sizing: border-box;
-  }
-  
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: #f5f5f5;
-    color: #333;
-  }
-  
-  #app {
-    overflow-y: auto !important;  /* visible → auto */
-    overflow-x: hidden !important;
-    min-height: 100vh;
-    height: auto;
-  }
-  
-  button {
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  
-  button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  }
-  
-  .loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    font-size: 24px;
-    color: #666;
-  }
-  
-  .error {
-    color: #f44336;
-    padding: 10px;
-    background: #ffebee;
-    border-radius: 4px;
-    margin: 10px 0;
-  }
-  
-  .success {
-    color: #4caf50;
-    padding: 10px;
-    background: #e8f5e9;
-    border-radius: 4px;
-    margin: 10px 0;
-  }
-`;
-
-const styleElement = document.createElement('style');
-styleElement.textContent = globalStyles;
-document.head.appendChild(styleElement);
