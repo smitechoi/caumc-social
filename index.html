@@ -847,7 +847,42 @@
     인터넷 연결이 끊어졌습니다. 일부 기능이 제한될 수 있습니다.
   </div>
   
-  <style>
+  <style>/* #app 스타일 수정 */
+    #app {
+      overflow-y: auto !important;  /* scroll → auto */
+      overflow-x: hidden !important;
+      min-height: 100vh;
+      height: auto !important;  /* 고정 높이 제거 */
+    }
+    
+    /* report-wrapper 수정 */
+    .report-wrapper {
+      position: relative;
+      min-height: 100vh;  /* height → min-height */
+      overflow: visible;  /* hidden → visible */
+    }
+    
+    /* report-container 수정 */
+    .report-container {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      padding-top: 100px;  /* 고정 액션바 공간 */
+      /* height와 overflow-y 제거 */
+    }
+    
+    /* report-actions-fixed 추가 */
+    .report-actions-fixed {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      z-index: 1000;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
     body.offline .offline-notice {
       display: block !important;
     }

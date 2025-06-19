@@ -41,16 +41,20 @@ class App {
     this.currentView = view;
     mainContainer.innerHTML = '';
     
-    // 스크롤 강제 활성화
-    document.body.style.overflow = 'auto';
-    document.body.style.height = 'auto';
-    document.body.style.position = 'relative';
-    document.documentElement.style.overflow = 'auto';
-    document.documentElement.style.height = 'auto';
-    mainContainer.style.overflow = 'auto';
-    mainContainer.style.overflowY = 'auto';
-    mainContainer.style.height = 'auto';
-    mainContainer.style.minHeight = '100vh';
+    // 스크롤 강제 활성화  
+    // overflow를 auto로 변경
+  mainContainer.style.overflow = 'auto';  // visible → auto
+  mainContainer.style.overflowY = 'auto';
+  mainContainer.style.overflowX = 'hidden';
+  mainContainer.style.height = 'auto';
+  mainContainer.style.minHeight = '100vh';
+  
+  // body와 html도 확실하게 설정
+  document.body.style.overflow = 'auto';
+  document.body.style.height = 'auto';
+  document.documentElement.style.overflow = 'auto';
+  document.documentElement.style.height = 'auto';
+
 
     
     // 스크롤 위치 초기화

@@ -19,12 +19,14 @@ export class SurveyRenderer {
 
     // 메인 app 컨테이너에 스크롤 강제 적용
     const appContainer = document.getElementById('app');
-    if (appContainer) {
-      appContainer.style.overflowY = 'auto';
-      appContainer.style.height = '100vh';
-    }
-    this.manager.container.innerHTML = `
-    <div class="survey-container" style="overflow-y: auto; min-height: 100vh; height: auto;">
+  if (appContainer) {
+    appContainer.style.overflowY = 'auto';
+    appContainer.style.height = 'auto';  // 100vh → auto
+    appContainer.style.minHeight = '100vh';  // 최소 높이 보장
+  }
+  this.manager.container.innerHTML = `
+    <div class="survey-container" style="overflow-y: auto; height: auto; min-height: 100vh;">
+
         ${this.renderHeader()}
         ${this.renderInstruction()}
         
