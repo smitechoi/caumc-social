@@ -184,54 +184,28 @@ export class MentalRotationTask extends BaseTask {
       p.pop();
       
       // 자동 회전
-      if (state.autoRotate && !state.isDragging) {
+      if (state.autoRotate) {
         state.leftRotation.y += 0.01;
-        state.rightRotation.y += 0.01;
       }
+      
+      // 응답 버튼
+      this.drawResponseButtons(state, p);
       
       // 진행 상황
       p.push();
+      p.textAlign(p.CENTER);
       p.textSize(20);
       p.fill(100);
-      p.textAlign(p.CENTER);
-      p.text(`${state.currentTrial + 1} / ${state.maxTrials}`, p.width/2, 50);
+      p.text(`${state.currentTrial + 1} / ${state.maxTrials}`, p.width/2, 40);
       p.pop();
-      
-      // 응답 버튼
-      this.renderButtons(state, p);
-      
-      // 응답 피드백
-      if (state.responded) {
-        p.push();
-        p.textSize(36);
-        p.fill(100);
-        p.textAlign(p.CENTER);
-        p.text('응답 완료', p.width/2, p.height * 0.68);
-        p.pop();
-      }
     }
   }
 
   draw3DBlocks(pattern, rotation, blockSize, viewWidth, viewHeight, p) {
-    // 3D 그래픽 컨텍스트 생성
-    const pg = p.createGraphics(viewWidth, viewHeight, p.WEBGL);
+    p.push();
     
-    pg.background(250);
-    pg.lights();
-    pg.ambientLight(100);
-    pg.directionalLight(255, 255, 255, 0.5, 0.5, -1);
-    
-    // 카메라 설정
-    pg.camera(0, -100, 200, 0, 0, 0, 0, 1, 0);
-    
-    // 회전 적용
-    pg.rotateX(rotation.x);
-    pg.rotateY(rotation.y);
-    pg.rotateZ(rotation.z);
-    
-    // 블록 그리기
-    pg.push();
-    pg.noStroke();
+    // 3D -> 2D 투영을 위한 간단한 원근법
+    const perspective = 500;
     
     // 패턴의 중심 계산
     let centerX = 0, centerY = 0, centerZ = 0;
@@ -244,41 +218,61 @@ export class MentalRotationTask extends BaseTask {
     centerY /= pattern.length;
     centerZ /= pattern.length;
     
-    // 블록 그리기
-    pattern.forEach((block, index) => {
-      pg.push();
+    // 블록들을 그리기 위한 깊이 정렬
+    const projectedBlocks = pattern.map(block => {
+      // 중심으로부터의 상대 위치
+      const relX = (block.x - centerX) * blockSize;
+      const relY = (block.y - centerY) * blockSize;
+      const relZ = (block.z - centerZ) * blockSize;
       
-      // 중심 기준으로 위치 조정
-      const x = (block.x - centerX) * blockSize;
-      const y = (block.y - centerY) * blockSize;
-      const z = (block.z - centerZ) * blockSize;
+      // 회전 적용
+      const rotatedX = relX * Math.cos(rotation.y) - relZ * Math.sin(rotation.y);
+      const rotatedZ = relX * Math.sin(rotation.y) + relZ * Math.cos(rotation.y);
+      const rotatedY = relY * Math.cos(rotation.x) - rotatedZ * Math.sin(rotation.x);
+      const finalZ = relY * Math.sin(rotation.x) + rotatedZ * Math.cos(rotation.x);
       
-      pg.translate(x, y, z);
+      // 2D 투영
+      const scale = perspective / (perspective + finalZ);
+      const projectedX = rotatedX * scale;
+      const projectedY = rotatedY * scale;
       
-      // 블록 색상 (위치에 따라 약간 다르게)
-      const hue = 200 + index * 10;
-      pg.fill(hue, 200, 255);
-      pg.box(blockSize * 0.9);
-      
-      // 블록 테두리 효과
-      pg.push();
-      pg.stroke(0);
-      pg.strokeWeight(1);
-      pg.noFill();
-      pg.box(blockSize * 0.91);
-      pg.pop();
-      
-      pg.pop();
+      return {
+        x: projectedX,
+        y: projectedY,
+        z: finalZ,
+        scale: scale,
+        original: block
+      };
     });
     
-    pg.pop();
+    // Z축 기준으로 정렬 (뒤에서 앞으로)
+    projectedBlocks.sort((a, b) => a.z - b.z);
     
-    // 메인 캔버스에 그리기
-    p.image(pg, -viewWidth/2, -viewHeight/2);
-    pg.remove();
+    // 블록 그리기
+    projectedBlocks.forEach(proj => {
+      const size = blockSize * proj.scale;
+      
+      // 그림자
+      p.fill(0, 0, 0, 30);
+      p.noStroke();
+      p.rect(proj.x + 5, proj.y + 5, size, size);
+      
+      // 블록
+      p.fill(76, 175, 80);
+      p.stroke(0);
+      p.strokeWeight(2);
+      p.rect(proj.x - size/2, proj.y - size/2, size, size);
+      
+      // 하이라이트
+      p.fill(255, 255, 255, 50);
+      p.noStroke();
+      p.rect(proj.x - size/2 + 5, proj.y - size/2 + 5, size - 10, size - 10);
+    });
+    
+    p.pop();
   }
 
-  renderButtons(state, p) {
+  drawResponseButtons(state, p) {
     const buttonWidth = 200;
     const buttonHeight = 100;
     const buttonY = p.height * 0.75;
@@ -389,7 +383,7 @@ export class MentalRotationTask extends BaseTask {
   }
 
   handleMouseDrag(state, x, y, p) {
-    if (!state.isDragging) return;
+    if (!state || !state.isDragging) return;
     
     const deltaX = x - state.lastMouseX;
     const deltaY = y - state.lastMouseY;
@@ -409,6 +403,8 @@ export class MentalRotationTask extends BaseTask {
   }
 
   handleMouseRelease(state, p) {
+    if (!state) return;
+    
     state.isDragging = false;
     state.dragTarget = null;
     // 드래그 후 3초 뒤에 자동 회전 재개
@@ -463,110 +459,3 @@ export class MentalRotationTask extends BaseTask {
     ));
   }
 }
-
-// BaseTask 확장 - 마우스 드래그 지원
-MentalRotationTask.prototype.handleMouseDrag = function(state, x, y, p) {
-  if (state.isDragging) {
-    const dx = x - state.lastMouseX;
-    const dy = y - state.lastMouseY;
-    
-    state.rotation.x += dy * 0.01;
-    state.rotation.y += dx * 0.01;
-    
-    state.lastMouseX = x;
-    state.lastMouseY = y;
-  }
-};
-
-MentalRotationTask.prototype.handleMouseRelease = function(state, p) {
-  state.isDragging = false;
-};
-
-// p5 스케치에 마우스 이벤트 추가
-BaseTask.prototype.createP5Sketch = function() {
-  const originalCreate = BaseTask.prototype.createP5Sketch;
-  
-  const sketch = (p) => {
-    let state = {};
-    
-    p.setup = () => {
-      const canvas = p.createCanvas(window.innerWidth, window.innerHeight);
-      canvas.parent('task-canvas');
-      p.textAlign(p.CENTER, p.CENTER);
-      
-      this.initializeState(state, p);
-    };
-    
-    p.draw = () => {
-      p.background(240);
-      this.drawExitButton(p);
-      this.render(state, p);
-    };
-    
-    p.mousePressed = () => {
-      if (p.mouseX >= p.width - 80 && p.mouseX <= p.width - 20 &&
-          p.mouseY >= 20 && p.mouseY <= 50) {
-        if (confirm('검사를 종료하시겠습니까?')) {
-          this.exitTask();
-          return;
-        }
-      }
-      
-      this.handleMousePress(state, p.mouseX, p.mouseY, p);
-    };
-    
-    p.mouseDragged = () => {
-      if (this.handleMouseDrag) {
-        this.handleMouseDrag(state, p.mouseX, p.mouseY, p);
-      }
-    };
-    
-    p.mouseReleased = () => {
-      if (this.handleMouseRelease) {
-        this.handleMouseRelease(state, p);
-      }
-    };
-    
-    p.touchStarted = () => {
-      if (p.touches.length > 0) {
-        const touch = p.touches[0];
-        
-        if (touch.x >= p.width - 80 && touch.x <= p.width - 20 &&
-            touch.y >= 20 && touch.y <= 50) {
-          if (confirm('검사를 종료하시겠습니까?')) {
-            this.exitTask();
-            return false;
-          }
-        }
-        
-        this.handleMousePress(state, touch.x, touch.y, p);
-      }
-      return false;
-    };
-    
-    p.touchMoved = () => {
-      if (p.touches.length > 0 && this.handleMouseDrag) {
-        const touch = p.touches[0];
-        this.handleMouseDrag(state, touch.x, touch.y, p);
-      }
-      return false;
-    };
-    
-    p.touchEnded = () => {
-      if (this.handleMouseRelease) {
-        this.handleMouseRelease(state, p);
-      }
-      return false;
-    };
-    
-    p.keyPressed = () => {
-      this.handleKeyPress(state, p.key, p);
-    };
-    
-    p.windowResized = () => {
-      p.resizeCanvas(window.innerWidth, window.innerHeight);
-    };
-  };
-  
-  this.p5Instance = new p5(sketch);
-};
