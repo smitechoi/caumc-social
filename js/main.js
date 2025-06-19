@@ -71,13 +71,24 @@ class App {
     
     switch(view) {
       case 'login':
-        this.components.login = new PatientLogin('app', (patientData) => {
-          this.patientData = patientData;
-          window.location.hash = '#dashboard';
-        });
+        this.components.login = new PatientLogin('app');
+        
+        // PatientLogin 성공 이벤트 리스너 등록
+        const loginSuccessHandler = (event) => {
+          this.patientData = event.detail;
+          // 이벤트 리스너 제거
+          document.removeEventListener('patientLoginSuccess', loginSuccessHandler);
+        };
+        
+        document.addEventListener('patientLoginSuccess', loginSuccessHandler);
         break;
         
       case 'dashboard':
+        // window.currentPatient 또는 this.patientData 확인
+        if (!this.patientData && window.currentPatient) {
+          this.patientData = window.currentPatient;
+        }
+        
         if (!this.patientData) {
           window.location.hash = '#login';
           return;
@@ -86,6 +97,11 @@ class App {
         break;
         
       case 'survey-selection':
+        // window.currentPatient 또는 this.patientData 확인
+        if (!this.patientData && window.currentPatient) {
+          this.patientData = window.currentPatient;
+        }
+        
         if (!this.patientData) {
           window.location.hash = '#login';
           return;
@@ -94,6 +110,11 @@ class App {
         break;
         
       case 'survey':
+        // window.currentPatient 또는 this.patientData 확인
+        if (!this.patientData && window.currentPatient) {
+          this.patientData = window.currentPatient;
+        }
+        
         if (!this.patientData) {
           window.location.hash = '#login';
           return;
@@ -112,6 +133,11 @@ class App {
         break;
         
       case 'cnt-selection':
+        // window.currentPatient 또는 this.patientData 확인
+        if (!this.patientData && window.currentPatient) {
+          this.patientData = window.currentPatient;
+        }
+        
         if (!this.patientData) {
           window.location.hash = '#login';
           return;
@@ -120,6 +146,11 @@ class App {
         break;
         
       case 'cnt-task':
+        // window.currentPatient 또는 this.patientData 확인
+        if (!this.patientData && window.currentPatient) {
+          this.patientData = window.currentPatient;
+        }
+        
         if (!this.patientData) {
           window.location.hash = '#login';
           return;
@@ -143,6 +174,11 @@ class App {
         break;
         
       case 'report':
+        // window.currentPatient 또는 this.patientData 확인
+        if (!this.patientData && window.currentPatient) {
+          this.patientData = window.currentPatient;
+        }
+        
         if (!this.patientData) {
           window.location.hash = '#login';
           return;
