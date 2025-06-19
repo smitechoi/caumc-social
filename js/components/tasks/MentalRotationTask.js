@@ -8,8 +8,9 @@ export class MentalRotationTask extends BaseTask {
         <p>두 개의 3D 블록 구조가 나타납니다.</p>
         <p>오른쪽 블록이 왼쪽 블록을 <strong>회전</strong>시킨 것과 같은지 판단하세요.</p>
         <div style="text-align: center; margin: 30px 0;">
-          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 150'%3E%3Crect x='50' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Crect x='90' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Crect x='90' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Ctext x='90' y='150' text-anchor='middle' font-size='14'%3E원본%3C/text%3E%3Ctext x='200' y='100' font-size='30'%3E→%3C/text%3E%3Crect x='250' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Crect x='250' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Crect x='210' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Ctext x='290' y='150' text-anchor='middle' font-size='14'%3E회전됨 (같음)%3C/text%3E%3C/svg%3E" style="max-width: 400px; margin: 20px auto; display: block;">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'%3E%3Crect x='50' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Crect x='90' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Crect x='90' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Ctext x='90' y='150' text-anchor='middle' font-size='14'%3E원본%3C/text%3E%3Ctext x='200' y='100' font-size='30'%3E→%3C/text%3E%3Crect x='250' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Crect x='250' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Crect x='210' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Ctext x='290' y='150' text-anchor='middle' font-size='14'%3E회전됨 (같음)%3C/text%3E%3C/svg%3E" style="max-width: 400px; margin: 20px auto; display: block;">
         </div>
+        <p style="color: red; font-weight: bold;">주의: 뒤집어진 것(거울상)은 "다름"입니다.</p>
         <p>마우스로 드래그하여 블록을 회전시켜 볼 수 있습니다.</p>
         <p>하단의 버튼을 터치하여 응답하세요.</p>
       `
@@ -224,91 +225,91 @@ export class MentalRotationTask extends BaseTask {
     pattern.forEach(block => {
       // 큐브의 8개 정점 정의
       const vertices = [];
-      for (let dx = 0; dx <= 1; dx++) {
-        for (let dy = 0; dy <= 1; dy++) {
-          for (let dz = 0; dz <= 1; dz++) {
-            const x = (block.x - centerX + dx - 0.5) * blockSize;
-            const y = (block.y - centerY + dy - 0.5) * blockSize;
-            const z = (block.z - centerZ + dz - 0.5) * blockSize;
-            
-            // 회전 변환
-            // Y축 회전
-            const x1 = x * Math.cos(rotation.y) - z * Math.sin(rotation.y);
-            const z1 = x * Math.sin(rotation.y) + z * Math.cos(rotation.y);
-            
-            // X축 회전
-            const y1 = y * Math.cos(rotation.x) - z1 * Math.sin(rotation.x);
-            const z2 = y * Math.sin(rotation.x) + z1 * Math.cos(rotation.x);
-            
-            // Z축 회전
-            const x2 = x1 * Math.cos(rotation.z) - y1 * Math.sin(rotation.z);
-            const y2 = x1 * Math.sin(rotation.z) + y1 * Math.cos(rotation.z);
-            
-            // 원근 투영
-            const scale = perspective / (perspective + z2);
-            const projX = x2 * scale;
-            const projY = y2 * scale;
-            
-            vertices.push({
-              x: projX,
-              y: projY,
-              z: z2,
-              scale: scale
-            });
-          }
-        }
+      const halfSize = 0.45; // 블록 간 간격을 위해 0.5보다 작게
+      
+      // 8개 정점 생성
+      for (let i = 0; i < 8; i++) {
+        const dx = (i & 1) ? halfSize : -halfSize;
+        const dy = (i & 2) ? halfSize : -halfSize;
+        const dz = (i & 4) ? halfSize : -halfSize;
+        
+        const x = (block.x - centerX + dx) * blockSize;
+        const y = (block.y - centerY + dy) * blockSize;
+        const z = (block.z - centerZ + dz) * blockSize;
+        
+        // 회전 변환
+        // Y축 회전
+        const x1 = x * Math.cos(rotation.y) - z * Math.sin(rotation.y);
+        const z1 = x * Math.sin(rotation.y) + z * Math.cos(rotation.y);
+        
+        // X축 회전
+        const y1 = y * Math.cos(rotation.x) - z1 * Math.sin(rotation.x);
+        const z2 = y * Math.sin(rotation.x) + z1 * Math.cos(rotation.x);
+        
+        // Z축 회전
+        const x2 = x1 * Math.cos(rotation.z) - y1 * Math.sin(rotation.z);
+        const y2 = x1 * Math.sin(rotation.z) + y1 * Math.cos(rotation.z);
+        
+        // 원근 투영
+        const scale = perspective / (perspective + z2);
+        const projX = x2 * scale;
+        const projY = y2 * scale;
+        
+        vertices.push({
+          x: projX,
+          y: projY,
+          z: z2,
+          scale: scale
+        });
       }
       
-      // 큐브의 6개 면 정의 (정점 인덱스)
+      // 큐브의 6개 면 정의 (정점 인덱스, 시계방향)
       const faces = [
-        [0, 1, 3, 2], // 앞면
-        [4, 5, 7, 6], // 뒷면
-        [0, 1, 5, 4], // 아래면
-        [2, 3, 7, 6], // 윗면
-        [0, 2, 6, 4], // 왼쪽면
-        [1, 3, 7, 5]  // 오른쪽면
+        { indices: [0, 2, 6, 4], color: [96, 195, 100] },   // 앞면 (밝은 녹색)
+        { indices: [1, 5, 7, 3], color: [56, 155, 60] },    // 뒷면 (어두운 녹색)
+        { indices: [0, 1, 3, 2], color: [76, 175, 80] },    // 아래면 (중간 녹색)
+        { indices: [4, 6, 7, 5], color: [66, 165, 70] },    // 윗면
+        { indices: [0, 4, 5, 1], color: [86, 185, 90] },    // 왼쪽면
+        { indices: [2, 3, 7, 6], color: [46, 145, 50] }     // 오른쪽면
       ];
       
       // 각 면의 평균 Z값 계산 (정렬용)
-      const facesWithZ = faces.map(face => {
-        const avgZ = face.reduce((sum, idx) => sum + vertices[idx].z, 0) / 4;
-        return { face, avgZ, vertices };
+      faces.forEach(face => {
+        const avgZ = face.indices.reduce((sum, idx) => sum + vertices[idx].z, 0) / 4;
+        
+        // 면의 법선 벡터 계산 (백페이스 컬링용)
+        const v0 = vertices[face.indices[0]];
+        const v1 = vertices[face.indices[1]];
+        const v2 = vertices[face.indices[2]];
+        
+        // 두 변의 벡터
+        const edge1 = { x: v1.x - v0.x, y: v1.y - v0.y };
+        const edge2 = { x: v2.x - v0.x, y: v2.y - v0.y };
+        
+        // 외적 (2D에서 z 성분만)
+        const normalZ = edge1.x * edge2.y - edge1.y * edge2.x;
+        
+        cubes.push({
+          face: face.indices,
+          avgZ: avgZ,
+          vertices: vertices,
+          color: face.color,
+          normalZ: normalZ
+        });
       });
-      
-      cubes.push(...facesWithZ);
     });
     
     // 모든 면을 Z값 기준으로 정렬 (뒤에서 앞으로)
     cubes.sort((a, b) => a.avgZ - b.avgZ);
     
     // 면 그리기
-    cubes.forEach(({ face, vertices }) => {
-      p.push();
-      
-      // 면의 법선 계산으로 앞/뒤 판단
-      const v1 = vertices[face[1]];
-      const v2 = vertices[face[0]];
-      const v3 = vertices[face[2]];
-      
-      const dx1 = v1.x - v2.x;
-      const dy1 = v1.y - v2.y;
-      const dx2 = v3.x - v2.x;
-      const dy2 = v3.y - v2.y;
-      
-      const cross = dx1 * dy2 - dy1 * dx2;
-      
-      // 앞면만 그리기 (백페이스 컬링)
-      if (cross > 0) {
-        // 면 색상 (조명 효과)
-        const brightness = 0.5 + 0.5 * (face[0] % 3) / 3;
-        const faceColor = [
-          76 * brightness,
-          175 * brightness,
-          80 * brightness
-        ];
+    cubes.forEach(({ face, vertices, color, normalZ }) => {
+      // 앞면만 그리기 (normalZ > 0인 면)
+      if (normalZ > 0) {
+        p.push();
         
         // 면 그리기
-        p.fill(faceColor[0], faceColor[1], faceColor[2]);
+        p.fill(color[0], color[1], color[2]);
         p.stroke(0);
         p.strokeWeight(1);
         
@@ -318,9 +319,9 @@ export class MentalRotationTask extends BaseTask {
           p.vertex(v.x, v.y);
         });
         p.endShape(p.CLOSE);
+        
+        p.pop();
       }
-      
-      p.pop();
     });
     
     p.pop();
