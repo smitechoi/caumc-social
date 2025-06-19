@@ -56,9 +56,15 @@ export class MentalRotationTask extends BaseTask {
     state.stimulusOnset = p.millis();
     state.responded = false;
     
-    // 3D 회전 관련
-    state.leftRotation = { x: -0.3, y: 0.7, z: 0.1 };
-    state.rightRotation = { x: -0.3, y: 0.7, z: 0.1 };
+    // 3D 회전 관련 - 랜덤 초기 회전값
+    const randomInitialRotation = {
+      x: Math.random() * Math.PI * 2,
+      y: Math.random() * Math.PI * 2,
+      z: Math.random() * Math.PI * 0.5 // Z축은 조금만 회전
+    };
+    
+    state.leftRotation = { ...randomInitialRotation };
+    state.rightRotation = { ...randomInitialRotation };
     state.autoRotate = true;
     state.autoRotateSpeed = 0.008; // 회전 속도
     state.blockSize = 40;
@@ -128,8 +134,13 @@ export class MentalRotationTask extends BaseTask {
       }
     }
     
-    // 초기 회전 설정
-    state.rightRotation = { ...state.targetRotation };
+    // 초기 회전을 타겟 회전값에서 시작 (오른쪽 블록)
+    // 하지만 약간의 오프셋을 추가하여 완전히 같은 각도는 아니게 함
+    state.rightRotation = { 
+      x: state.targetRotation.x + (Math.random() - 0.5) * 0.3,
+      y: state.targetRotation.y + (Math.random() - 0.5) * 0.3,
+      z: state.targetRotation.z + (Math.random() - 0.5) * 0.1
+    };
     
     // 자동 회전 속도도 난이도에 따라 조정
     state.autoRotateSpeed = 0.008 + (difficultyIndex * 0.002);
@@ -196,10 +207,19 @@ export class MentalRotationTask extends BaseTask {
       p.text('비교', p.width/2 + viewWidth/2 + spacing/2, p.height * 0.6);
       p.pop();
       
-      // 자동 회전
+      // 자동 회전 - Y축과 X축을 동시에 회전
       if (state.autoRotate) {
+        // Y축 회전 (좌우)
         state.leftRotation.y += state.autoRotateSpeed;
         state.rightRotation.y += state.autoRotateSpeed;
+        
+        // X축 회전 (상하) - 더 느리게
+        state.leftRotation.x += state.autoRotateSpeed * 0.3;
+        state.rightRotation.x += state.autoRotateSpeed * 0.3;
+        
+        // 작은 Z축 회전도 추가하여 더 동적으로
+        state.leftRotation.z += state.autoRotateSpeed * 0.1;
+        state.rightRotation.z += state.autoRotateSpeed * 0.1;
       }
       
       // 응답 버튼
@@ -525,8 +545,15 @@ export class MentalRotationTask extends BaseTask {
           state.trialDifficulty = Math.floor(state.currentTrial / 4) + 1; // 4시행마다 난이도 증가
           state.stimulusOnset = p.millis();
           state.responded = false;
-          state.leftRotation = { x: -0.3, y: 0.7, z: 0.1 };
-          state.rightRotation = { x: -0.3, y: 0.7, z: 0.1 };
+          
+          // 새로운 랜덤 초기 회전값
+          const newRandomRotation = {
+            x: Math.random() * Math.PI * 2,
+            y: Math.random() * Math.PI * 2,
+            z: Math.random() * Math.PI * 0.5
+          };
+          state.leftRotation = { ...newRandomRotation };
+          state.rightRotation = { ...newRandomRotation };
           state.autoRotate = true;
           
           // 피드백 오버레이 초기화
