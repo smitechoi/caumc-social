@@ -175,23 +175,24 @@ class App {
 window.addEventListener('DOMContentLoaded', () => {
   window.app = new App();
   
-  // 개발자 도구 감지 (선택사항)
-  if (process.env.NODE_ENV === 'production') {
-    const devtools = { open: false, orientation: null };
-    const threshold = 160;
-    
-    setInterval(() => {
-      if (window.outerHeight - window.innerHeight > threshold || 
-          window.outerWidth - window.innerWidth > threshold) {
-        if (!devtools.open) {
-          devtools.open = true;
-          console.log('개발자 도구가 감지되었습니다.');
-        }
-      } else {
-        devtools.open = false;
+  // 개발자 도구 감지 (선택사항 - 프로덕션에서만 사용)
+  // 필요시 아래 주석을 해제하여 사용
+  /*
+  const devtools = { open: false, orientation: null };
+  const threshold = 160;
+  
+  setInterval(() => {
+    if (window.outerHeight - window.innerHeight > threshold || 
+        window.outerWidth - window.innerWidth > threshold) {
+      if (!devtools.open) {
+        devtools.open = true;
+        console.log('개발자 도구가 감지되었습니다.');
       }
-    }, 500);
-  }
+    } else {
+      devtools.open = false;
+    }
+  }, 500);
+  */
   
   // 서비스 워커 등록 (PWA 지원)
   if ('serviceWorker' in navigator && location.protocol === 'https:') {
