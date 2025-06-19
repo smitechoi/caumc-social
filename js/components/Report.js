@@ -610,14 +610,25 @@ export class Report {
       const reportElement = document.getElementById('report-content');
       const { jsPDF } = window.jspdf;
       
-      // html2canvas로 캡처
+      // 버튼들을 임시로 숨김
+      const actionButtons = document.querySelector('.report-actions');
+      const backBtn = document.querySelector('.back-btn');
+      actionButtons.style.display = 'none';
+      backBtn.style.display = 'none';
+      
+      // html2canvas로 캡처 - 배경색 명시적 설정
       const canvas = await html2canvas(reportElement, {
         scale: 2,
         useCORS: true,
         logging: false,
         windowWidth: reportElement.scrollWidth,
-        windowHeight: reportElement.scrollHeight
+        windowHeight: reportElement.scrollHeight,
+        backgroundColor: '#ffffff' // 흰색 배경 명시
       });
+      
+      // 버튼들 다시 표시
+      actionButtons.style.display = '';
+      backBtn.style.display = '';
       
       // PDF 생성
       const imgData = canvas.toDataURL('image/png');
@@ -786,6 +797,7 @@ style.textContent = `
     cursor: pointer;
     font-size: 14px;
     transition: all 0.2s;
+    color: #141;
   }
   
   .back-btn:hover {
@@ -1026,8 +1038,15 @@ style.textContent = `
   
   /* 인쇄 스타일 */
   @media print {
+    @page {
+      size: A4;
+      margin: 15mm;
+    }
+    
     body {
       background: white;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
     
     .back-btn,
@@ -1038,14 +1057,19 @@ style.textContent = `
     .report-container {
       box-shadow: none;
       margin: 0;
-      padding: 20px;
+      padding: 0;
       max-width: 100%;
+      width: 100%;
+      background: white;
     }
     
     .report-header {
       page-break-after: avoid;
+      border-bottom: 2px solid #1976d2;
     }
     
+    .patient-info-section,
+    .completion-status,
     .survey-results,
     .cnt-results,
     .overall-impression {
@@ -1054,6 +1078,55 @@ style.textContent = `
     
     .chart-container {
       page-break-inside: avoid;
+      max-height: 400px;
+    }
+    
+    .chart-container svg {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    .results-table {
+      page-break-inside: auto;
+    }
+    
+    .results-table tr {
+      page-break-inside: avoid;
+    }
+    
+    /* 색상 보존 */
+    .exceeded-cutoff {
+      background: #ffebee !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    
+    .status-exceeded {
+      color: #f44336 !important;
+    }
+    
+    .status-normal {
+      color: #4caf50 !important;
+    }
+    
+    .performance-excellent {
+      color: #4caf50 !important;
+    }
+    
+    .performance-good {
+      color: #8bc34a !important;
+    }
+    
+    .performance-average {
+      color: #ff9800 !important;
+    }
+    
+    .performance-below {
+      color: #ff5722 !important;
+    }
+    
+    .performance-poor {
+      color: #f44336 !important;
     }
   }
   

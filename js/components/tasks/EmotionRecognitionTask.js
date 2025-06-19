@@ -212,19 +212,6 @@ export class EmotionRecognitionTask extends BaseTask {
     p.textSize(16);
     p.text(`${state.currentTrial + 1} / ${state.maxTrials}`, p.width/2, 60);
     
-    // 현재 시행 정보 (디버그용 - 필요시 제거)
-    if (state.currentTrialData) {
-      p.textSize(12);
-      p.fill(150);
-      if (state.currentTrialData.emotion !== 'neutral') {
-        const intensityKo = {
-          strong: '강함',
-          medium: '중간',
-          weak: '약함'
-        };
-        p.text(`(${intensityKo[state.currentTrialData.intensity]} 강도)`, p.width/2, 75);
-      }
-    }
     
     p.pop();
   }
