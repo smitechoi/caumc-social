@@ -14,14 +14,26 @@
       -webkit-tap-highlight-color: transparent;
     }
     
-    /* 800x600 고정 레이아웃 */
-    html, body {
+    /* 800x600 고정 레이아웃 + 가운데 정렬 */
+    html {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #333;
+    }
+    
+    body {
       width: 800px;
       height: 600px;
       overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       font-size: 14px;
       touch-action: none; /* 스크롤 및 줌 방지 */
+      background: #f5f5f5;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+      position: relative;
     }
     
     /* 메인 앱 컨테이너 */
