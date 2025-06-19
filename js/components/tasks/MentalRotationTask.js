@@ -22,30 +22,36 @@ export class MentalRotationTask extends BaseTask {
   }
 
   initializeState(state, p) {
-    // 블록 패턴 정의 (각 블록의 상대 위치)
+    // 블록 패턴 정의 - 더 다양한 난이도
     state.blockPatterns = [
-      // 난이도 1: 3-4개 블록
+      // 난이도 1: 2-3개 블록 (단순)
       [
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}], // 2개 일자
+        [{x: 0, y: 0, z: 0}, {x: 0, y: 1, z: 0}], // 2개 수직
         [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}], // L자
-        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 2, y: 0, z: 0}], // 일자
-        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 1, y: 1, z: 0}, {x: 1, y: 2, z: 0}], // T자
       ],
-      // 난이도 2: 4-5개 블록
+      // 난이도 2: 3-4개 블록 (2D 위주)
+      [
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 2, y: 0, z: 0}], // 3개 일자
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 1, y: 1, z: 0}, {x: 1, y: 2, z: 0}], // T자
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 1, y: 1, z: 0}], // 정사각형
+      ],
+      // 난이도 3: 4-5개 블록 (3D 시작)
       [
         [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 0, y: 0, z: 1}], // 3D L자
         [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 1, y: 1, z: 0}, {x: 2, y: 1, z: 0}], // 계단
-        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 1, y: 1, z: 0}, {x: 0, y: 0, z: 1}], // 큐브+1
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 0, y: 0, z: 1}, {x: 1, y: 0, z: 1}], // 3D 확장
       ],
-      // 난이도 3: 5-6개 블록 (복잡한 3D 구조)
+      // 난이도 4: 5-6개 블록 (복잡한 3D)
       [
-        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 0, y: 0, z: 1}, {x: 1, y: 0, z: 1}],
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 0, y: 0, z: 1}, {x: 1, y: 1, z: 0}, {x: 1, y: 0, z: 1}],
         [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 2, y: 0, z: 0}, {x: 1, y: 1, z: 0}, {x: 1, y: 0, z: 1}],
         [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 1, y: 1, z: 0}, {x: 0, y: 0, z: 1}, {x: 0, y: 1, z: 1}],
       ]
     ];
     
     state.currentTrial = 0;
-    state.maxTrials = 24;
+    state.maxTrials = 16; // 24에서 16으로 줄임
     state.showStimulus = true;
     state.stimulusOnset = p.millis();
     state.responded = false;
@@ -54,6 +60,7 @@ export class MentalRotationTask extends BaseTask {
     state.leftRotation = { x: -0.3, y: 0.7, z: 0.1 };
     state.rightRotation = { x: -0.3, y: 0.7, z: 0.1 };
     state.autoRotate = true;
+    state.autoRotateSpeed = 0.008; // 회전 속도
     state.blockSize = 40;
     
     // 마우스 드래그 관련
@@ -62,38 +69,43 @@ export class MentalRotationTask extends BaseTask {
     state.lastMouseX = 0;
     state.lastMouseY = 0;
     
-    // 난이도 점진적 증가
-    state.trialDifficulty = Math.floor(state.currentTrial / 8) + 1;
+    // 난이도 더 빠르게 증가
+    state.trialDifficulty = Math.floor(state.currentTrial / 4) + 1; // 4시행마다 난이도 증가
     
     this.generateTrial(state);
   }
 
   generateTrial(state) {
-    // 난이도에 따른 패턴 선택
-    const difficultyIndex = Math.min(state.trialDifficulty - 1, 2);
+    // 난이도에 따른 패턴 선택 (최대 난이도 4)
+    const difficultyIndex = Math.min(state.trialDifficulty - 1, 3);
     const patterns = state.blockPatterns[difficultyIndex];
     const pattern = patterns[Math.floor(Math.random() * patterns.length)];
     
     state.basePattern = pattern;
-    state.isSame = Math.random() < 0.5;
+    
+    // 난이도에 따라 같음/다름 비율 조정
+    // 높은 난이도일수록 거울상이 많이 나옴
+    const sameProbability = 0.5 - (difficultyIndex * 0.1);
+    state.isSame = Math.random() < sameProbability;
     
     if (state.isSame) {
       // 같은 패턴, 회전만
       state.comparisonPattern = [...pattern];
-      // 랜덤 회전 각도
+      // 난이도가 높을수록 더 복잡한 회전
+      const rotationComplexity = Math.min(difficultyIndex + 1, 3);
       state.targetRotation = {
-        x: Math.floor(Math.random() * 4) * Math.PI / 2,
+        x: Math.floor(Math.random() * rotationComplexity) * Math.PI / 2,
         y: Math.floor(Math.random() * 4) * Math.PI / 2,
-        z: Math.floor(Math.random() * 4) * Math.PI / 2
+        z: Math.floor(Math.random() * rotationComplexity) * Math.PI / 2
       };
       state.isMirrored = false;
     } else {
-      if (Math.random() < 0.5) {
-        // 다른 패턴
+      if (Math.random() < 0.5 || difficultyIndex < 1) {
+        // 다른 패턴 (낮은 난이도에서 주로 사용)
         let otherPattern;
         do {
           otherPattern = patterns[Math.floor(Math.random() * patterns.length)];
-        } while (otherPattern === pattern);
+        } while (otherPattern === pattern && patterns.length > 1);
         
         state.comparisonPattern = otherPattern;
         state.targetRotation = {
@@ -103,7 +115,7 @@ export class MentalRotationTask extends BaseTask {
         };
         state.isMirrored = false;
       } else {
-        // 같은 패턴의 거울상
+        // 같은 패턴의 거울상 (높은 난이도에서 주로 사용)
         state.comparisonPattern = pattern.map(block => ({
           x: -block.x,
           y: block.y,
@@ -120,6 +132,9 @@ export class MentalRotationTask extends BaseTask {
     
     // 초기 회전 설정
     state.rightRotation = { ...state.targetRotation };
+    
+    // 자동 회전 속도도 난이도에 따라 조정
+    state.autoRotateSpeed = 0.008 + (difficultyIndex * 0.002);
   }
 
   render(state, p) {
@@ -185,8 +200,13 @@ export class MentalRotationTask extends BaseTask {
       
       // 자동 회전
       if (state.autoRotate) {
-        state.leftRotation.y += 0.005;
+        // 왼쪽 블록 회전
+        state.leftRotation.y += state.autoRotateSpeed;
         state.leftRotation.x = -0.3 + Math.sin(state.leftRotation.y * 0.5) * 0.2;
+        
+        // 오른쪽 블록도 회전 (반대 방향)
+        state.rightRotation.y -= state.autoRotateSpeed * 0.8;
+        state.rightRotation.x = -0.3 + Math.cos(state.rightRotation.y * 0.5) * 0.15;
       }
       
       // 응답 버튼
@@ -198,6 +218,10 @@ export class MentalRotationTask extends BaseTask {
       p.textSize(20);
       p.fill(100);
       p.text(`${state.currentTrial + 1} / ${state.maxTrials}`, p.width/2, 40);
+      
+      // 난이도 표시
+      p.textSize(16);
+      p.text(`난이도: ${'★'.repeat(state.trialDifficulty)}`, p.width/2, 60);
       p.pop();
     }
   }
@@ -426,10 +450,11 @@ export class MentalRotationTask extends BaseTask {
         // 다음 시행 준비
         setTimeout(() => {
           state.currentTrial++;
-          state.trialDifficulty = Math.floor(state.currentTrial / 8) + 1;
+          state.trialDifficulty = Math.floor(state.currentTrial / 4) + 1; // 4시행마다 난이도 증가
           state.stimulusOnset = p.millis();
           state.responded = false;
           state.leftRotation = { x: -0.3, y: 0.7, z: 0.1 };
+          state.rightRotation = { x: -0.3, y: 0.7, z: 0.1 };
           state.autoRotate = true;
           this.generateTrial(state);
         }, 1000);
