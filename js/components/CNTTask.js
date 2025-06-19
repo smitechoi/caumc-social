@@ -128,18 +128,20 @@ export class CNTTask {
     // 전체 화면 컨테이너 생성
     const fullscreenContainer = document.createElement('div');
     fullscreenContainer.id = 'task-fullscreen-container';
-    fullscreenContainer.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: white;
-      z-index: 1000;
-      overflow: hidden;
-    `;
+    fullscreenContainer.className = 'active';
+    
+    // index.html의 컨테이너에 추가
+    const existingContainer = document.getElementById('task-fullscreen-container');
+    if (existingContainer) {
+      existingContainer.remove();
+    }
     
     document.body.appendChild(fullscreenContainer);
+    
+    // 태스크 캔버스 컨테이너 추가
+    const canvasContainer = document.createElement('div');
+    canvasContainer.id = 'task-canvas';
+    fullscreenContainer.appendChild(canvasContainer);
     
     // 태스크 인스턴스 생성
     const TaskClass = config.class;
@@ -152,6 +154,20 @@ export class CNTTask {
     
     // 태스크 시작
     this.currentTaskInstance.start();
+  }
+
+  removeFullscreen() {
+    const fullscreenContainer = document.getElementById('task-fullscreen-container');
+    if (fullscreenContainer) {
+      fullscreenContainer.classList.remove('active');
+      // 잠시 후 제거 (애니메이션을 위해)
+      setTimeout(() => {
+        fullscreenContainer.remove();
+      }, 300);
+    }
+    if (this.currentTaskInstance && this.currentTaskInstance.cleanup) {
+      this.currentTaskInstance.cleanup();
+    }
   }
 
   async onTaskComplete(taskData) {

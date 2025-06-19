@@ -61,12 +61,28 @@ export class BaseTask {
     createP5Sketch() {
       const sketch = (p) => {
         let state = {};
+        
         p.setup = () => {
-          const maxWidth = 1200;
-          const scale = Math.min(1, window.innerWidth / maxWidth);
-          const canvas = p.createCanvas(window.innerWidth, window.innerHeight);
+          // 컨테이너 크기에 맞춰 캔버스 생성
+          const container = document.getElementById('task-fullscreen-container');
+          const width = container ? container.clientWidth : window.innerWidth;
+          const height = container ? container.clientHeight : window.innerHeight;
+          
+          // 최대 크기 제한
+          const maxWidth = Math.min(width, 1024);
+          const maxHeight = Math.min(height, 768);
+          
+          // 캔버스 생성
+          const canvas = p.createCanvas(maxWidth, maxHeight);
           canvas.parent('task-canvas');
-          p.scale(scale); // 전체 캔버스에 스케일 적용
+          
+          // 중앙 정렬
+          const canvasElement = canvas.canvas;
+          canvasElement.style.position = 'absolute';
+          canvasElement.style.left = '50%';
+          canvasElement.style.top = '50%';
+          canvasElement.style.transform = 'translate(-50%, -50%)';
+          
           p.textAlign(p.CENTER, p.CENTER);
           
           // 태스크별 초기화
@@ -146,7 +162,14 @@ export class BaseTask {
         };
         
         p.windowResized = () => {
-          p.resizeCanvas(window.innerWidth, window.innerHeight);
+          const container = document.getElementById('task-fullscreen-container');
+          const width = container ? container.clientWidth : window.innerWidth;
+          const height = container ? container.clientHeight : window.innerHeight;
+          
+          const maxWidth = Math.min(width, 1024);
+          const maxHeight = Math.min(height, 768);
+          
+          p.resizeCanvas(maxWidth, maxHeight);
         };
       };
       
