@@ -12,7 +12,7 @@ export class CardSortingTask extends BaseTask {
           <p>• 한 번에 <strong>한 장</strong>의 카드만 이동 가능</p>
           <p>• 각 열의 <strong>맨 위 카드</strong>만 이동 가능</p>
           <p>• 빈 열에도 카드를 놓을 수 있습니다</p>
-          <p>• 최소한의 이동으로 목표를 달성하세요</p>
+          <p>• 카드는 <strong>색상</strong>으로 구분됩니다</p>
         </div>
         <p style="color: #666;">카드를 클릭한 후, 목표 위치를 클릭하세요.</p>
       `
@@ -24,13 +24,13 @@ export class CardSortingTask extends BaseTask {
   }
 
   initializeState(state, p) {
-    // 카드 종류 (색상과 숫자)
+    // 카드 종류 (색상만, 더 선명한 색상 사용)
     state.cardTypes = [
-      { color: [244, 67, 54], number: 1 },    // 빨강 1
-      { color: [33, 150, 243], number: 2 },   // 파랑 2
-      { color: [76, 175, 80], number: 3 },    // 초록 3
-      { color: [255, 193, 7], number: 4 },    // 노랑 4
-      { color: [156, 39, 176], number: 5 }    // 보라 5
+      { color: [255, 59, 48], id: 1 },      // 선명한 빨강
+      { color: [0, 122, 255], id: 2 },      // 선명한 파랑
+      { color: [52, 199, 89], id: 3 },      // 선명한 초록
+      { color: [255, 204, 0], id: 4 },      // 선명한 노랑
+      { color: [175, 82, 222], id: 5 }      // 선명한 보라
     ];
     
     // 난이도별 문제 설정
@@ -50,93 +50,87 @@ export class CardSortingTask extends BaseTask {
     state.processingSuccess = false;
     
     // 레이아웃 설정
-    const cardWidth = 80;
-    const cardHeight = 100;
+    const cardWidth = 90;
+    const cardHeight = 60;  // 더 낮은 높이로 여러 장이 보이도록
     const columnWidth = 120;
-    const spacing = 40;
+    const cardSpacing = 20; // 카드 간 간격
     
     // 목표 배열 위치
     state.targetLayout = {
       x: p.width / 2 - (3 * columnWidth) / 2,
-      y: 80,
+      y: 100,
       columns: 3,
       columnWidth: columnWidth,
       cardWidth: cardWidth,
-      cardHeight: cardHeight
+      cardHeight: cardHeight,
+      cardSpacing: cardSpacing
     };
     
     // 현재 배열 위치
     state.currentLayout = {
       x: p.width / 2 - (3 * columnWidth) / 2,
-      y: p.height / 2 + 50,
+      y: p.height / 2 + 30,
       columns: 3,
       columnWidth: columnWidth,
       cardWidth: cardWidth,
-      cardHeight: cardHeight
+      cardHeight: cardHeight,
+      cardSpacing: cardSpacing
     };
   }
 
   generateProblems() {
     return [
-      // 난이도 1: 간단한 이동 (2-3 moves)
+      // 난이도 1: 간단한 이동
       {
         difficulty: 1,
-        minMoves: 2,
         target: [[1], [2], [3]],
         initial: [[1, 2, 3], [], []],
         description: "기본 이동"
       },
       {
         difficulty: 1,
-        minMoves: 3,
         target: [[3], [2], [1]],
         initial: [[1, 2, 3], [], []],
         description: "역순 정렬"
       },
       
-      // 난이도 2: 중간 복잡도 (4-5 moves)
+      // 난이도 2: 중간 복잡도
       {
         difficulty: 2,
-        minMoves: 4,
         target: [[1, 3], [2], [4]],
         initial: [[1, 2], [3, 4], []],
         description: "교차 이동"
       },
       {
         difficulty: 2,
-        minMoves: 5,
         target: [[2, 4], [1, 3], []],
         initial: [[1, 2, 3, 4], [], []],
         description: "분할 정렬"
       },
       
-      // 난이도 3: 복잡한 패턴 (6-7 moves)
+      // 난이도 3: 복잡한 패턴
       {
         difficulty: 3,
-        minMoves: 6,
         target: [[4], [3, 2], [1]],
         initial: [[1, 2], [3], [4]],
         description: "피라미드"
       },
       {
         difficulty: 3,
-        minMoves: 7,
         target: [[1, 4], [2, 5], [3]],
         initial: [[1, 2, 3], [4, 5], []],
         description: "교대 배치"
       },
       
-      // 난이도 4: 매우 복잡 (8+ moves)
+      // 난이도 4: 매우 복잡
       {
         difficulty: 4,
-        minMoves: 8,
         target: [[5, 1], [4, 2], [3]],
         initial: [[1, 2, 3, 4, 5], [], []],
         description: "지그재그"
       },
       {
         difficulty: 4,
-        minMoves: 9,
         target: [[3, 1], [4], [5, 2]],
         initial: [[1, 2], [3, 4, 5], []],
         description: "복잡한 재배열"
@@ -145,28 +139,24 @@ export class CardSortingTask extends BaseTask {
       // 추가 문제들
       {
         difficulty: 2,
-        minMoves: 4,
         target: [[2], [1, 4], [3]],
         initial: [[1, 2, 3], [4], []],
         description: "중간 삽입"
       },
       {
         difficulty: 3,
-        minMoves: 6,
         target: [[4, 2], [3], [5, 1]],
         initial: [[1], [2, 3, 4], [5]],
         description: "분산 재배열"
       },
       {
         difficulty: 3,
-        minMoves: 7,
         target: [[1], [2, 4], [3, 5]],
         initial: [[5, 4, 3, 2, 1], [], []],
         description: "역순 분할"
       },
       {
         difficulty: 4,
-        minMoves: 10,
         target: [[5, 3, 1], [4, 2], []],
         initial: [[1], [2, 3], [4, 5]],
         description: "최종 도전"
@@ -183,7 +173,6 @@ export class CardSortingTask extends BaseTask {
     
     // 문제 정보
     state.currentDifficulty = problem.difficulty;
-    state.minMoves = problem.minMoves;
     state.problemDescription = problem.description;
   }
 
@@ -194,7 +183,7 @@ export class CardSortingTask extends BaseTask {
     }
     
     // 배경
-    p.background(250);
+    p.background(245);
     
     // 진행 상황
     this.drawProgress(state, p);
@@ -236,12 +225,8 @@ export class CardSortingTask extends BaseTask {
     
     p.textSize(24);
     p.fill(0);
-    p.text(`이동 횟수: ${state.moves} (최소: ${state.minMoves})`, p.width / 2, p.height / 2);
+    p.text(`이동 횟수: ${state.moves}`, p.width / 2, p.height / 2);
     
-    if (state.moves === state.minMoves) {
-      p.fill(255, 193, 7);
-      p.text('완벽한 해결! ⭐', p.width / 2, p.height / 2 + 40);
-    }
     p.pop();
   }
 
@@ -284,62 +269,70 @@ export class CardSortingTask extends BaseTask {
       p.fill(240);
       p.stroke(200);
       p.strokeWeight(2);
-      p.rect(x, layout.y, layout.cardWidth, 300, 5);
+      p.rect(x, layout.y, layout.cardWidth, 250, 5);
       
       // 열 번호
       p.fill(150);
       p.noStroke();
       p.textAlign(p.CENTER);
       p.textSize(14);
-      p.text(col + 1, x + layout.cardWidth / 2, layout.y + 320);
+      p.text(col + 1, x + layout.cardWidth / 2, layout.y + 270);
       
       // 카드 그리기
       const cards = cardArray[col] || [];
       for (let i = 0; i < cards.length; i++) {
         const cardNum = cards[i];
         const cardType = state.cardTypes[cardNum - 1];
-        const cardY = layout.y + 200 - i * 30; // 아래에서 위로 쌓기
+        const cardY = layout.y + 180 - i * layout.cardSpacing; // 아래에서 위로 쌓기, 간격 좁게
         
+        const isTopCard = i === cards.length - 1;
         const isSelected = isInteractive && 
                           state.selectedColumn === col && 
-                          i === cards.length - 1;
+                          isTopCard;
         
-        this.drawCard(p, x + (layout.cardWidth - layout.cardWidth * 0.8) / 2, 
-                     cardY, layout.cardWidth * 0.8, layout.cardHeight * 0.8, 
-                     cardType, isSelected);
+        this.drawCard(p, x + (layout.cardWidth - layout.cardWidth * 0.9) / 2, 
+                     cardY, layout.cardWidth * 0.9, layout.cardHeight, 
+                     cardType, isSelected, isTopCard);
       }
     }
     
     p.pop();
   }
 
-  drawCard(p, x, y, width, height, cardType, isSelected) {
+  drawCard(p, x, y, width, height, cardType, isSelected, isTopCard) {
     p.push();
     
-    // 카드 그림자
-    if (isSelected) {
-      p.fill(0, 0, 0, 50);
+    // 카드 그림자 (맨 위 카드만)
+    if (isTopCard) {
+      p.fill(0, 0, 0, 30);
       p.noStroke();
-      p.rect(x + 4, y + 4, width, height, 8);
+      p.rect(x + 2, y + 2, width, height, 8);
     }
     
-    // 카드 배경
-    p.fill(255);
-    p.stroke(isSelected ? [255, 193, 7] : 0);
-    p.strokeWeight(isSelected ? 4 : 2);
+    // 카드 테두리
+    if (isSelected) {
+      p.stroke(255, 204, 0);
+      p.strokeWeight(4);
+    } else if (isTopCard) {
+      p.stroke(100);
+      p.strokeWeight(2);
+    } else {
+      p.stroke(150);
+      p.strokeWeight(1);
+    }
+    
+    // 카드 색상 채우기 (전체를 색상으로)
+    p.fill(cardType.color);
     p.rect(x, y, width, height, 8);
     
-    // 카드 색상
-    p.fill(cardType.color);
-    p.noStroke();
-    p.rect(x + 10, y + 10, width - 20, height - 40, 5);
-    
-    // 카드 숫자
-    p.fill(255);
-    p.textAlign(p.CENTER, p.CENTER);
-    p.textSize(32);
-    p.textStyle(p.BOLD);
-    p.text(cardType.number, x + width / 2, y + height / 2 - 5);
+    // 맨 위 카드에만 하이라이트 효과
+    if (isTopCard) {
+      p.push();
+      p.fill(255, 255, 255, 30);
+      p.noStroke();
+      p.rect(x + 5, y + 5, width * 0.3, height * 0.3, 4);
+      p.pop();
+    }
     
     p.pop();
   }
@@ -351,7 +344,7 @@ export class CardSortingTask extends BaseTask {
     p.textSize(16);
     
     const infoY = state.currentLayout.y - 40;
-    p.text(`이동 횟수: ${state.moves} / 최소 이동: ${state.minMoves}`, p.width / 2, infoY);
+    p.text(`이동 횟수: ${state.moves}`, p.width / 2, infoY);
     
     if (state.selectedCard !== null) {
       p.fill(33, 150, 243);
@@ -369,7 +362,7 @@ export class CardSortingTask extends BaseTask {
     for (let col = 0; col < state.currentLayout.columns; col++) {
       if (col !== state.selectedColumn) {
         const x = state.currentLayout.x + col * state.currentLayout.columnWidth;
-        p.rect(x, state.currentLayout.y, state.currentLayout.cardWidth, 300, 5);
+        p.rect(x, state.currentLayout.y, state.currentLayout.cardWidth, 250, 5);
       }
     }
     p.pop();
@@ -382,7 +375,7 @@ export class CardSortingTask extends BaseTask {
     // 현재 배열 영역 확인
     const layout = state.currentLayout;
     
-    if (y >= layout.y && y <= layout.y + 300) {
+    if (y >= layout.y && y <= layout.y + 250) {
       const col = Math.floor((x - layout.x) / layout.columnWidth);
       
       if (col >= 0 && col < layout.columns) {
@@ -450,8 +443,6 @@ export class CardSortingTask extends BaseTask {
       problem: state.currentProblem,
       difficulty: state.currentDifficulty,
       moves: state.moves,
-      minMoves: state.minMoves,
-      efficiency: state.minMoves / state.moves,
       time: p.millis() - state.startTime,
       success: true
     };
@@ -481,41 +472,23 @@ export class CardSortingTask extends BaseTask {
     const events = this.taskData.events;
     if (!events || events.length === 0) return 0;
     
-    // 평균 효율성 (최소 이동 / 실제 이동)
-    const avgEfficiency = events.reduce((sum, e) => sum + (e.efficiency || 0), 0) / events.length;
+    // 완료율
+    const completionRate = (events.length / 12) * 30; // 최대 30점
     
-    // 난이도별 성공률
-    const difficultyScores = {};
+    // 평균 이동 횟수 (적을수록 좋음)
+    const avgMoves = events.reduce((sum, e) => sum + e.moves, 0) / events.length;
+    const moveScore = Math.max(0, 40 - avgMoves * 2); // 최대 40점
+    
+    // 난이도별 성공
+    let difficultyScore = 0;
     for (let d = 1; d <= 4; d++) {
-      const problems = events.filter(e => e.difficulty === d);
-      if (problems.length > 0) {
-        const perfectSolutions = problems.filter(e => e.efficiency === 1).length;
-        difficultyScores[d] = perfectSolutions / problems.length;
+      const solved = events.filter(e => e.difficulty === d).length;
+      if (solved > 0) {
+        difficultyScore += d * 2.5 * solved; // 난이도별 가중치
       }
     }
+    difficultyScore = Math.min(30, difficultyScore); // 최대 30점
     
-    // 평균 해결 시간
-    const avgTime = events.reduce((sum, e) => sum + (e.time || 0), 0) / events.length;
-    const timeBonus = Math.max(0, 20 - avgTime / 3000); // 3초당 1점 감점
-    
-    // 난이도 가중 점수
-    let weightedScore = 0;
-    let totalWeight = 0;
-    for (let d = 1; d <= 4; d++) {
-      if (difficultyScores[d] !== undefined) {
-        weightedScore += difficultyScores[d] * d * 10;
-        totalWeight += d;
-      }
-    }
-    
-    const difficultyBonus = totalWeight > 0 ? weightedScore / totalWeight : 0;
-    
-    // 종합 점수
-    const efficiencyScore = avgEfficiency * 40; // 최대 40점
-    const completionRate = (events.length / 12) * 20; // 최대 20점 (12개 문제 기준)
-    
-    return Math.round(Math.min(100, 
-      efficiencyScore + difficultyBonus + completionRate + timeBonus
-    ));
+    return Math.round(completionRate + moveScore + difficultyScore);
   }
 }

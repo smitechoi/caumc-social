@@ -22,36 +22,39 @@ export class MentalRotationTask extends BaseTask {
   }
 
   initializeState(state, p) {
-    // 블록 패턴 정의 - 더 다양한 난이도
+    // 블록 패턴 정의 - 더 복잡하고 다양한 패턴
     state.blockPatterns = [
-      // 난이도 1: 2-3개 블록 (단순)
+      // 난이도 1: 4-5개 블록 (기본 3D 구조)
       [
-        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}], // 2개 일자
-        [{x: 0, y: 0, z: 0}, {x: 0, y: 1, z: 0}], // 2개 수직
-        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}], // L자
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 0, y: 0, z: 1}], // 3D 코너
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 2, y: 0, z: 0}, {x: 1, y: 1, z: 0}, {x: 1, y: 0, z: 1}], // T자 3D
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 1, y: 1, z: 0}, {x: 0, y: 0, z: 1}], // L자 3D
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 1, y: 1, z: 0}, {x: 2, y: 1, z: 0}, {x: 1, y: 1, z: 1}], // 지그재그 3D
       ],
-      // 난이도 2: 3-4개 블록 (2D 위주)
+      // 난이도 2: 5-6개 블록 (복잡한 3D)
       [
-        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 2, y: 0, z: 0}], // 3개 일자
-        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 1, y: 1, z: 0}, {x: 1, y: 2, z: 0}], // T자
-        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 1, y: 1, z: 0}], // 정사각형
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 0, y: 0, z: 1}, {x: 1, y: 1, z: 0}, {x: 1, y: 0, z: 1}], // 큐브 빠진 형태
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 2, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 1, y: 0, z: 1}, {x: 2, y: 0, z: 1}], // 브릿지
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 0, y: 2, z: 0}, {x: 0, y: 0, z: 1}, {x: 0, y: 1, z: 1}], // 계단
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 2, y: 0, z: 0}, {x: 1, y: 1, z: 0}, {x: 1, y: -1, z: 0}, {x: 1, y: 0, z: 1}], // 십자 3D
       ],
-      // 난이도 3: 4-5개 블록 (3D 시작)
+      // 난이도 3: 6-7개 블록 (매우 복잡)
       [
-        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 0, y: 0, z: 1}], // 3D L자
-        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 1, y: 1, z: 0}, {x: 2, y: 1, z: 0}], // 계단
-        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 0, y: 0, z: 1}, {x: 1, y: 0, z: 1}], // 3D 확장
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 2, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 1, y: 1, z: 0}, {x: 0, y: 0, z: 1}, {x: 1, y: 0, z: 1}], // 복잡한 L
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 1, y: 1, z: 0}, {x: 1, y: 2, z: 0}, {x: 0, y: 0, z: 1}, {x: 1, y: 0, z: 1}, {x: 2, y: 0, z: 1}], // 3D 뱀
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 2, y: 0, z: 0}, {x: 1, y: 1, z: 0}, {x: 1, y: -1, z: 0}, {x: 1, y: 0, z: 1}, {x: 1, y: 0, z: -1}], // 3D 십자
       ],
-      // 난이도 4: 5-6개 블록 (복잡한 3D)
+      // 난이도 4: 7-8개 블록 (극한 난이도)
       [
-        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 0, y: 0, z: 1}, {x: 1, y: 1, z: 0}, {x: 1, y: 0, z: 1}],
-        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 2, y: 0, z: 0}, {x: 1, y: 1, z: 0}, {x: 1, y: 0, z: 1}],
-        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 1, y: 1, z: 0}, {x: 0, y: 0, z: 1}, {x: 0, y: 1, z: 1}],
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 2, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 0, y: 2, z: 0}, {x: 0, y: 0, z: 1}, {x: 0, y: 0, z: 2}, {x: 1, y: 1, z: 1}], // 3축 확장
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 1, z: 0}, {x: 1, y: 1, z: 0}, {x: 0, y: 0, z: 1}, {x: 1, y: 0, z: 1}, {x: 0, y: 1, z: 1}, {x: 2, y: 0, z: 0}], // 거의 큐브
+        [{x: 0, y: 0, z: 0}, {x: 1, y: 0, z: 0}, {x: 2, y: 0, z: 0}, {x: 3, y: 0, z: 0}, {x: 1, y: 1, z: 0}, {x: 2, y: 1, z: 0}, {x: 1, y: 0, z: 1}, {x: 2, y: 0, z: 1}], // 긴 구조
       ]
     ];
     
+    // 난이도 적응형 설정
     state.currentTrial = 0;
-    state.maxTrials = 16; // 24에서 16으로 줄임
+    state.maxTrials = 20; // 16에서 20으로 증가
     state.showStimulus = true;
     state.stimulusOnset = p.millis();
     state.responded = false;
@@ -66,17 +69,25 @@ export class MentalRotationTask extends BaseTask {
     state.leftRotation = { ...randomInitialRotation };
     state.rightRotation = { ...randomInitialRotation };
     state.autoRotate = true;
-    state.autoRotateSpeed = 0.008; // 회전 속도
-    state.blockSize = 40;
+    state.autoRotateSpeed = 0.010; // 약간 더 빠른 회전
+    state.blockSize = 35; // 블록 크기 약간 축소
     
     // 마우스 드래그 관련
     state.isDragging = false;
-    state.dragTarget = null; // 'left' or 'right'
+    state.dragTarget = null;
     state.lastMouseX = 0;
     state.lastMouseY = 0;
     
-    // 난이도 더 빠르게 증가
-    state.trialDifficulty = Math.floor(state.currentTrial / 3) + 1; // 3시행마다 난이도 증가
+    // 적응형 난이도 시스템
+    state.performance = {
+      correct: 0,
+      total: 0,
+      recentCorrect: [], // 최근 5개 시행 기록
+      currentDifficulty: 1
+    };
+    
+    // 난이도 빠르게 상승
+    state.trialDifficulty = 2; // 난이도 2부터 시작
     
     // 피드백 오버레이 관련
     state.feedbackOverlay = {
@@ -91,47 +102,84 @@ export class MentalRotationTask extends BaseTask {
   }
 
   generateTrial(state) {
-    // 난이도에 따른 패턴 선택
-    const difficultyIndex = Math.min(state.trialDifficulty - 1, state.blockPatterns.length - 1);
+    // 적응형 난이도 설정
+    if (state.performance.total > 4) {
+      // 최근 5개 시행의 정답률 계산
+      const recentRate = state.performance.recentCorrect.slice(-5).reduce((a, b) => a + b, 0) / 
+                        Math.min(5, state.performance.recentCorrect.length);
+      
+      // 정답률에 따라 난이도 조정
+      if (recentRate > 0.8 && state.performance.currentDifficulty < 4) {
+        state.performance.currentDifficulty++;
+      } else if (recentRate < 0.4 && state.performance.currentDifficulty > 1) {
+        state.performance.currentDifficulty--;
+      }
+    }
+    
+    // 현재 난이도에 맞는 패턴 선택
+    const difficultyIndex = Math.min(state.performance.currentDifficulty - 1, state.blockPatterns.length - 1);
     const patterns = state.blockPatterns[difficultyIndex];
     state.basePattern = patterns[Math.floor(Math.random() * patterns.length)];
     
-    // 같음/다름 결정
+    // 같음/다름 결정 (50:50 확률)
     state.isSame = Math.random() < 0.5;
     state.isMirrored = false;
     
+    // 회전각 복잡도도 난이도에 따라 증가
+    const rotationComplexity = Math.min(state.performance.currentDifficulty, 3);
+    
     // 타겟 회전각 생성
     state.targetRotation = {
-      x: Math.floor(Math.random() * 4) * Math.PI / 2,
+      x: Math.floor(Math.random() * (rotationComplexity + 1)) * Math.PI / 2,
       y: Math.floor(Math.random() * 4) * Math.PI / 2,
-      z: 0 // Z축 회전은 너무 어려워서 제거
+      z: rotationComplexity > 2 ? Math.floor(Math.random() * 2) * Math.PI / 4 : 0
     };
     
     // 다른 경우 처리
     if (!state.isSame) {
-      // 50% 확률로 거울상 또는 다른 패턴
-      if (Math.random() < 0.5 && difficultyIndex > 0) {
-        // 다른 패턴
-        let otherPattern;
-        do {
-          otherPattern = patterns[Math.floor(Math.random() * patterns.length)];
-        } while (otherPattern === state.basePattern);
-        state.basePattern = patterns[Math.floor(Math.random() * patterns.length)];
-        state.targetPattern = otherPattern;
-      } else {
-        // 거울상
-        state.targetPattern = state.basePattern.map(block => ({
-          x: -block.x,
-          y: block.y,
-          z: block.z
-        }));
-        state.targetRotation = {
-          x: Math.floor(Math.random() * 4) * Math.PI / 2,
-          y: Math.floor(Math.random() * 4) * Math.PI / 2,
-          z: Math.floor(Math.random() * 4) * Math.PI / 2
-        };
-        state.isMirrored = true;
+      const strategies = ['mirror', 'different', 'partial'];
+      const strategy = strategies[Math.floor(Math.random() * strategies.length)];
+      
+      switch (strategy) {
+        case 'mirror':
+          // 거울상
+          state.targetPattern = state.basePattern.map(block => ({
+            x: -block.x,
+            y: block.y,
+            z: block.z
+          }));
+          state.isMirrored = true;
+          break;
+          
+        case 'different':
+          // 완전히 다른 패턴
+          let otherPattern;
+          do {
+            otherPattern = patterns[Math.floor(Math.random() * patterns.length)];
+          } while (otherPattern === state.basePattern);
+          state.targetPattern = otherPattern;
+          break;
+          
+        case 'partial':
+          // 일부만 변경 (고난이도)
+          state.targetPattern = [...state.basePattern];
+          const blockToChange = Math.floor(Math.random() * state.targetPattern.length);
+          state.targetPattern[blockToChange] = {
+            x: state.targetPattern[blockToChange].x + (Math.random() < 0.5 ? 1 : -1),
+            y: state.targetPattern[blockToChange].y,
+            z: state.targetPattern[blockToChange].z
+          };
+          break;
       }
+      
+      // 다른 패턴도 회전 적용
+      state.targetRotation = {
+        x: Math.floor(Math.random() * 4) * Math.PI / 2,
+        y: Math.floor(Math.random() * 4) * Math.PI / 2,
+        z: Math.floor(Math.random() * 4) * Math.PI / 2
+      };
+    } else {
+      state.targetPattern = state.basePattern;
     }
     
     // 초기 회전을 타겟 회전값에서 시작 (오른쪽 블록)
@@ -143,7 +191,7 @@ export class MentalRotationTask extends BaseTask {
     };
     
     // 자동 회전 속도도 난이도에 따라 조정
-    state.autoRotateSpeed = 0.008 + (difficultyIndex * 0.002);
+    state.autoRotateSpeed = 0.008 + (difficultyIndex * 0.003);
   }
 
   render(state, p) {
@@ -542,7 +590,14 @@ export class MentalRotationTask extends BaseTask {
         // 다음 시행 준비
         setTimeout(() => {
           state.currentTrial++;
-          state.trialDifficulty = Math.floor(state.currentTrial / 4) + 1; // 4시행마다 난이도 증가
+          
+          // 정답 여부 기록 (적응형 난이도)
+          state.performance.total++;
+          state.performance.recentCorrect.push(button.response === state.isSame ? 1 : 0);
+          if (button.response === state.isSame) {
+            state.performance.correct++;
+          }
+          
           state.stimulusOnset = p.millis();
           state.responded = false;
           

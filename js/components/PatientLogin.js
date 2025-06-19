@@ -389,7 +389,7 @@ export class PatientLogin {
 const style = document.createElement('style');
 style.textContent = `
   .patient-login-form {
-    max-width: 450px;
+    max-width: 800px;
     margin: 50px auto;
     padding: 30px;
     border: 1px solid #ddd;
