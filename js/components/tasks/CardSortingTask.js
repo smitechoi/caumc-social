@@ -46,6 +46,8 @@ export class CardSortingTask extends BaseTask {
     state.selectedColumn = -1;
     state.moves = 0;
     state.startTime = p.millis();
+    state.showSuccess = false;
+    state.processingSuccess = false;
     
     // 레이아웃 설정
     const cardWidth = 80;
@@ -211,10 +213,36 @@ export class CardSortingTask extends BaseTask {
       this.highlightPossibleMoves(state, p);
     }
     
-    // 성공 체크
-    if (this.checkSuccess(state)) {
+    // 성공 메시지 표시
+    if (state.showSuccess) {
+      this.drawSuccessMessage(state, p);
+    }
+    
+    // 성공 체크 (성공 메시지가 표시되지 않을 때만)
+    if (!state.showSuccess && !state.processingSuccess && this.checkSuccess(state)) {
       this.handleSuccess(state, p);
     }
+  }
+  
+  drawSuccessMessage(state, p) {
+    p.push();
+    p.fill(255, 255, 255, 240);
+    p.rect(0, 0, p.width, p.height);
+    
+    p.textAlign(p.CENTER, p.CENTER);
+    p.textSize(48);
+    p.fill(76, 175, 80);
+    p.text('완료!', p.width / 2, p.height / 2 - 50);
+    
+    p.textSize(24);
+    p.fill(0);
+    p.text(`이동 횟수: ${state.moves} (최소: ${state.minMoves})`, p.width / 2, p.height / 2);
+    
+    if (state.moves === state.minMoves) {
+      p.fill(255, 193, 7);
+      p.text('완벽한 해결! ⭐', p.width / 2, p.height / 2 + 40);
+    }
+    p.pop();
   }
 
   drawProgress(state, p) {
@@ -348,6 +376,9 @@ export class CardSortingTask extends BaseTask {
   }
 
   handleMousePress(state, x, y, p) {
+    // 성공 처리 중이면 입력 무시
+    if (state.showSuccess || state.processingSuccess) return;
+    
     // 현재 배열 영역 확인
     const layout = state.currentLayout;
     
@@ -410,6 +441,10 @@ export class CardSortingTask extends BaseTask {
   }
 
   handleSuccess(state, p) {
+    // 이미 처리 중이면 무시
+    if (state.processingSuccess) return;
+    state.processingSuccess = true;
+    
     // 성공 데이터 기록
     const problemData = {
       problem: state.currentProblem,
@@ -424,24 +459,8 @@ export class CardSortingTask extends BaseTask {
     this.taskData.events.push(problemData);
     
     // 성공 메시지 표시
-    p.push();
-    p.fill(255, 255, 255, 240);
-    p.rect(0, 0, p.width, p.height);
-    
-    p.textAlign(p.CENTER, p.CENTER);
-    p.textSize(48);
-    p.fill(76, 175, 80);
-    p.text('완료!', p.width / 2, p.height / 2 - 50);
-    
-    p.textSize(24);
-    p.fill(0);
-    p.text(`이동 횟수: ${state.moves} (최소: ${state.minMoves})`, p.width / 2, p.height / 2);
-    
-    if (state.moves === state.minMoves) {
-      p.fill(255, 193, 7);
-      p.text('완벽한 해결! ⭐', p.width / 2, p.height / 2 + 40);
-    }
-    p.pop();
+    state.showSuccess = true;
+    state.successStartTime = p.millis();
     
     // 다음 문제로
     setTimeout(() => {
@@ -452,16 +471,18 @@ export class CardSortingTask extends BaseTask {
         state.selectedCard = null;
         state.selectedColumn = -1;
         state.startTime = p.millis();
+        state.showSuccess = false;
+        state.processingSuccess = false;
       }
     }, 2000);
   }
 
   calculateScore() {
     const events = this.taskData.events;
-    if (events.length === 0) return 0;
+    if (!events || events.length === 0) return 0;
     
     // 평균 효율성 (최소 이동 / 실제 이동)
-    const avgEfficiency = events.reduce((sum, e) => sum + e.efficiency, 0) / events.length;
+    const avgEfficiency = events.reduce((sum, e) => sum + (e.efficiency || 0), 0) / events.length;
     
     // 난이도별 성공률
     const difficultyScores = {};
@@ -474,7 +495,7 @@ export class CardSortingTask extends BaseTask {
     }
     
     // 평균 해결 시간
-    const avgTime = events.reduce((sum, e) => sum + e.time, 0) / events.length;
+    const avgTime = events.reduce((sum, e) => sum + (e.time || 0), 0) / events.length;
     const timeBonus = Math.max(0, 20 - avgTime / 3000); // 3초당 1점 감점
     
     // 난이도 가중 점수
@@ -491,7 +512,7 @@ export class CardSortingTask extends BaseTask {
     
     // 종합 점수
     const efficiencyScore = avgEfficiency * 40; // 최대 40점
-    const completionRate = (events.length / this.taskData.maxProblems) * 20; // 최대 20점
+    const completionRate = (events.length / 12) * 20; // 최대 20점 (12개 문제 기준)
     
     return Math.round(Math.min(100, 
       efficiencyScore + difficultyBonus + completionRate + timeBonus
