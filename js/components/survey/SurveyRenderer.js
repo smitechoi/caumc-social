@@ -23,9 +23,8 @@ export class SurveyRenderer {
       appContainer.style.overflowY = 'auto';
       appContainer.style.height = '100vh';
     }
-
     this.manager.container.innerHTML = `
-      <div class="survey-container" style="overflow-y: visible !important; min-height: 100vh;">
+    <div class="survey-container" style="overflow-y: auto; min-height: 100vh; height: auto;">
         ${this.renderHeader()}
         ${this.renderInstruction()}
         

@@ -47,9 +47,11 @@ class App {
     document.body.style.position = 'relative';
     document.documentElement.style.overflow = 'auto';
     document.documentElement.style.height = 'auto';
-    mainContainer.style.overflow = 'visible';
+    mainContainer.style.overflow = 'auto';
+    mainContainer.style.overflowY = 'auto';
     mainContainer.style.height = 'auto';
     mainContainer.style.minHeight = '100vh';
+
     
     // 스크롤 위치 초기화
     window.scrollTo(0, 0);
@@ -149,7 +151,10 @@ const globalStyles = `
   }
   
   #app {
+    overflow-y: auto !important;  /* visible → auto */
+    overflow-x: hidden !important;
     min-height: 100vh;
+    height: auto;
   }
   
   button {

@@ -799,15 +799,19 @@ export class Report {
 // CSS 스타일
 const style = document.createElement('style');
 style.textContent = `
-  .report-container {
-    max-width: 900px;
-    margin: 20px auto;
-    padding: 30px;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    animation: fadeIn 0.3s ease-out;
+  .report-wrapper {
+    position: relative;
+    min-height: 100vh;
+    overflow-y: auto;  /* hidden → auto로 변경 */
   }
-  
+
+  .report-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 80px auto 0;
+    padding: 20px;
+    /* height 제거하여 콘텐츠에 따라 늘어나도록 */
+  }
   .report-header {
     position: relative;
     border-bottom: 3px solid #1976d2;
