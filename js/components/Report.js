@@ -12,54 +12,58 @@ export class Report {
     const t = (key, params) => translationService.t(key, params);
     
     this.container.innerHTML = `
-      <div class="report-container" id="report-content">
-        <div class="report-header">
+      <div class="report-wrapper">
+        <div class="report-actions-fixed">
           <button onclick="window.location.hash='#dashboard'" class="back-btn">← ${t('backToDashboard')}</button>
-          <h1>${t('comprehensiveReport')}</h1>
-          <div class="report-date">${t('reportDate')}: ${new Date().toLocaleDateString(this.getLocaleDateFormat())}</div>
-        </div>
-        
-        <div class="patient-info-section">
-          <h2>${t('patientInfo')}</h2>
-          <div class="patient-details">
-            <p><strong>${t('name')}:</strong> ${this.patientData.name}</p>
-            <p><strong>${t('birthDate')}:</strong> ${this.patientData.birthDate}</p>
-            <p><strong>${t('languageLabel')}:</strong> ${this.getLanguageName(this.patientData.language)}</p>
-            <p><strong>${t('registrationNumberLabel')}:</strong> ${this.patientData.registrationNumber || 'N/A'}</p>
+          <div class="action-buttons-group">
+            <button onclick="window.reportInstance.downloadPDF()" class="action-btn pdf-btn">
+              <span class="btn-icon">📄</span> ${t('downloadPDF') || 'PDF 다운로드'}
+            </button>
+            <button onclick="window.print()" class="action-btn print-btn">
+              <span class="btn-icon">🖨️</span> ${t('print') || '인쇄'}
+            </button>
+            <button onclick="window.reportInstance.saveReport()" class="save-btn">
+              <span class="btn-icon">💾</span> ${t('saveToGoogleDrive')}
+            </button>
           </div>
         </div>
         
-        <div class="completion-status">
-          <p class="status-text">${this.getCompletionStatus()}</p>
-        </div>
-        
-        <section class="survey-results">
-          <h2>${t('clinicalScaleResults')}</h2>
-          <div id="survey-chart" class="chart-container"></div>
-          ${this.renderSurveyDetails()}
-        </section>
-        
-        <section class="cnt-results">
-          <h2>${t('cognitiveTestResults')}</h2>
-          <div id="cnt-chart" class="chart-container"></div>
-          ${this.renderCNTDetails()}
-        </section>
-        
-        <section class="overall-impression">
-          <h2>${t('overallImpression')}</h2>
-          ${this.renderOverallImpression()}
-        </section>
-        
-        <div class="report-actions">
-          <button onclick="window.reportInstance.downloadPDF()" class="action-btn pdf-btn">
-            <span class="btn-icon">📄</span> ${t('downloadPDF') || 'PDF 다운로드'}
-          </button>
-          <button onclick="window.print()" class="action-btn print-btn">
-            <span class="btn-icon">🖨️</span> ${t('print') || '인쇄'}
-          </button>
-          <button onclick="window.reportInstance.saveReport()" class="save-btn">
-            <span class="btn-icon">💾</span> ${t('saveToGoogleDrive')}
-          </button>
+        <div class="report-container" id="report-content">
+          <div class="report-header">
+            <h1>${t('comprehensiveReport')}</h1>
+            <div class="report-date">${t('reportDate')}: ${new Date().toLocaleDateString(this.getLocaleDateFormat())}</div>
+          </div>
+          
+          <div class="patient-info-section">
+            <h2>${t('patientInfo')}</h2>
+            <div class="patient-details">
+              <p><strong>${t('name')}:</strong> ${this.patientData.name}</p>
+              <p><strong>${t('birthDate')}:</strong> ${this.patientData.birthDate}</p>
+              <p><strong>${t('languageLabel')}:</strong> ${this.getLanguageName(this.patientData.language)}</p>
+              <p><strong>${t('registrationNumberLabel')}:</strong> ${this.patientData.registrationNumber || 'N/A'}</p>
+            </div>
+          </div>
+          
+          <div class="completion-status">
+            <p class="status-text">${this.getCompletionStatus()}</p>
+          </div>
+          
+          <section class="survey-results">
+            <h2>${t('clinicalScaleResults')}</h2>
+            <div id="survey-chart" class="chart-container"></div>
+            ${this.renderSurveyDetails()}
+          </section>
+          
+          <section class="cnt-results">
+            <h2>${t('cognitiveTestResults')}</h2>
+            <div id="cnt-chart" class="chart-container"></div>
+            ${this.renderCNTDetails()}
+          </section>
+          
+          <section class="overall-impression">
+            <h2>${t('overallImpression')}</h2>
+            ${this.renderOverallImpression()}
+          </section>
         </div>
       </div>
     `;
@@ -610,50 +614,71 @@ export class Report {
       const reportElement = document.getElementById('report-content');
       const { jsPDF } = window.jspdf;
       
-      // 버튼들을 임시로 숨김
-      const actionButtons = document.querySelector('.report-actions');
-      const backBtn = document.querySelector('.back-btn');
-      actionButtons.style.display = 'none';
-      backBtn.style.display = 'none';
+      // 고정 버튼들을 임시로 숨김
+      const fixedActions = document.querySelector('.report-actions-fixed');
+      fixedActions.style.display = 'none';
       
-      // html2canvas로 캡처 - 배경색 명시적 설정
+      // 배경색을 명시적으로 설정
+      const originalBg = reportElement.style.backgroundColor;
+      reportElement.style.backgroundColor = '#ffffff';
+      
+      // html2canvas로 캡처
       const canvas = await html2canvas(reportElement, {
         scale: 2,
         useCORS: true,
         logging: false,
         windowWidth: reportElement.scrollWidth,
         windowHeight: reportElement.scrollHeight,
-        backgroundColor: '#ffffff' // 흰색 배경 명시
+        backgroundColor: '#ffffff',
+        imageTimeout: 0,
+        removeContainer: false
       });
       
-      // 버튼들 다시 표시
-      actionButtons.style.display = '';
-      backBtn.style.display = '';
+      // 원래 배경색으로 복원
+      reportElement.style.backgroundColor = originalBg;
+      fixedActions.style.display = '';
       
-      // PDF 생성
-      const imgData = canvas.toDataURL('image/png');
+      // PDF 생성 - 섹션별로 페이지 나누기
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
       
-      const imgWidth = 210; // A4 width in mm
+      // 이미지를 섹션별로 나누어서 추가
+      const sections = reportElement.querySelectorAll('section, .patient-info-section, .completion-status');
+      const pageWidth = 210; // A4 width in mm
       const pageHeight = 297; // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-      let position = 0;
+      const margin = 10;
+      const contentWidth = pageWidth - (margin * 2);
+      const contentHeight = pageHeight - (margin * 2);
       
-      // 첫 페이지 추가
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+      let currentY = margin;
+      let pageNum = 1;
       
-      // 추가 페이지가 필요한 경우
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+      // 헤더 추가
+      const headerCanvas = await html2canvas(reportElement.querySelector('.report-header'), {
+        backgroundColor: '#ffffff'
+      });
+      const headerHeight = (headerCanvas.height * contentWidth) / headerCanvas.width;
+      pdf.addImage(headerCanvas.toDataURL('image/png'), 'PNG', margin, currentY, contentWidth, headerHeight);
+      currentY += headerHeight + 10;
+      
+      // 각 섹션 처리
+      for (const section of sections) {
+        const sectionCanvas = await html2canvas(section, {
+          backgroundColor: '#ffffff'
+        });
+        const sectionHeight = (sectionCanvas.height * contentWidth) / sectionCanvas.width;
+        
+        // 페이지 넘침 확인
+        if (currentY + sectionHeight > contentHeight) {
+          pdf.addPage();
+          currentY = margin;
+        }
+        
+        pdf.addImage(sectionCanvas.toDataURL('image/png'), 'PNG', margin, currentY, contentWidth, sectionHeight);
+        currentY += sectionHeight + 5;
       }
       
       // PDF 다운로드
@@ -677,6 +702,10 @@ export class Report {
       const pdfBtn = document.querySelector('.pdf-btn');
       pdfBtn.disabled = false;
       pdfBtn.innerHTML = `<span class="btn-icon">📄</span> ${t('downloadPDF') || 'PDF 다운로드'}`;
+      
+      // 버튼 다시 표시
+      const fixedActions = document.querySelector('.report-actions-fixed');
+      if (fixedActions) fixedActions.style.display = '';
     }
   }
 
