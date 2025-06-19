@@ -53,34 +53,40 @@
     html {
       font-size: calc(16px * var(--font-scale));
       width: 100%;
-      height: 100%;
+      height: auto !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
       -webkit-text-size-adjust: 100%;
       text-size-adjust: 100%;
     }
     
     body {
       width: 100%;
-      height: 100%;
+      height: auto !important;
+      min-height: 100vh;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans KR', Roboto, sans-serif;
       background: #f5f5f5;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       padding: var(--safe-area-inset-top) var(--safe-area-inset-right) var(--safe-area-inset-bottom) var(--safe-area-inset-left);
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+      position: relative !important;
     }
     
     /* 메인 앱 컨테이너 - 1024×768 최적화 */
     #app {
       width: 100%;
       min-height: 100vh;
+      height: auto !important;
       max-width: 1024px;
       margin: 0 auto;
       position: relative;
       background: white;
       display: flex;
       flex-direction: column;
+      overflow-y: visible !important;
     }
     
     /* CNT Task를 위한 특별 처리 */

@@ -41,6 +41,19 @@ class App {
     this.currentView = view;
     mainContainer.innerHTML = '';
     
+    // 스크롤 강제 활성화
+    document.body.style.overflow = 'auto';
+    document.body.style.height = 'auto';
+    document.body.style.position = 'relative';
+    document.documentElement.style.overflow = 'auto';
+    document.documentElement.style.height = 'auto';
+    mainContainer.style.overflow = 'visible';
+    mainContainer.style.height = 'auto';
+    mainContainer.style.minHeight = '100vh';
+    
+    // 스크롤 위치 초기화
+    window.scrollTo(0, 0);
+    
     switch(view) {
       case 'login':
         this.components.login = new PatientLogin('app');
@@ -99,6 +112,12 @@ class App {
       default:
         window.location.hash = '#login';
     }
+    
+    // 렌더링 후 다시 한번 스크롤 활성화
+    setTimeout(() => {
+      document.body.style.overflow = 'auto';
+      mainContainer.style.overflow = 'visible';
+    }, 100);
   }
 
   setPatientData(data) {
