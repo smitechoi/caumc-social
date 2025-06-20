@@ -211,7 +211,7 @@ export class MentalRotationTask extends BaseTask {
     console.log('Target pattern:', state.targetPattern);
     console.log('Target rotation:', state.targetRotation);
   }
-  
+
   patternsEqual(pattern1, pattern2) {
     if (pattern1.length !== pattern2.length) return false;
     
@@ -573,47 +573,106 @@ export class MentalRotationTask extends BaseTask {
     
     // 오버레이 투명도 애니메이션
     if (overlay.active) {
-      overlay.opacity = p.lerp(overlay.opacity, overlay.targetOpacity, 0.3);
+      overlay.opacity = p.lerp(overlay.opacity, overlay.targetOpacity, 0.2);
       
-      // 선택된 버튼 위치 찾기
-      const button = state.buttons[overlay.buttonIndex];
-      if (button) {
-        p.push();
-        
-        // 반투명 오버레이
-        p.fill(255, 255, 255, overlay.opacity * 150);
-        p.noStroke();
-        p.rect(button.x - 10, button.y - 10, button.width + 20, button.height + 20, 15);
-        
-        // 선택 표시 (체크마크 또는 파동 효과)
-        if (overlay.opacity > 0.5) {
-          p.push();
-          p.translate(button.x + button.width/2, button.y + button.height/2);
-          
-          // 파동 효과
-          const rippleSize = p.map(overlay.opacity, 0.5, 1, 0, 100);
-          p.noFill();
-          p.stroke(255, 255, 255, (1 - overlay.opacity) * 255);
-          p.strokeWeight(3);
-          p.circle(0, 0, rippleSize);
-          
-          // 체크마크
-          p.stroke(255);
-          p.strokeWeight(5);
-          p.fill(255);
-          p.textSize(60);
-          p.textAlign(p.CENTER, p.CENTER);
-          if (overlay.response) {
-            p.text('✓', 0, -5);
-          } else {
-            p.text('✗', 0, -5);
-          }
-          
-          p.pop();
-        }
-        
-        p.pop();
+      // 화면 중앙에 큰 팝업창 표시
+      p.push();
+      
+      // 배경 어둡게 처리
+      p.fill(0, 0, 0, overlay.opacity * 120);
+      p.noStroke();
+      p.rect(0, 0, p.width, p.height);
+      
+      // 팝업창 설정
+      const popupWidth = 400;
+      const popupHeight = 300;
+      const popupX = (p.width - popupWidth) / 2;
+      const popupY = (p.height - popupHeight) / 2;
+      
+      // 팝업창 배경 (둥근 모서리)
+      p.fill(255, 255, 255, overlay.opacity * 255);
+      p.stroke(200, 200, 200, overlay.opacity * 255);
+      p.strokeWeight(2);
+      p.rect(popupX, popupY, popupWidth, popupHeight, 20);
+      
+      // 정답/오답에 따른 색상과 아이콘
+      const isCorrect = overlay.response === state.isSame;
+      let iconColor, message, icon, subMessage;
+      
+      if (isCorrect) {
+        iconColor = [76, 175, 80]; // 초록색
+        message = "정답!";
+        icon = "✓";
+        subMessage = "잘하셨습니다!";
+      } else {
+        iconColor = [244, 67, 54]; // 빨간색
+        message = "오답";
+        icon = "✗";
+        subMessage = "다시 한번 생각해보세요";
       }
+      
+      // 아이콘 배경 원
+      p.push();
+      p.translate(popupX + popupWidth/2, popupY + 80);
+      
+      // 맥박 효과 (정답일 때만)
+      if (isCorrect && overlay.opacity > 0.7) {
+        const pulseSize = 1 + Math.sin(p.millis() * 0.01) * 0.1;
+        p.scale(pulseSize);
+      }
+      
+      p.fill(iconColor[0], iconColor[1], iconColor[2], overlay.opacity * 255);
+      p.noStroke();
+      p.circle(0, 0, 100);
+      
+      // 아이콘
+      p.fill(255, 255, 255, overlay.opacity * 255);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.textSize(60);
+      p.textStyle(p.BOLD);
+      p.text(icon, 0, -5);
+      p.pop();
+      
+      // 메인 메시지
+      p.fill(iconColor[0], iconColor[1], iconColor[2], overlay.opacity * 255);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.textSize(36);
+      p.textStyle(p.BOLD);
+      p.text(message, popupX + popupWidth/2, popupY + 160);
+      
+      // 서브 메시지
+      p.fill(100, 100, 100, overlay.opacity * 255);
+      p.textSize(18);
+      p.textStyle(p.NORMAL);
+      p.text(subMessage, popupX + popupWidth/2, popupY + 190);
+      
+      // 추가 정보 (선택사항)
+      if (!isCorrect) {
+        p.fill(150, 150, 150, overlay.opacity * 255);
+        p.textSize(14);
+        const correctAnswer = state.isSame ? "같음" : "다름";
+        p.text(`정답: ${correctAnswer}`, popupX + popupWidth/2, popupY + 220);
+      }
+      
+      // 진행 바 (팝업이 닫히기까지의 시간)
+      const progressBarWidth = popupWidth - 40;
+      const progressBarHeight = 6;
+      const progressX = popupX + 20;
+      const progressY = popupY + popupHeight - 30;
+      
+      // 진행 바 배경
+      p.fill(230, 230, 230, overlay.opacity * 255);
+      p.noStroke();
+      p.rect(progressX, progressY, progressBarWidth, progressBarHeight, 3);
+      
+      // 진행 바 (시간이 지날수록 줄어듦)
+      if (overlay.targetOpacity === 0) {
+        const progress = Math.max(0, overlay.opacity);
+        p.fill(iconColor[0], iconColor[1], iconColor[2], overlay.opacity * 255);
+        p.rect(progressX, progressY, progressBarWidth * progress, progressBarHeight, 3);
+      }
+      
+      p.pop();
       
       // 애니메이션 종료 확인
       if (Math.abs(overlay.opacity - overlay.targetOpacity) < 0.01) {
@@ -648,19 +707,19 @@ export class MentalRotationTask extends BaseTask {
         
         state.responded = true;
         
-        // 피드백 오버레이 활성화
+        // 피드백 오버레이 활성화 (더 명확한 설정)
         state.feedbackOverlay.active = true;
         state.feedbackOverlay.opacity = 0;
         state.feedbackOverlay.targetOpacity = 1;
         state.feedbackOverlay.response = button.response;
         state.feedbackOverlay.buttonIndex = button.index;
         
-        // 피드백 애니메이션 후 페이드아웃
+        // 피드백 표시 시간을 좀 더 길게 (1.5초)
         setTimeout(() => {
           state.feedbackOverlay.targetOpacity = 0;
-        }, 300);
+        }, 1500);
         
-        // 다음 시행 준비
+        // 다음 시행 준비 (팝업이 완전히 사라진 후)
         setTimeout(() => {
           state.currentTrial++;
           
@@ -694,13 +753,13 @@ export class MentalRotationTask extends BaseTask {
           };
           
           this.generateTrial(state);
-        }, 1000);
+        }, 2500); // 총 2.5초 후 다음 시행
         
         break;
       }
     }
     
-    // 마우스 드래그 시작 (블록 회전용)
+    // 마우스 드래그 시작 (블록 회전용) - 기존 코드 그대로 유지
     const viewWidth = p.width * 0.35;
     const spacing = p.width * 0.1;
     const leftCenterX = p.width/2 - viewWidth/2 - spacing/2;
