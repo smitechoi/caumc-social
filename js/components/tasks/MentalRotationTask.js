@@ -613,13 +613,7 @@ export class MentalRotationTask extends BaseTask {
       
       // 아이콘 배경 원
       p.push();
-      p.translate(popupX + popupWidth/2, popupY + 80);
-      
-      // 맥박 효과 (정답일 때만)
-      if (isCorrect && overlay.opacity > 0.7) {
-        const pulseSize = 1 + Math.sin(p.millis() * 0.01) * 0.1;
-        p.scale(pulseSize);
-      }
+      p.translate(popupX + popupWidth/2, popupY + 100);
       
       p.fill(iconColor[0], iconColor[1], iconColor[2], overlay.opacity * 255);
       p.noStroke();
@@ -638,18 +632,12 @@ export class MentalRotationTask extends BaseTask {
       p.textAlign(p.CENTER, p.CENTER);
       p.textSize(36);
       p.textStyle(p.BOLD);
-      p.text(message, popupX + popupWidth/2, popupY + 160);
+      p.text(message, popupX + popupWidth/2, popupY + 190);
       
-      // 서브 메시지
-      p.fill(100, 100, 100, overlay.opacity * 255);
-      p.textSize(18);
-      p.textStyle(p.NORMAL);
-      p.text(subMessage, popupX + popupWidth/2, popupY + 190);
-      
-      // 추가 정보 (선택사항)
+      // 추가 정보 (오답일 때만)
       if (!isCorrect) {
         p.fill(150, 150, 150, overlay.opacity * 255);
-        p.textSize(14);
+        p.textSize(16);
         const correctAnswer = state.isSame ? "같음" : "다름";
         p.text(`정답: ${correctAnswer}`, popupX + popupWidth/2, popupY + 220);
       }
@@ -658,7 +646,7 @@ export class MentalRotationTask extends BaseTask {
       const progressBarWidth = popupWidth - 40;
       const progressBarHeight = 6;
       const progressX = popupX + 20;
-      const progressY = popupY + popupHeight - 30;
+      const progressY = popupY + popupHeight - 25;
       
       // 진행 바 배경
       p.fill(230, 230, 230, overlay.opacity * 255);
@@ -682,7 +670,8 @@ export class MentalRotationTask extends BaseTask {
       }
     }
   }
-
+  
+  // handleMousePress 메서드의 피드백 타이밍도 조정
   handleMousePress(state, x, y, p) {
     // 버튼 클릭 확인
     if (!state.buttons || state.responded) return;
@@ -714,12 +703,12 @@ export class MentalRotationTask extends BaseTask {
         state.feedbackOverlay.response = button.response;
         state.feedbackOverlay.buttonIndex = button.index;
         
-        // 피드백 표시 시간을 좀 더 길게 (1.5초)
+        // 피드백 표시 시간을 짧게 (1초)
         setTimeout(() => {
           state.feedbackOverlay.targetOpacity = 0;
-        }, 1500);
+        }, 1000);
         
-        // 다음 시행 준비 (팝업이 완전히 사라진 후)
+        // 다음 시행 준비 (팝업이 완전히 사라진 직후)
         setTimeout(() => {
           state.currentTrial++;
           
@@ -753,7 +742,7 @@ export class MentalRotationTask extends BaseTask {
           };
           
           this.generateTrial(state);
-        }, 2500); // 총 2.5초 후 다음 시행
+        }, 1800); // 총 1.8초 후 다음 시행
         
         break;
       }
