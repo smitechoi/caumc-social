@@ -104,11 +104,9 @@ export class MentalRotationTask extends BaseTask {
   generateTrial(state) {
     // 적응형 난이도 설정
     if (state.performance.total > 4) {
-      // 최근 5개 시행의 정답률 계산
       const recentRate = state.performance.recentCorrect.slice(-5).reduce((a, b) => a + b, 0) / 
                         Math.min(5, state.performance.recentCorrect.length);
       
-      // 정답률에 따라 난이도 조정
       if (recentRate > 0.8 && state.performance.currentDifficulty < 4) {
         state.performance.currentDifficulty++;
       } else if (recentRate < 0.4 && state.performance.currentDifficulty > 1) {
@@ -121,34 +119,41 @@ export class MentalRotationTask extends BaseTask {
     const patterns = state.blockPatterns[difficultyIndex];
     state.basePattern = patterns[Math.floor(Math.random() * patterns.length)];
     
+    // 회전각 복잡도도 난이도에 따라 증가
+    const rotationComplexity = Math.min(state.performance.currentDifficulty, 3);
+    
+    // 타겟 회전각 생성 (90도 단위로 명확하게)
+    state.targetRotation = {
+      x: Math.floor(Math.random() * 4) * Math.PI / 2, // 0, 90, 180, 270도
+      y: Math.floor(Math.random() * 4) * Math.PI / 2,
+      z: rotationComplexity > 2 ? Math.floor(Math.random() * 4) * Math.PI / 2 : 0
+    };
+    
     // 같음/다름 결정 (50:50 확률)
     state.isSame = Math.random() < 0.5;
     state.isMirrored = false;
     
-    // 회전각 복잡도도 난이도에 따라 증가
-    const rotationComplexity = Math.min(state.performance.currentDifficulty, 3);
-    
-    // 타겟 회전각 생성
-    state.targetRotation = {
-      x: Math.floor(Math.random() * (rotationComplexity + 1)) * Math.PI / 2,
-      y: Math.floor(Math.random() * 4) * Math.PI / 2,
-      z: rotationComplexity > 2 ? Math.floor(Math.random() * 2) * Math.PI / 4 : 0
-    };
-    
-    // 다른 경우 처리
-    if (!state.isSame) {
+    if (state.isSame) {
+      // 같은 경우: 기본 패턴을 회전시킨 것
+      state.targetPattern = this.rotatePattern(state.basePattern, state.targetRotation);
+      console.log('같음 - 기본 패턴 회전 적용');
+    } else {
+      // 다른 경우: 여러 전략 사용
       const strategies = ['mirror', 'different', 'partial'];
       const strategy = strategies[Math.floor(Math.random() * strategies.length)];
       
       switch (strategy) {
         case 'mirror':
-          // 거울상
+          // 거울상 (X축 반전)
           state.targetPattern = state.basePattern.map(block => ({
             x: -block.x,
             y: block.y,
             z: block.z
           }));
+          // 거울상도 회전 적용
+          state.targetPattern = this.rotatePattern(state.targetPattern, state.targetRotation);
           state.isMirrored = true;
+          console.log('다름 - 거울상 + 회전');
           break;
           
         case 'different':
@@ -156,42 +161,110 @@ export class MentalRotationTask extends BaseTask {
           let otherPattern;
           do {
             otherPattern = patterns[Math.floor(Math.random() * patterns.length)];
-          } while (otherPattern === state.basePattern);
-          state.targetPattern = otherPattern;
+          } while (this.patternsEqual(otherPattern, state.basePattern));
+          state.targetPattern = this.rotatePattern(otherPattern, state.targetRotation);
+          console.log('다름 - 다른 패턴 + 회전');
           break;
           
         case 'partial':
-          // 일부만 변경 (고난이도)
+          // 일부 블록만 변경
           state.targetPattern = [...state.basePattern];
           const blockToChange = Math.floor(Math.random() * state.targetPattern.length);
-          state.targetPattern[blockToChange] = {
-            x: state.targetPattern[blockToChange].x + (Math.random() < 0.5 ? 1 : -1),
-            y: state.targetPattern[blockToChange].y,
-            z: state.targetPattern[blockToChange].z
-          };
+          
+          // 기존 블록 제거하고 새 위치에 블록 추가
+          state.targetPattern.splice(blockToChange, 1);
+          
+          // 새로운 위치에 블록 추가 (기존과 겹치지 않는 위치)
+          let newBlock;
+          let attempts = 0;
+          do {
+            newBlock = {
+              x: Math.floor(Math.random() * 5) - 2, // -2 ~ 2
+              y: Math.floor(Math.random() * 5) - 2,
+              z: Math.floor(Math.random() * 3) - 1  // -1 ~ 1
+            };
+            attempts++;
+          } while (attempts < 10 && state.targetPattern.some(b => 
+            b.x === newBlock.x && b.y === newBlock.y && b.z === newBlock.z));
+          
+          state.targetPattern.push(newBlock);
+          state.targetPattern = this.rotatePattern(state.targetPattern, state.targetRotation);
+          console.log('다름 - 부분 변경 + 회전');
           break;
       }
-      
-      // 다른 패턴도 회전 적용
-      state.targetRotation = {
-        x: Math.floor(Math.random() * 4) * Math.PI / 2,
-        y: Math.floor(Math.random() * 4) * Math.PI / 2,
-        z: Math.floor(Math.random() * 4) * Math.PI / 2
-      };
-    } else {
-      state.targetPattern = state.basePattern;
     }
     
-    // 초기 회전을 타겟 회전값에서 시작 (오른쪽 블록)
-    // 하지만 약간의 오프셋을 추가하여 완전히 같은 각도는 아니게 함
-    state.rightRotation = { 
-      x: state.targetRotation.x + (Math.random() - 0.5) * 0.3,
-      y: state.targetRotation.y + (Math.random() - 0.5) * 0.3,
-      z: state.targetRotation.z + (Math.random() - 0.5) * 0.1
+    // 초기 회전값 설정 (시각적 표시용)
+    const newRandomRotation = {
+      x: Math.random() * Math.PI * 2,
+      y: Math.random() * Math.PI * 2,
+      z: Math.random() * Math.PI * 0.5
     };
+    state.leftRotation = { ...newRandomRotation };
+    state.rightRotation = { ...newRandomRotation };
     
     // 자동 회전 속도도 난이도에 따라 조정
     state.autoRotateSpeed = 0.008 + (difficultyIndex * 0.003);
+    
+    console.log(`Trial ${state.currentTrial}: isSame=${state.isSame}, isMirrored=${state.isMirrored}`);
+    console.log('Base pattern:', state.basePattern);
+    console.log('Target pattern:', state.targetPattern);
+    console.log('Target rotation:', state.targetRotation);
+  }
+  
+  patternsEqual(pattern1, pattern2) {
+    if (pattern1.length !== pattern2.length) return false;
+    
+    // 각 블록의 위치를 정렬하여 비교
+    const normalize = (pattern) => pattern.map(b => `${b.x},${b.y},${b.z}`).sort();
+    const norm1 = normalize(pattern1);
+    const norm2 = normalize(pattern2);
+    
+    return norm1.every((pos, i) => pos === norm2[i]);
+  }
+  
+  // 3D 회전 변환 함수
+  rotatePattern(pattern, rotation) {
+    return pattern.map(block => {
+      let { x, y, z } = block;
+      
+      // X축 회전
+      if (rotation.x !== 0) {
+        const cos_x = Math.cos(rotation.x);
+        const sin_x = Math.sin(rotation.x);
+        const new_y = y * cos_x - z * sin_x;
+        const new_z = y * sin_x + z * cos_x;
+        y = new_y;
+        z = new_z;
+      }
+      
+      // Y축 회전  
+      if (rotation.y !== 0) {
+        const cos_y = Math.cos(rotation.y);
+        const sin_y = Math.sin(rotation.y);
+        const new_x = x * cos_y + z * sin_y;
+        const new_z = -x * sin_y + z * cos_y;
+        x = new_x;
+        z = new_z;
+      }
+      
+      // Z축 회전
+      if (rotation.z !== 0) {
+        const cos_z = Math.cos(rotation.z);
+        const sin_z = Math.sin(rotation.z);
+        const new_x = x * cos_z - y * sin_z;
+        const new_y = x * sin_z + y * cos_z;
+        x = new_x;
+        y = new_y;
+      }
+      
+      // 소수점 반올림으로 부동소수점 오차 제거
+      return {
+        x: Math.round(x * 1000) / 1000,
+        y: Math.round(y * 1000) / 1000,
+        z: Math.round(z * 1000) / 1000
+      };
+    });
   }
 
   render(state, p) {
