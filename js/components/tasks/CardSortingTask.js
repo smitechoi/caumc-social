@@ -339,16 +339,35 @@ export class CardSortingTask extends BaseTask {
 
   drawMoveInfo(state, p) {
     p.push();
+    
+    // 사이드바 영역 설정 (오른쪽)
+    const sidebarX = state.currentLayout.x + (state.currentLayout.columns * state.currentLayout.columnWidth) + 50;
+    const sidebarY = state.currentLayout.y + 50;
+    
+    // 사이드바 배경
+    p.fill(255, 255, 255, 200);
+    p.stroke(200);
+    p.strokeWeight(1);
+    p.rect(sidebarX - 10, sidebarY - 30, 200, 120, 8);
+    
+    // 이동 횟수 표시
     p.fill(0);
-    p.textAlign(p.CENTER);
+    p.textAlign(p.LEFT);
     p.textSize(16);
+    p.text(`이동 횟수: ${state.moves}`, sidebarX, sidebarY);
     
-    const infoY = state.currentLayout.y - 40;
-    p.text(`이동 횟수: ${state.moves}`, p.width / 2, infoY);
-    
+    // 선택된 카드가 있을 때 안내문구
     if (state.selectedCard !== null) {
       p.fill(33, 150, 243);
-      p.text('카드를 놓을 위치를 선택하세요', p.width / 2, infoY + 25);
+      p.textSize(14);
+      p.text('카드를 놓을 위치를', sidebarX, sidebarY + 25);
+      p.text('선택하세요', sidebarX, sidebarY + 45);
+    } else {
+      // 기본 안내문구
+      p.fill(100);
+      p.textSize(14);
+      p.text('맨 위 카드를 클릭하여', sidebarX, sidebarY + 25);
+      p.text('이동하세요', sidebarX, sidebarY + 45);
     }
     
     p.pop();
