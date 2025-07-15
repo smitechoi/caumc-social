@@ -214,13 +214,63 @@ export class MentalRotationTask extends BaseTask {
 
   patternsEqual(pattern1, pattern2) {
     if (pattern1.length !== pattern2.length) return false;
-    
-    // 각 블록의 위치를 정렬하여 비교
-    const normalize = (pattern) => pattern.map(b => `${b.x},${b.y},${b.z}`).sort();
-    const norm1 = normalize(pattern1);
-    const norm2 = normalize(pattern2);
-    
-    return norm1.every((pos, i) => pos === norm2[i]);
+
+    // 1. 좌표 정규화(원점 기준)
+    function normalizePattern(pattern) {
+      const minX = Math.min(...pattern.map(b => b.x));
+      const minY = Math.min(...pattern.map(b => b.y));
+      const minZ = Math.min(...pattern.map(b => b.z));
+      return pattern.map(b => ({
+        x: b.x - minX,
+        y: b.y - minY,
+        z: b.z - minZ
+      }));
+    }
+
+    // 2. 인접 행렬 생성(붙어있는 블록끼리 엣지)
+    function buildAdjacency(pattern) {
+      const adj = Array(pattern.length).fill(0).map(() => []);
+      for (let i = 0; i < pattern.length; i++) {
+        for (let j = i + 1; j < pattern.length; j++) {
+          const dx = Math.abs(pattern[i].x - pattern[j].x);
+          const dy = Math.abs(pattern[i].y - pattern[j].y);
+          const dz = Math.abs(pattern[i].z - pattern[j].z);
+          if ((dx + dy + dz) === 1) {
+            adj[i].push(j);
+            adj[j].push(i);
+          }
+        }
+      }
+      return adj;
+    }
+
+    // 3. 그래프 동형성 검사(모든 노드 매핑 순열 시도)
+    const n = pattern1.length;
+    const norm1 = normalizePattern(pattern1);
+    const norm2 = normalizePattern(pattern2);
+    const adj1 = buildAdjacency(norm1);
+    const adj2 = buildAdjacency(norm2);
+    const idxs = Array.from({length: n}, (_, i) => i);
+    function permute(arr, l, cb) {
+      if (l === arr.length - 1) return cb(arr);
+      for (let i = l; i < arr.length; i++) {
+        [arr[l], arr[i]] = [arr[i], arr[l]];
+        if (permute(arr, l + 1, cb)) return true;
+        [arr[l], arr[i]] = [arr[i], arr[l]];
+      }
+      return false;
+    }
+    return permute(idxs, 0, perm => {
+      for (let i = 0; i < n; i++) {
+        if (adj1[i].length !== adj2[perm[i]].length) return false;
+      }
+      for (let i = 0; i < n; i++) {
+        const mappedAdj1 = adj1[i].map(j => perm[j]).sort();
+        const adj2Sorted = adj2[perm[i]].slice().sort();
+        if (JSON.stringify(mappedAdj1) !== JSON.stringify(adj2Sorted)) return false;
+      }
+      return true;
+    }) || false;
   }
   
   // 3D 회전 변환 함수
