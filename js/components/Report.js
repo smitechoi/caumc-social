@@ -603,7 +603,6 @@ export class Report {
       // PDF 버튼 비활성화
       const pdfBtn = document.querySelector('.pdf-btn');
       pdfBtn.disabled = true;
-      pdfBtn.innerHTML = `<span class="btn-icon">⏳</span> ${t('generating') || 'PDF 생성 중...'}`;
       
       // jsPDF 라이브러리 동적 로드
       if (!window.jspdf) {
@@ -695,12 +694,6 @@ export class Report {
       
       // PDF 버튼 복원
       pdfBtn.disabled = false;
-      pdfBtn.innerHTML = `<span class="btn-icon">✓</span> ${t('downloadComplete') || 'PDF 저장 완료'}`;
-      
-      // 3초 후 버튼 텍스트 원래대로
-      setTimeout(() => {
-        pdfBtn.innerHTML = `<span class="btn-icon">📄</span> ${t('downloadPDF') || 'PDF 다운로드'}`;
-      }, 3000);
       
     } catch (error) {
       console.error('PDF 생성 오류:', error);
@@ -708,7 +701,6 @@ export class Report {
       
       const pdfBtn = document.querySelector('.pdf-btn');
       pdfBtn.disabled = false;
-      pdfBtn.innerHTML = `<span class="btn-icon">📄</span> ${t('downloadPDF') || 'PDF 다운로드'}`;
       
       // 버튼 다시 표시
       const fixedActions = document.querySelector('.report-actions-fixed');

@@ -102,25 +102,28 @@ export class MentalRotationTask extends BaseTask {
   }
 
   generateTrial(state) {
-    // 적응형 난이도 설정
-    if (state.performance.total > 4) {
-      const recentRate = state.performance.recentCorrect.slice(-5).reduce((a, b) => a + b, 0) / 
-                        Math.min(5, state.performance.recentCorrect.length);
-      
-      if (recentRate > 0.8 && state.performance.currentDifficulty < 4) {
-        state.performance.currentDifficulty++;
-      } else if (recentRate < 0.4 && state.performance.currentDifficulty > 1) {
-        state.performance.currentDifficulty--;
-      }
+    // 베이킹된 난이도 시스템: 시행 순서에 따른 고정 난이도
+    const trialNumber = state.currentTrial + 1;
+    
+    // 20개 시행을 4단계로 나누어 점진적 난이도 상승
+    let difficultyLevel;
+    if (trialNumber <= 5) {
+      difficultyLevel = 1; // 난이도 1: 4-5개 블록, 기본 회전
+    } else if (trialNumber <= 10) {
+      difficultyLevel = 2; // 난이도 2: 5-6개 블록, 복잡한 회전
+    } else if (trialNumber <= 15) {
+      difficultyLevel = 3; // 난이도 3: 6-7개 블록, 매우 복잡한 회전
+    } else {
+      difficultyLevel = 4; // 난이도 4: 7-8개 블록, 극한 난이도
     }
     
     // 현재 난이도에 맞는 패턴 선택
-    const difficultyIndex = Math.min(state.performance.currentDifficulty - 1, state.blockPatterns.length - 1);
+    const difficultyIndex = difficultyLevel - 1;
     const patterns = state.blockPatterns[difficultyIndex];
     state.basePattern = patterns[Math.floor(Math.random() * patterns.length)];
     
     // 회전각 복잡도도 난이도에 따라 증가
-    const rotationComplexity = Math.min(state.performance.currentDifficulty, 3);
+    const rotationComplexity = difficultyLevel;
     
     // 타겟 회전각 생성 (90도 단위로 명확하게)
     state.targetRotation = {
@@ -645,21 +648,10 @@ export class MentalRotationTask extends BaseTask {
       p.strokeWeight(2);
       p.rect(popupX, popupY, popupWidth, popupHeight, 20);
       
-      // 정답/오답에 따른 색상과 아이콘
-      const isCorrect = overlay.response === state.isSame;
-      let iconColor, message, icon, subMessage;
-      
-      if (isCorrect) {
-        iconColor = [76, 175, 80]; // 초록색
-        message = "정답!";
-        icon = "✓";
-        subMessage = "잘하셨습니다!";
-      } else {
-        iconColor = [244, 67, 54]; // 빨간색
-        message = "오답";
-        icon = "✗";
-        subMessage = "다시 한번 생각해보세요";
-      }
+      // 단순한 다음 문제 안내
+      const iconColor = [76, 175, 80]; // 초록색
+      const message = "다음 문제로 넘어갑니다";
+      const icon = "→";
       
       // 아이콘 배경 원
       p.push();
@@ -680,17 +672,9 @@ export class MentalRotationTask extends BaseTask {
       // 메인 메시지
       p.fill(iconColor[0], iconColor[1], iconColor[2], overlay.opacity * 255);
       p.textAlign(p.CENTER, p.CENTER);
-      p.textSize(36);
+      p.textSize(28);
       p.textStyle(p.BOLD);
       p.text(message, popupX + popupWidth/2, popupY + 190);
-      
-      // 추가 정보 (오답일 때만)
-      if (!isCorrect) {
-        p.fill(150, 150, 150, overlay.opacity * 255);
-        p.textSize(16);
-        const correctAnswer = state.isSame ? "같음" : "다름";
-        p.text(`정답: ${correctAnswer}`, popupX + popupWidth/2, popupY + 220);
-      }
       
       // 진행 바 (팝업이 닫히기까지의 시간)
       const progressBarWidth = popupWidth - 40;
@@ -762,7 +746,7 @@ export class MentalRotationTask extends BaseTask {
         setTimeout(() => {
           state.currentTrial++;
           
-          // 정답 여부 기록 (적응형 난이도)
+          // 정답 여부 기록 (베이킹된 난이도 시스템에서는 단순 기록만)
           state.performance.total++;
           state.performance.recentCorrect.push(button.response === state.isSame ? 1 : 0);
           if (button.response === state.isSame) {
@@ -860,25 +844,39 @@ export class MentalRotationTask extends BaseTask {
     const correct = responses.filter(r => r.correct).length;
     const accuracy = (correct / responses.length) * 100;
     
-    // 난이도별 가중치
-    let weightedScore = 0;
-    let totalWeight = 0;
+    // 베이킹된 난이도 시스템에 따른 점수 계산
+    let totalScore = 0;
+    let maxPossibleScore = 0;
     
-    for (let response of responses) {
-      const weight = response.difficulty * response.patternComplexity / 3;
+    for (let i = 0; i < responses.length; i++) {
+      const response = responses[i];
+      const trialNumber = i + 1;
+      
+      // 시행 순서에 따른 난이도 가중치
+      let difficultyWeight;
+      if (trialNumber <= 5) {
+        difficultyWeight = 1.0; // 난이도 1
+      } else if (trialNumber <= 10) {
+        difficultyWeight = 1.5; // 난이도 2
+      } else if (trialNumber <= 15) {
+        difficultyWeight = 2.0; // 난이도 3
+      } else {
+        difficultyWeight = 2.5; // 난이도 4
+      }
+      
       if (response.correct) {
         // 회전 복잡도에 따른 추가 점수
         const rotationComplexity = 
           (response.rotation.x !== 0 ? 1 : 0) +
           (response.rotation.y !== 0 ? 1 : 0) +
           (response.rotation.z !== 0 ? 1 : 0);
-        const complexityBonus = rotationComplexity * 0.1;
-        weightedScore += weight * (1 + complexityBonus);
+        const complexityBonus = rotationComplexity * 0.2;
+        totalScore += difficultyWeight * (1 + complexityBonus);
       }
-      totalWeight += weight;
+      maxPossibleScore += difficultyWeight * 1.6; // 최대 복잡도 보너스 포함
     }
     
-    const difficultyScore = (weightedScore / totalWeight) * 100;
+    const difficultyScore = (totalScore / maxPossibleScore) * 100;
     
     // 반응시간 보너스
     const correctResponses = responses.filter(r => r.correct);

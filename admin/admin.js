@@ -16,6 +16,12 @@ async function renderPatientList() {
     return;
   }
 
+  // T## 형식의 테스트 등록번호 제외
+  patients = patients.filter(p => {
+    const regNum = p.registrationNumber || '';
+    return !regNum.startsWith('T');
+  });
+
   // 등록번호 순으로 정렬
   patients.sort((a, b) => {
     const regA = a.registrationNumber || '';
