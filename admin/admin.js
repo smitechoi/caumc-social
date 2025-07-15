@@ -54,16 +54,33 @@ async function renderPatientList() {
 
 window.downloadPatientPDF = function(idx) {
   const patientData = window._adminPatients[idx];
-  // 임시 div 생성 (Report는 containerId 필요)
+  
+  // 임시 div 생성 (보이게 설정)
   let tempDiv = document.createElement('div');
-  tempDiv.style.display = 'none';
+  tempDiv.id = 'temp-report-' + idx;
+  tempDiv.style.position = 'absolute';
+  tempDiv.style.left = '-9999px';  // 화면 밖으로
+  tempDiv.style.top = '0';
+  tempDiv.style.width = '900px';  // Report 컨테이너 크기
+  tempDiv.style.height = 'auto';
+  tempDiv.style.backgroundColor = '#ffffff';
   document.body.appendChild(tempDiv);
-  const report = new Report(tempDiv.id = 'temp-report-' + idx, patientData);
-  setTimeout(() => {
-    report.downloadPDF().then(() => {
+  
+  // Report 인스턴스 생성
+  const report = new Report(tempDiv.id, patientData);
+  
+  // 차트가 그려질 시간을 주고 PDF 생성
+  setTimeout(async () => {
+    try {
+      await report.downloadPDF();
+    } catch (error) {
+      console.error('PDF 생성 실패:', error);
+      alert('PDF 생성 중 오류가 발생했습니다.');
+    } finally {
+      // 임시 div 제거
       document.body.removeChild(tempDiv);
-    });
-  }, 500);
+    }
+  }, 2000);  // 2초 대기
 };
 
 // 페이지 로드 시 환자 리스트 렌더링

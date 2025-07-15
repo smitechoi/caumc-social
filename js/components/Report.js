@@ -70,11 +70,13 @@ export class Report {
     
     window.reportInstance = this;
     
-    // 차트 그리기
-    setTimeout(() => {
-      this.drawSurveyChart();
-      this.drawCNTChart();
-    }, 100);
+    // 차트 그리기 (PDF 생성 시에는 제외)
+    if (!this.container.id.includes('temp-report')) {
+      setTimeout(() => {
+        this.drawSurveyChart();
+        this.drawCNTChart();
+      }, 100);
+    }
   }
 
   getLocaleDateFormat() {
@@ -622,18 +624,21 @@ export class Report {
       const originalBg = reportElement.style.backgroundColor;
       reportElement.style.backgroundColor = '#ffffff';
       
-      // html2canvas로 캡처
+      // html2canvas로 캡처 - PNG 오류 방지
       const canvas = await html2canvas(reportElement, {
-        scale: 2,
+        scale: 1.5,
         useCORS: true,
         logging: false,
-        windowWidth: reportElement.scrollWidth,
-        windowHeight: reportElement.scrollHeight,
         backgroundColor: '#ffffff',
-        imageTimeout: 0,
+        imageTimeout: 15000,
         removeContainer: false,
         allowTaint: true,
-        foreignObjectRendering: false
+        foreignObjectRendering: false,
+        ignoreElements: (element) => {
+          // 차트 요소는 제외하고 텍스트만 캡처
+          return element.classList.contains('chart-container') || 
+                 element.tagName === 'CANVAS';
+        }
       });
       
       // 원래 배경색으로 복원
