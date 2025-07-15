@@ -1,3 +1,7 @@
+import { getAllPatients } from '../js/firebase/crud.js';
+import { Report } from '../js/components/Report.js';
+import { translationService } from '../js/services/TranslationService.js';
+
 async function renderPatientList() {
   const t = (key, params) => translationService.t(key, params);
   let patients = [];
@@ -44,4 +48,5 @@ window.downloadPatientPDF = function(idx) {
   }, 500);
 };
 
+// 페이지 로드 시 환자 리스트 렌더링
 renderPatientList(); 
