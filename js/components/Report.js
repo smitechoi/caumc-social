@@ -631,7 +631,9 @@ export class Report {
         windowHeight: reportElement.scrollHeight,
         backgroundColor: '#ffffff',
         imageTimeout: 0,
-        removeContainer: false
+        removeContainer: false,
+        allowTaint: true,
+        foreignObjectRendering: false
       });
       
       // 원래 배경색으로 복원

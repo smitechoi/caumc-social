@@ -15,14 +15,32 @@ async function renderPatientList() {
     document.getElementById('patient-list').innerHTML = '<p>등록된 환자가 없습니다.</p>';
     return;
   }
-  let html = '<table><tr><th>이름</th><th>생년월일</th><th>등록번호</th><th>언어</th><th>Survey</th><th>CNT</th><th>PDF</th></tr>';
+
+  // 등록번호 순으로 정렬
+  patients.sort((a, b) => {
+    const regA = a.registrationNumber || '';
+    const regB = b.registrationNumber || '';
+    
+    // 등록번호가 없는 경우 맨 뒤로
+    if (!regA && !regB) return 0;
+    if (!regA) return 1;
+    if (!regB) return -1;
+    
+    // 숫자 부분 추출하여 정렬
+    const numA = parseInt(regA.replace(/\D/g, '')) || 0;
+    const numB = parseInt(regB.replace(/\D/g, '')) || 0;
+    
+    return numA - numB;
+  });
+
+  let html = '<table><tr><th>등록번호</th><th>이름</th><th>생년월일</th><th>언어</th><th>Survey</th><th>CNT</th><th>PDF</th></tr>';
   patients.forEach((p, idx) => {
     const surveyDone = Object.values(p.survey || {}).filter(s => s.isDone).length;
     const cntDone = Object.values(p.cnt || {}).filter(c => c.isDone).length;
     html += `<tr>
+      <td>${p.registrationNumber || '-'}</td>
       <td>${p.name || ''}</td>
       <td>${p.birthDate || ''}</td>
-      <td>${p.registrationNumber || ''}</td>
       <td>${p.language || ''}</td>
       <td>${surveyDone}/4</td>
       <td>${cntDone}/5</td>
