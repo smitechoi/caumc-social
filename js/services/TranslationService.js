@@ -46,4 +46,28 @@ export class TranslationService {
     }
     return result;
   }
+
+  setLanguage(language) {
+    if (this.translations[language]) {
+      this.currentLanguage = language;
+    } else {
+      console.warn(`Language ${language} not supported, falling back to Korean`);
+      this.currentLanguage = 'ko';
+    }
+  }
+
+  getLanguageName(code) {
+    const languageNames = {
+      ko: '한국어',
+      en: 'English',
+      ja: '日本語',
+      zh: '中文',
+      vn: 'Tiếng Việt',
+      th: 'ไทย'
+    };
+    return languageNames[code] || code;
+  }
 }
+
+// 인스턴스 export 추가
+export const translationService = new TranslationService();
