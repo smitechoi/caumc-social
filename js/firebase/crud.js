@@ -4,7 +4,8 @@ import {
   getDoc, 
   setDoc, 
   updateDoc, 
-  serverTimestamp 
+  serverTimestamp,
+  getDocs
 } from 'https://www.gstatic.com/firebasejs/11.8.1/firebase-firestore.js';
 import { db } from './config.js';
 
@@ -173,6 +174,15 @@ export async function getPatientByRegistrationNumber(registrationNumber) {
     } else {
       return null;
     }
+  });
+}
+
+// 8. 모든 환자 데이터 조회
+export async function getAllPatients() {
+  return withRetry(async () => {
+    const colRef = collection(db, 'patients');
+    const snapshot = await getDocs(colRef);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   });
 }
 
