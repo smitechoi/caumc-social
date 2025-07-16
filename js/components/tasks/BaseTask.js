@@ -28,10 +28,10 @@ export class BaseTask {
           ${tutorial.content}
           <div class="tutorial-buttons">
             <button onclick="window.currentTask.startActualTask()" class="tutorial-start-btn">
-              시작하기
+              ${window.translationService?.t('startButton') || '시작하기'}
             </button>
             <button onclick="window.currentTask.exitTask()" class="tutorial-exit-btn">
-              나가기
+              ${window.translationService?.t('exitTest') || '나가기'}
             </button>
           </div>
         </div>
@@ -103,7 +103,7 @@ export class BaseTask {
           // 종료 버튼 체크
           if (p.mouseX >= p.width - 80 && p.mouseX <= p.width - 20 &&
               p.mouseY >= 20 && p.mouseY <= 50) {
-            if (confirm('검사를 종료하시겠습니까?')) {
+            if (confirm(window.translationService?.t('exitTestConfirm') || '검사를 종료하시겠습니까?')) {
               this.exitTask();
               return;
             }
@@ -131,7 +131,7 @@ export class BaseTask {
             // 종료 버튼 체크
             if (touch.x >= p.width - 80 && touch.x <= p.width - 20 &&
                 touch.y >= 20 && touch.y <= 50) {
-              if (confirm('검사를 종료하시겠습니까?')) {
+              if (confirm(window.translationService?.t('exitTestConfirm') || '검사를 종료하시겠습니까?')) {
                 this.exitTask();
                 return false;
               }
@@ -184,7 +184,7 @@ export class BaseTask {
       p.fill(255);
       p.textSize(16);
       p.textAlign(p.CENTER, p.CENTER);
-      p.text('종료', p.width - 50, 35);
+      p.text(window.translationService?.t('exitTest') || '종료', p.width - 50, 35);
       p.pop();
     }
   

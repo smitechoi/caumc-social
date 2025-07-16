@@ -6,6 +6,10 @@ export class PatientLogin {
     this.container = document.getElementById(containerId);
     this.patientData = null;
     this.selectedLanguage = translationService.currentLanguage || 'ko'; // 기본값을 한국어로
+    
+    // 전역으로 설정
+    window.translationService = translationService;
+    
     this.render();
   }
 
@@ -137,6 +141,7 @@ export class PatientLogin {
         
         // 언어 설정 변경
         translationService.setLanguage(newLang);
+        window.translationService = translationService; // 전역 업데이트
         document.body.className = `lang-${newLang}`;
         
         // UI 재렌더링
@@ -195,6 +200,7 @@ export class PatientLogin {
         
         // 언어 설정 적용
         translationService.setLanguage(patientData.language);
+        window.translationService = translationService; // 전역 업데이트
         document.body.className = `lang-${patientData.language}`;
         
         this.showLoading(false);
