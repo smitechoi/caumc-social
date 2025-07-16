@@ -19,8 +19,20 @@ export class TranslationService {
   }
 
   t(key, params = {}) {
+    // 안전성 검사
+    if (!this.translations || !this.currentLanguage) {
+      console.warn('TranslationService not properly initialized');
+      return key;
+    }
+    
     const keys = key.split('.');
     let value = this.translations[this.currentLanguage];
+    
+    if (!value) {
+      console.warn(`Language ${this.currentLanguage} not found in translations`);
+      value = this.translations.ko;
+    }
+    
     for (const k of keys) {
       if (value && typeof value === 'object') {
         value = value[k];

@@ -2,7 +2,23 @@ import { BaseTask } from './BaseTask.js';
 
 export class MentalRotationTask extends BaseTask {
   getTutorial() {
-    const t = window.translationService?.t || ((key) => key);
+    const t = (key, params) => {
+      if (window.translationService && window.translationService.t) {
+        return window.translationService.t(key, params);
+      }
+      // 기본 한국어 번역
+      const fallback = {
+        rotationTitle: '3D 블록 회전 검사 연습',
+        rotationInstruction1: '두 개의 3D 블록 구조가 나타납니다.',
+        rotationInstruction2: '오른쪽 블록이 왼쪽 블록을 <strong>회전</strong>시킨 것과 같은지 판단하세요.',
+        rotationNote: '<p style="color: red; font-weight: bold;">주의: 뒤집어진 것(거울상)은 "다름"입니다.</p>',
+        rotationInstruction3: '마우스로 드래그하여 블록을 회전시켜 볼 수 있습니다.',
+        rotationInstruction4: '하단의 버튼을 터치하여 응답하세요.',
+        original: '원본',
+        rotationRotated: '회전됨 (같음)'
+      };
+      return fallback[key] || key;
+    };
     return {
       title: t('rotationTitle'),
       content: `

@@ -2,7 +2,24 @@ import { BaseTask } from './BaseTask.js';
 
 export class CardSortingTask extends BaseTask {
   getTutorial() {
-    const t = window.translationService?.t || ((key) => key);
+    const t = (key, params) => {
+      if (window.translationService && window.translationService.t) {
+        return window.translationService.t(key, params);
+      }
+      // 기본 한국어 번역
+      const fallback = {
+        cardSortingTitle: '카드 정렬 검사',
+        cardSortingInstruction1: '화면에 카드들이 나타납니다.',
+        cardSortingInstruction2: '목표 배열과 동일하게 카드를 정렬하세요.',
+        cardSortingRules: '규칙',
+        cardSortingRule1: '한 번에 한 장씩만 이동할 수 있습니다',
+        cardSortingRule2: '카드를 클릭한 후 목표 위치를 클릭하세요',
+        cardSortingRule3: '최소한의 이동으로 목표를 달성하세요',
+        cardSortingRule4: '이동 횟수가 기록됩니다',
+        cardSortingInstruction3: '정확하고 빠르게 정렬하세요.'
+      };
+      return fallback[key] || key;
+    };
     return {
       title: t('cardSortingTitle'),
       content: `
