@@ -2,7 +2,22 @@ import { BaseTask } from './BaseTask.js';
 
 export class NBackTask extends BaseTask {
   getTutorial() {
-    const t = window.translationService?.t || ((key) => key);
+    const t = (key, params) => {
+      if (window.translationService && window.translationService.t) {
+        return window.translationService.t(key, params);
+      }
+      // 기본 한국어 번역
+      const fallback = {
+        nBackTitle: 'N-Back 검사 연습',
+        nBackInstruction1: '화면에 숫자가 하나씩 나타납니다.',
+        nBackInstruction2: '현재 숫자가 <strong>2개 전</strong> 숫자와 같은지 판단하세요.',
+        nBackSame: '같음',
+        nBackDifferent: '다름',
+        nBackInstruction3: '화면 하단의 <strong>\'같음\'</strong> 또는 <strong>\'다름\'</strong> 버튼을 터치하세요.',
+        nBackInstruction4: '처음 {nLevel}개는 비교할 대상이 없으므로 버튼이 나타나지 않습니다.'
+      };
+      return fallback[key] || key;
+    };
     const nLevel = 1; // 또는 this.nLevel로 설정 가능
     return {
       title: t('nBackTitle', { nLevel: nLevel }),

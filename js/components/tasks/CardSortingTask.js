@@ -206,7 +206,19 @@ export class CardSortingTask extends BaseTask {
     // 진행 상황
     this.drawProgress(state, p);
     
-    const t = window.translationService?.t || ((key) => key);
+    const t = (key, params) => {
+      if (window.translationService && window.translationService.t) {
+        return window.translationService.t(key, params);
+      }
+      // 기본 한국어 번역
+      const fallback = {
+        targetArray: '목표 배열',
+        currentArray: '현재 배열',
+        moveCount: '이동 횟수',
+        moveCard: '이동하세요'
+      };
+      return fallback[key] || key;
+    };
     // 목표 상태 그리기
     this.drawCardArray(state, p, state.targetState, state.targetLayout, t('targetArray'), false);
     
@@ -244,7 +256,14 @@ export class CardSortingTask extends BaseTask {
     
     p.textSize(24);
     p.fill(0);
-          p.text(`${window.translationService.t('moveCount')}: ${state.moves}`, p.width / 2, p.height / 2);
+    const t = (key) => {
+      if (window.translationService && window.translationService.t) {
+        return window.translationService.t(key);
+      }
+      const fallback = { moveCount: '이동 횟수' };
+      return fallback[key] || key;
+    };
+    p.text(`${t('moveCount')}: ${state.moves}`, p.width / 2, p.height / 2);
     
     p.pop();
   }
@@ -373,7 +392,17 @@ export class CardSortingTask extends BaseTask {
     p.fill(0);
     p.textAlign(p.LEFT);
     p.textSize(16);
-          p.text(`${window.translationService.t('moveCount')}: ${state.moves}`, sidebarX, sidebarY);
+    const t = (key) => {
+      if (window.translationService && window.translationService.t) {
+        return window.translationService.t(key);
+      }
+      const fallback = { 
+        moveCount: '이동 횟수',
+        moveCard: '이동하세요'
+      };
+      return fallback[key] || key;
+    };
+    p.text(`${t('moveCount')}: ${state.moves}`, sidebarX, sidebarY);
     
     // 선택된 카드가 있을 때 안내문구
     if (state.selectedCard !== null) {
@@ -386,7 +415,7 @@ export class CardSortingTask extends BaseTask {
       p.fill(100);
       p.textSize(14);
       p.text('맨 위 카드를 클릭하여', sidebarX, sidebarY + 25);
-      p.text(window.translationService.t('moveCard'), sidebarX, sidebarY + 45);
+      p.text(t('moveCard'), sidebarX, sidebarY + 45);
     }
     
     p.pop();

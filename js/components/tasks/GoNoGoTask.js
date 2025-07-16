@@ -90,11 +90,25 @@ export class GoNoGoTask extends BaseTask {
         p.textSize(32);
         if (state.isGoTrial) {
           p.fill(0, 150, 0);
-          p.text(window.translationService.t('touchScreen'), p.width/2, p.height - 100);
-        } else {
-          p.fill(150, 0, 0);
-          p.text(window.translationService.t('doNotTouch'), p.width/2, p.height - 100);
-        }
+          const t = (key, params) => {
+          if (window.translationService && window.translationService.t) {
+            return window.translationService.t(key, params);
+          }
+          const fallback = { touchScreen: '터치하세요!' };
+          return fallback[key] || key;
+        };
+        p.text(t('touchScreen'), p.width/2, p.height - 100);
+                  } else {
+            p.fill(150, 0, 0);
+            const t = (key, params) => {
+              if (window.translationService && window.translationService.t) {
+                return window.translationService.t(key, params);
+              }
+              const fallback = { doNotTouch: '터치하지 마세요!' };
+              return fallback[key] || key;
+            };
+            p.text(t('doNotTouch'), p.width/2, p.height - 100);
+          }
         p.pop();
         
         // 응답 피드백
@@ -133,12 +147,30 @@ export class GoNoGoTask extends BaseTask {
       p.push();
       p.fill(150);
       p.textSize(36);
-      p.text(window.translationService.t('ready'), p.width/2, p.height/2);
+              const tReady = (key, params) => {
+          if (window.translationService && window.translationService.t) {
+            return window.translationService.t(key, params);
+          }
+          const fallback = { ready: '준비...' };
+          return fallback[key] || key;
+        };
+        p.text(tReady('ready'), p.width/2, p.height/2);
       
       // 다음 자극까지 시간
       const timeUntilNext = Math.max(0, state.nextStimulusTime - currentTime);
       p.textSize(20);
-      p.text(window.translationService.t('nextIn', { seconds: (timeUntilNext / 1000).toFixed(1) }), p.width/2, p.height/2 + 50);
+              const tNextIn = (key, params) => {
+          if (window.translationService && window.translationService.t) {
+            return window.translationService.t(key, params);
+          }
+          const fallback = { nextIn: '다음: {seconds}초' };
+          let result = fallback[key] || key;
+          if (params && params.seconds) {
+            result = result.replace('{seconds}', params.seconds);
+          }
+          return result;
+        };
+        p.text(tNextIn('nextIn', { seconds: (timeUntilNext / 1000).toFixed(1) }), p.width/2, p.height/2 + 50);
       p.pop();
     }
   }
