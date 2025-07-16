@@ -66,6 +66,17 @@ export class NBackTask extends BaseTask {
   }
 
   render(state, p) {
+    const t = (key, params) => {
+      if (window.translationService && window.translationService.t) {
+        return window.translationService.t(key, params);
+      }
+      // 기본 한국어 번역
+      const fallback = {
+        nBackSame: '같음',
+        nBackDifferent: '다름'
+      };
+      return fallback[key] || key;
+    };
     if (state.currentIndex >= state.maxTrials) {
       this.completeTask();
       return;
