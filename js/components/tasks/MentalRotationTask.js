@@ -3,16 +3,16 @@ import { BaseTask } from './BaseTask.js';
 export class MentalRotationTask extends BaseTask {
   getTutorial() {
     return {
-      title: '3D 블록 회전 검사 연습',
+      title: window.translationService.t('rotationTitle'),
       content: `
-        <p>두 개의 3D 블록 구조가 나타납니다.</p>
-        <p>오른쪽 블록이 왼쪽 블록을 <strong>회전</strong>시킨 것과 같은지 판단하세요.</p>
+        <p>${window.translationService.t('rotationInstruction1')}</p>
+        <p>${window.translationService.t('rotationInstruction2')}</p>
         <div style="text-align: center; margin: 30px 0;">
-          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'%3E%3Crect x='50' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Crect x='90' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Crect x='90' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Ctext x='90' y='150' text-anchor='middle' font-size='14'%3E원본%3C/text%3E%3Ctext x='200' y='100' font-size='30'%3E→%3C/text%3E%3Crect x='250' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Crect x='250' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Crect x='210' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Ctext x='290' y='150' text-anchor='middle' font-size='14'%3E회전됨 (같음)%3C/text%3E%3C/svg%3E" style="max-width: 400px; margin: 20px auto; display: block;">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'%3E%3Crect x='50' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Crect x='90' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Crect x='90' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Ctext x='90' y='150' text-anchor='middle' font-size='14'%3E${window.translationService.t('original')}%3C/text%3E%3Ctext x='200' y='100' font-size='30'%3E→%3C/text%3E%3Crect x='250' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Crect x='250' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Crect x='210' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Ctext x='290' y='150' text-anchor='middle' font-size='14'%3E${window.translationService.t('rotationRotated')}%3C/text%3E%3C/svg%3E" style="max-width: 400px; margin: 20px auto; display: block;">
         </div>
-        <p style="color: red; font-weight: bold;">주의: 뒤집어진 것(거울상)은 "다름"입니다.</p>
-        <p>마우스로 드래그하여 블록을 회전시켜 볼 수 있습니다.</p>
-        <p>하단의 버튼을 터치하여 응답하세요.</p>
+        <p style="color: red; font-weight: bold;">${window.translationService.t('rotationNote')}</p>
+        <p>${window.translationService.t('rotationInstruction3')}</p>
+        <p>${window.translationService.t('rotationInstruction4')}</p>
       `
     };
   }
@@ -134,31 +134,17 @@ export class MentalRotationTask extends BaseTask {
     
     // 같음/다름 결정 (50:50 확률)
     state.isSame = Math.random() < 0.5;
-    state.isMirrored = false;
     
     if (state.isSame) {
       // 같은 경우: 기본 패턴을 회전시킨 것
       state.targetPattern = this.rotatePattern(state.basePattern, state.targetRotation);
       console.log('같음 - 기본 패턴 회전 적용');
     } else {
-      // 다른 경우: 여러 전략 사용
-      const strategies = ['mirror', 'different', 'partial'];
+      // 다른 경우: 여러 전략 사용 (거울상 제거하고 더 확실한 차이만 사용)
+      const strategies = ['different', 'partial'];
       const strategy = strategies[Math.floor(Math.random() * strategies.length)];
       
       switch (strategy) {
-        case 'mirror':
-          // 거울상 (X축 반전)
-          state.targetPattern = state.basePattern.map(block => ({
-            x: -block.x,
-            y: block.y,
-            z: block.z
-          }));
-          // 거울상도 회전 적용
-          state.targetPattern = this.rotatePattern(state.targetPattern, state.targetRotation);
-          state.isMirrored = true;
-          console.log('다름 - 거울상 + 회전');
-          break;
-          
         case 'different':
           // 완전히 다른 패턴
           let otherPattern;
@@ -170,27 +156,55 @@ export class MentalRotationTask extends BaseTask {
           break;
           
         case 'partial':
-          // 일부 블록만 변경
+          // 일부 블록만 변경 (연결된 구조 유지)
           state.targetPattern = [...state.basePattern];
           const blockToChange = Math.floor(Math.random() * state.targetPattern.length);
           
-          // 기존 블록 제거하고 새 위치에 블록 추가
+          // 기존 블록 제거
           state.targetPattern.splice(blockToChange, 1);
           
-          // 새로운 위치에 블록 추가 (기존과 겹치지 않는 위치)
+          // 기존 블록들과 인접한 위치에 새 블록 추가
           let newBlock;
           let attempts = 0;
-          do {
-            newBlock = {
-              x: Math.floor(Math.random() * 5) - 2, // -2 ~ 2
-              y: Math.floor(Math.random() * 5) - 2,
-              z: Math.floor(Math.random() * 3) - 1  // -1 ~ 1
-            };
-            attempts++;
-          } while (attempts < 10 && state.targetPattern.some(b => 
-            b.x === newBlock.x && b.y === newBlock.y && b.z === newBlock.z));
+          let validPosition = false;
           
-          state.targetPattern.push(newBlock);
+          do {
+            // 기존 블록 중 하나를 기준으로 인접한 위치 선택
+            const referenceBlock = state.targetPattern[Math.floor(Math.random() * state.targetPattern.length)];
+            const directions = [
+              {x: 1, y: 0, z: 0}, {x: -1, y: 0, z: 0},
+              {x: 0, y: 1, z: 0}, {x: 0, y: -1, z: 0},
+              {x: 0, y: 0, z: 1}, {x: 0, y: 0, z: -1}
+            ];
+            
+            const direction = directions[Math.floor(Math.random() * directions.length)];
+            newBlock = {
+              x: referenceBlock.x + direction.x,
+              y: referenceBlock.y + direction.y,
+              z: referenceBlock.z + direction.z
+            };
+            
+            // 겹치지 않는지 확인
+            validPosition = !state.targetPattern.some(b => 
+              b.x === newBlock.x && b.y === newBlock.y && b.z === newBlock.z);
+            
+            attempts++;
+          } while (attempts < 20 && !validPosition);
+          
+          // 유효한 위치를 찾지 못했으면 기존 블록을 그대로 유지
+          if (validPosition) {
+            state.targetPattern.push(newBlock);
+          } else {
+            // 유효한 위치를 찾지 못했으면 다른 전략 사용
+            let otherPattern;
+            do {
+              otherPattern = patterns[Math.floor(Math.random() * patterns.length)];
+            } while (this.patternsEqual(otherPattern, state.basePattern));
+            state.targetPattern = this.rotatePattern(otherPattern, state.targetRotation);
+            console.log('다름 - 부분 변경 실패, 다른 패턴 사용');
+            break;
+          }
+          
           state.targetPattern = this.rotatePattern(state.targetPattern, state.targetRotation);
           console.log('다름 - 부분 변경 + 회전');
           break;
@@ -209,7 +223,7 @@ export class MentalRotationTask extends BaseTask {
     // 자동 회전 속도도 난이도에 따라 조정
     state.autoRotateSpeed = 0.008 + (difficultyIndex * 0.003);
     
-    console.log(`Trial ${state.currentTrial}: isSame=${state.isSame}, isMirrored=${state.isMirrored}`);
+    console.log(`Trial ${state.currentTrial}: isSame=${state.isSame}`);
     console.log('Base pattern:', state.basePattern);
     console.log('Target pattern:', state.targetPattern);
     console.log('Target rotation:', state.targetRotation);
@@ -404,7 +418,7 @@ export class MentalRotationTask extends BaseTask {
       p.textAlign(p.LEFT);
       p.textSize(18);
       p.fill(100);
-      p.text(`진행: ${state.currentTrial + 1} / ${state.maxTrials}`, 20, 30);
+      p.text(`${window.translationService.t('progress')}: ${state.currentTrial + 1} / ${state.maxTrials}`, 20, 30);
       p.pop();
       
       // 피드백 오버레이 렌더링
@@ -648,9 +662,9 @@ export class MentalRotationTask extends BaseTask {
       p.strokeWeight(2);
       p.rect(popupX, popupY, popupWidth, popupHeight, 20);
       
-      // 단순한 다음 문제 안내
-      const iconColor = [76, 175, 80]; // 초록색
-      const message = "다음 문제로 넘어갑니다";
+          // 단순한 다음 문제 안내
+    const iconColor = [76, 175, 80]; // 초록색
+    const message = window.translationService.t('nextQuestionMessage');
       const icon = "→";
       
       // 아이콘 배경 원

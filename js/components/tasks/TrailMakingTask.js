@@ -3,10 +3,10 @@ import { BaseTask } from './BaseTask.js';
 export class TrailMakingTask extends BaseTask {
   getTutorial() {
     return {
-      title: '선로 잇기 검사 연습',
+      title: window.translationService.t('trailTitle'),
       content: `
-        <p>화면에 숫자가 흩어져 나타납니다.</p>
-        <p><strong>1부터 순서대로</strong> 터치하여 연결하세요.</p>
+        <p>${window.translationService.t('trailInstruction1')}</p>
+        <p>${window.translationService.t('trailInstruction2')}</p>
         <div style="text-align: center; margin: 30px 0;">
           <span style="display: inline-block; margin: 10px; padding: 20px; border: 3px solid #4CAF50; border-radius: 50%; width: 50px; height: 50px; line-height: 50px; font-weight: bold;">1</span>
           <span style="margin: 0 20px; font-size: 30px;">→</span>
@@ -14,11 +14,11 @@ export class TrailMakingTask extends BaseTask {
           <span style="margin: 0 20px; font-size: 30px;">→</span>
           <span style="display: inline-block; margin: 10px; padding: 20px; border: 3px solid #333; border-radius: 50%; width: 50px; height: 50px; line-height: 50px; font-weight: bold;">3</span>
         </div>
-        <p><strong>주의사항:</strong></p>
+        <p>${window.translationService.t('trailNote')}</p>
         <ul style="text-align: left; max-width: 400px; margin: 0 auto;">
-          <li>잘못된 숫자를 터치하면 오류로 기록됩니다</li>
-          <li>가능한 빠르게 연결하세요</li>
-          <li>다음 연결할 숫자는 노란색으로 강조됩니다</li>
+          <li>${window.translationService.t('trailNote1')}</li>
+          <li>${window.translationService.t('trailNote2')}</li>
+          <li>${window.translationService.t('trailNote3')}</li>
         </ul>
       `
     };
@@ -176,11 +176,11 @@ export class TrailMakingTask extends BaseTask {
     p.textSize(24);
     
     // 다음 숫자
-    p.text(`다음: ${state.currentNode}`, 30, 30);
+    p.text(window.translationService.t('nextNumber', { number: state.currentNode }), 30, 30);
     
     // 오류
     p.fill(state.errors > 0 ? [255, 0, 0] : [0, 0, 0]);
-    p.text(`오류: ${state.errors}`, 30, 60);
+    p.text(window.translationService.t('errors', { count: state.errors }), 30, 60);
     
     // 시간
     p.fill(0);
@@ -188,11 +188,11 @@ export class TrailMakingTask extends BaseTask {
     const elapsedTime = Math.floor((p.millis() - state.startTime) / 1000);
     const minutes = Math.floor(elapsedTime / 60);
     const seconds = elapsedTime % 60;
-    p.text(`시간: ${minutes}:${seconds.toString().padStart(2, '0')}`, p.width - 30, 30);
+    p.text(window.translationService.t('time', { time: `${minutes}:${seconds.toString().padStart(2, '0')}` }), p.width - 30, 30);
     
     // 진행률
     const progress = ((state.currentNode - 1) / state.nodeCount) * 100;
-    p.text(`진행: ${Math.round(progress)}%`, p.width - 30, 60);
+    p.text(window.translationService.t('progressPercent', { percent: Math.round(progress) }), p.width - 30, 60);
     
     p.pop();
   }

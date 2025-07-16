@@ -3,21 +3,21 @@ import { BaseTask } from './BaseTask.js';
 export class GoNoGoTask extends BaseTask {
   getTutorial() {
     return {
-      title: 'Go/No-Go 검사 연습',
+      title: window.translationService.t('goNoGoTitle'),
       content: `
-        <p>화면에 숫자가 빠르게 나타납니다.</p>
+        <p>${window.translationService.t('goNoGoInstruction1')}</p>
         <div style="margin: 30px 0; font-size: 20px;">
           <div style="margin: 15px; padding: 15px; background: #e8f5e9; border-radius: 8px;">
             <span style="color: green; font-size: 36px; font-weight: bold;">4</span> 
-            <span style="margin-left: 20px;">→ 짝수: 화면을 터치하세요! (Go)</span>
+            <span style="margin-left: 20px;">→ ${window.translationService.t('goNoGoEven')}</span>
           </div>
           <div style="margin: 15px; padding: 15px; background: #ffebee; border-radius: 8px;">
             <span style="color: red; font-size: 36px; font-weight: bold;">7</span> 
-            <span style="margin-left: 20px;">→ 홀수: 터치하지 마세요! (No-Go)</span>
+            <span style="margin-left: 20px;">→ ${window.translationService.t('goNoGoOdd')}</span>
           </div>
         </div>
-        <p><strong>중요:</strong> 빠르고 정확하게 반응해야 합니다.</p>
-        <p>짝수일 때만 화면 아무 곳이나 터치하세요.</p>
+        <p>${window.translationService.t('goNoGoImportant')}</p>
+        <p>${window.translationService.t('goNoGoInstruction2')}</p>
       `
     };
   }
@@ -89,10 +89,10 @@ export class GoNoGoTask extends BaseTask {
         p.textSize(32);
         if (state.isGoTrial) {
           p.fill(0, 150, 0);
-          p.text('터치하세요!', p.width/2, p.height - 100);
+          p.text(window.translationService.t('touchScreen'), p.width/2, p.height - 100);
         } else {
           p.fill(150, 0, 0);
-          p.text('터치하지 마세요!', p.width/2, p.height - 100);
+          p.text(window.translationService.t('doNotTouch'), p.width/2, p.height - 100);
         }
         p.pop();
         
@@ -132,12 +132,12 @@ export class GoNoGoTask extends BaseTask {
       p.push();
       p.fill(150);
       p.textSize(36);
-      p.text('준비...', p.width/2, p.height/2);
+      p.text(window.translationService.t('ready'), p.width/2, p.height/2);
       
       // 다음 자극까지 시간
       const timeUntilNext = Math.max(0, state.nextStimulusTime - currentTime);
       p.textSize(20);
-      p.text(`다음: ${(timeUntilNext / 1000).toFixed(1)}초`, p.width/2, p.height/2 + 50);
+      p.text(window.translationService.t('nextIn', { seconds: (timeUntilNext / 1000).toFixed(1) }), p.width/2, p.height/2 + 50);
       p.pop();
     }
   }

@@ -3,18 +3,18 @@ import { BaseTask } from './BaseTask.js';
 export class EmotionRecognitionTask extends BaseTask {
   getTutorial() {
     return {
-      title: '표정 인식 검사 연습',
+      title: window.translationService.t('emotionTitle'),
       content: `
-        <p>화면에 사람의 얼굴 사진이 나타납니다.</p>
-        <p>표정을 보고 <strong>어떤 감정</strong>인지 선택하세요.</p>
+        <p>${window.translationService.t('emotionInstruction1')}</p>
+        <p>${window.translationService.t('emotionInstruction2')}</p>
         <div style="text-align: center; margin: 30px 0;">
           <div style="display: inline-block; width: 200px; height: 200px; background: #f0f0f0; border-radius: 10px; line-height: 200px; font-size: 60px;">
             😊
           </div>
         </div>
-        <p>평가할 감정: <strong>행복, 슬픔, 중립, 화남</strong></p>
-        <p style="color: #666; font-size: 14px;">각 표정을 주의 깊게 보고 가장 적절한 감정을 선택하세요.</p>
-        <p style="color: #2196F3; font-size: 14px;">표정의 강도는 다양할 수 있습니다 (강함, 중간, 약함)</p>
+        <p>${window.translationService.t('emotionInstruction3')}</p>
+        <p style="color: #666; font-size: 14px;">${window.translationService.t('emotionInstruction4')}</p>
+        <p style="color: #2196F3; font-size: 14px;">${window.translationService.t('emotionIntensityNote')}</p>
       `
     };
   }
@@ -177,7 +177,7 @@ export class EmotionRecognitionTask extends BaseTask {
       p.textAlign(p.CENTER);
       p.textSize(24);
       p.fill(100);
-      p.text(`남은 시간: ${remainingTime}초`, p.width/2, p.height * 0.9);
+      p.text(window.translationService.t('remainingTime', { seconds: remainingTime }), p.width/2, p.height * 0.9);
       p.pop();
     }
     // 시간 초과

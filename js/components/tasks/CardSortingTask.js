@@ -3,18 +3,18 @@ import { BaseTask } from './BaseTask.js';
 export class CardSortingTask extends BaseTask {
   getTutorial() {
     return {
-      title: '카드 정렬 검사 연습',
+      title: window.translationService.t('cardSortingTitle'),
       content: `
-        <p>화면 상단에 <strong>목표 배열</strong>이 제시됩니다.</p>
-        <p>하단의 카드들을 이동시켜 목표와 같은 배열을 만드세요.</p>
+        <p>${window.translationService.t('cardSortingInstruction1')}</p>
+        <p>${window.translationService.t('cardSortingInstruction2')}</p>
         <div style="text-align: center; margin: 30px 0;">
-          <p style="font-size: 20px; color: #2196F3;">규칙:</p>
-          <p>• 한 번에 <strong>한 장</strong>의 카드만 이동 가능</p>
-          <p>• 각 열의 <strong>맨 위 카드</strong>만 이동 가능</p>
-          <p>• 빈 열에도 카드를 놓을 수 있습니다</p>
-          <p>• 카드는 <strong>색상</strong>으로 구분됩니다</p>
+          <p style="font-size: 20px; color: #2196F3;">${window.translationService.t('cardSortingRules')}:</p>
+          <p>• ${window.translationService.t('cardSortingRule1')}</p>
+          <p>• ${window.translationService.t('cardSortingRule2')}</p>
+          <p>• ${window.translationService.t('cardSortingRule3')}</p>
+          <p>• ${window.translationService.t('cardSortingRule4')}</p>
         </div>
-        <p style="color: #666;">카드를 클릭한 후, 목표 위치를 클릭하세요.</p>
+        <p style="color: #666;">${window.translationService.t('cardSortingInstruction3')}</p>
       `
     };
   }
@@ -189,10 +189,10 @@ export class CardSortingTask extends BaseTask {
     this.drawProgress(state, p);
     
     // 목표 상태 그리기
-    this.drawCardArray(state, p, state.targetState, state.targetLayout, '목표 배열', false);
+    this.drawCardArray(state, p, state.targetState, state.targetLayout, window.translationService.t('targetArray'), false);
     
     // 현재 상태 그리기
-    this.drawCardArray(state, p, state.currentState, state.currentLayout, '현재 배열', true);
+    this.drawCardArray(state, p, state.currentState, state.currentLayout, window.translationService.t('currentArray'), true);
     
     // 이동 정보
     this.drawMoveInfo(state, p);
@@ -225,7 +225,7 @@ export class CardSortingTask extends BaseTask {
     
     p.textSize(24);
     p.fill(0);
-    p.text(`이동 횟수: ${state.moves}`, p.width / 2, p.height / 2);
+          p.text(`${window.translationService.t('moveCount')}: ${state.moves}`, p.width / 2, p.height / 2);
     
     p.pop();
   }
@@ -354,7 +354,7 @@ export class CardSortingTask extends BaseTask {
     p.fill(0);
     p.textAlign(p.LEFT);
     p.textSize(16);
-    p.text(`이동 횟수: ${state.moves}`, sidebarX, sidebarY);
+          p.text(`${window.translationService.t('moveCount')}: ${state.moves}`, sidebarX, sidebarY);
     
     // 선택된 카드가 있을 때 안내문구
     if (state.selectedCard !== null) {
@@ -367,7 +367,7 @@ export class CardSortingTask extends BaseTask {
       p.fill(100);
       p.textSize(14);
       p.text('맨 위 카드를 클릭하여', sidebarX, sidebarY + 25);
-      p.text('이동하세요', sidebarX, sidebarY + 45);
+      p.text(window.translationService.t('moveCard'), sidebarX, sidebarY + 45);
     }
     
     p.pop();

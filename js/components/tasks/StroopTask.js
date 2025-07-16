@@ -3,15 +3,15 @@ import { BaseTask } from './BaseTask.js';
 export class StroopTask extends BaseTask {
   getTutorial() {
     return {
-      title: '스트룹 검사 연습',
+      title: window.translationService.t('stroopTitle'),
       content: `
-        <p>화면에 색깔 단어가 나타납니다.</p>
-        <p>단어의 <strong>의미</strong>가 아닌 <strong>색깔</strong>을 선택하세요.</p>
+        <p>${window.translationService.t('stroopInstruction1')}</p>
+        <p>${window.translationService.t('stroopInstruction2')}</p>
         <div style="text-align: center; margin: 30px 0;">
-          <span style="font-size: 48px; color: red;">파랑</span>
+          <span style="font-size: 48px; color: red;">${window.translationService.t('blue')}</span>
         </div>
-        <p style="text-align: center;">위 예시에서는 '빨강'을 터치해야 합니다.</p>
-        <p>화면 하단의 색깔 버튼을 터치하세요.</p>
+        <p style="text-align: center;">${window.translationService.t('stroopExample')}</p>
+        <p>${window.translationService.t('stroopInstruction3')}</p>
       `
     };
   }
@@ -21,7 +21,7 @@ export class StroopTask extends BaseTask {
   }
 
   initializeState(state, p) {
-    state.colors = ['빨강', '파랑', '초록', '노랑'];
+    state.colors = [window.translationService.t('red'), window.translationService.t('blue'), window.translationService.t('green'), window.translationService.t('yellow')];
     state.colorValues = ['red', 'blue', 'green', 'yellow'];
     state.currentTrial = 0;
     state.maxTrials = 20;

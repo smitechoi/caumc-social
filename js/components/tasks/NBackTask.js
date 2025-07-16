@@ -4,21 +4,21 @@ export class NBackTask extends BaseTask {
   getTutorial() {
     const nLevel = 1; // 또는 this.nLevel로 설정 가능
     return {
-      title: `${nLevel}-Back 검사 연습`,
+      title: window.translationService.t('nBackTitle', { nLevel: nLevel }),
       content: `
-        <p>화면에 숫자가 하나씩 나타납니다.</p>
-        <p>현재 숫자가 <strong>${nLevel}개 전</strong> 숫자와 같은지 판단하세요.</p>
+        <p>${window.translationService.t('nBackInstruction1')}</p>
+        <p>${window.translationService.t('nBackInstruction2', { nLevel: nLevel })}</p>
         <div style="text-align: center; margin: 30px 0; font-size: 24px;">
           ${nLevel === 1 ? `
-            <div style="margin: 10px;">3 → <span style="color: red; font-weight: bold;">3</span> (같음)</div>
-            <div style="margin: 10px;">7 → <span style="color: blue; font-weight: bold;">2</span> (다름)</div>
+            <div style="margin: 10px;">3 → <span style="color: red; font-weight: bold;">3</span> (${window.translationService.t('nBackSame')})</div>
+            <div style="margin: 10px;">7 → <span style="color: blue; font-weight: bold;">2</span> (${window.translationService.t('nBackDifferent')})</div>
           ` : `
-            <div style="margin: 10px;">3 → 5 → <span style="color: red; font-weight: bold;">3</span> (같음)</div>
-            <div style="margin: 10px;">7 → 2 → <span style="color: blue; font-weight: bold;">9</span> (다름)</div>
+            <div style="margin: 10px;">3 → 5 → <span style="color: red; font-weight: bold;">3</span> (${window.translationService.t('nBackSame')})</div>
+            <div style="margin: 10px;">7 → 2 → <span style="color: blue; font-weight: bold;">9</span> (${window.translationService.t('nBackDifferent')})</div>
           `}
         </div>
-        <p>화면 하단의 <strong>'같음'</strong> 또는 <strong>'다름'</strong> 버튼을 터치하세요.</p>
-        <p>처음 ${nLevel}개는 비교할 대상이 없으므로 버튼이 나타나지 않습니다.</p>
+        <p>${window.translationService.t('nBackInstruction3')}</p>
+        <p>${window.translationService.t('nBackInstruction4', { nLevel: nLevel })}</p>
       `
     };
   }
@@ -88,7 +88,7 @@ export class NBackTask extends BaseTask {
             width: buttonWidth,
             height: buttonHeight,
             response: true,
-            label: '같음',
+            label: window.translationService.t('nBackSame'),
             color: [76, 175, 80]
           },
           {
@@ -97,7 +97,7 @@ export class NBackTask extends BaseTask {
             width: buttonWidth,
             height: buttonHeight,
             response: false,
-            label: '다름',
+            label: window.translationService.t('nBackDifferent'),
             color: [244, 67, 54]
           }
         ];
