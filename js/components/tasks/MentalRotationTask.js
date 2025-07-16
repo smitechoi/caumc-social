@@ -2,17 +2,18 @@ import { BaseTask } from './BaseTask.js';
 
 export class MentalRotationTask extends BaseTask {
   getTutorial() {
+    const t = window.translationService?.t || ((key) => key);
     return {
-      title: window.translationService.t('rotationTitle'),
+      title: t('rotationTitle'),
       content: `
-        <p>${window.translationService.t('rotationInstruction1')}</p>
-        <p>${window.translationService.t('rotationInstruction2')}</p>
+        <p>${t('rotationInstruction1')}</p>
+        <p>${t('rotationInstruction2')}</p>
         <div style="text-align: center; margin: 30px 0;">
-          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'%3E%3Crect x='50' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Crect x='90' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Crect x='90' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Ctext x='90' y='150' text-anchor='middle' font-size='14'%3E${window.translationService.t('original')}%3C/text%3E%3Ctext x='200' y='100' font-size='30'%3E→%3C/text%3E%3Crect x='250' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Crect x='250' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Crect x='210' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Ctext x='290' y='150' text-anchor='middle' font-size='14'%3E${window.translationService.t('rotationRotated')}%3C/text%3E%3C/svg%3E" style="max-width: 400px; margin: 20px auto; display: block;">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 200'%3E%3Crect x='50' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Crect x='90' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Crect x='90' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333'/%3E%3Ctext x='90' y='150' text-anchor='middle' font-size='14'%3E${t('original')}%3C/text%3E%3Ctext x='200' y='100' font-size='30'%3E→%3C/text%3E%3Crect x='250' y='50' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Crect x='250' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Crect x='210' y='90' width='40' height='40' fill='%234CAF50' stroke='%23333' transform='rotate(90 290 90)'/%3E%3Ctext x='290' y='150' text-anchor='middle' font-size='14'%3E${t('rotationRotated')}%3C/text%3E%3C/svg%3E" style="max-width: 400px; margin: 20px auto; display: block;">
         </div>
-        <p style="color: red; font-weight: bold;">${window.translationService.t('rotationNote')}</p>
-        <p>${window.translationService.t('rotationInstruction3')}</p>
-        <p>${window.translationService.t('rotationInstruction4')}</p>
+        <p style="color: red; font-weight: bold;">${t('rotationNote')}</p>
+        <p>${t('rotationInstruction3')}</p>
+        <p>${t('rotationInstruction4')}</p>
       `
     };
   }
@@ -414,11 +415,12 @@ export class MentalRotationTask extends BaseTask {
       this.drawResponseButtons(state, p);
       
       // 진행률 표시
+      const t = window.translationService?.t || ((key) => key);
       p.push();
       p.textAlign(p.LEFT);
       p.textSize(18);
       p.fill(100);
-      p.text(`${window.translationService.t('progress')}: ${state.currentTrial + 1} / ${state.maxTrials}`, 20, 30);
+      p.text(`${t('progress')}: ${state.currentTrial + 1} / ${state.maxTrials}`, 20, 30);
       p.pop();
       
       // 피드백 오버레이 렌더링
@@ -663,8 +665,9 @@ export class MentalRotationTask extends BaseTask {
       p.rect(popupX, popupY, popupWidth, popupHeight, 20);
       
           // 단순한 다음 문제 안내
+    const t = window.translationService?.t || ((key) => key);
     const iconColor = [76, 175, 80]; // 초록색
-    const message = window.translationService.t('nextQuestionMessage');
+    const message = t('nextQuestionMessage');
       const icon = "→";
       
       // 아이콘 배경 원

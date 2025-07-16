@@ -2,19 +2,20 @@ import { BaseTask } from './BaseTask.js';
 
 export class CardSortingTask extends BaseTask {
   getTutorial() {
+    const t = window.translationService?.t || ((key) => key);
     return {
-      title: window.translationService.t('cardSortingTitle'),
+      title: t('cardSortingTitle'),
       content: `
-        <p>${window.translationService.t('cardSortingInstruction1')}</p>
-        <p>${window.translationService.t('cardSortingInstruction2')}</p>
+        <p>${t('cardSortingInstruction1')}</p>
+        <p>${t('cardSortingInstruction2')}</p>
         <div style="text-align: center; margin: 30px 0;">
-          <p style="font-size: 20px; color: #2196F3;">${window.translationService.t('cardSortingRules')}:</p>
-          <p>• ${window.translationService.t('cardSortingRule1')}</p>
-          <p>• ${window.translationService.t('cardSortingRule2')}</p>
-          <p>• ${window.translationService.t('cardSortingRule3')}</p>
-          <p>• ${window.translationService.t('cardSortingRule4')}</p>
+          <p style="font-size: 20px; color: #2196F3;">${t('cardSortingRules')}:</p>
+          <p>• ${t('cardSortingRule1')}</p>
+          <p>• ${t('cardSortingRule2')}</p>
+          <p>• ${t('cardSortingRule3')}</p>
+          <p>• ${t('cardSortingRule4')}</p>
         </div>
-        <p style="color: #666;">${window.translationService.t('cardSortingInstruction3')}</p>
+        <p style="color: #666;">${t('cardSortingInstruction3')}</p>
       `
     };
   }
@@ -188,11 +189,12 @@ export class CardSortingTask extends BaseTask {
     // 진행 상황
     this.drawProgress(state, p);
     
+    const t = window.translationService?.t || ((key) => key);
     // 목표 상태 그리기
-    this.drawCardArray(state, p, state.targetState, state.targetLayout, window.translationService.t('targetArray'), false);
+    this.drawCardArray(state, p, state.targetState, state.targetLayout, t('targetArray'), false);
     
     // 현재 상태 그리기
-    this.drawCardArray(state, p, state.currentState, state.currentLayout, window.translationService.t('currentArray'), true);
+    this.drawCardArray(state, p, state.currentState, state.currentLayout, t('currentArray'), true);
     
     // 이동 정보
     this.drawMoveInfo(state, p);

@@ -2,11 +2,12 @@ import { BaseTask } from './BaseTask.js';
 
 export class TrailMakingTask extends BaseTask {
   getTutorial() {
+    const t = window.translationService?.t || ((key) => key);
     return {
-      title: window.translationService.t('trailTitle'),
+      title: t('trailTitle'),
       content: `
-        <p>${window.translationService.t('trailInstruction1')}</p>
-        <p>${window.translationService.t('trailInstruction2')}</p>
+        <p>${t('trailInstruction1')}</p>
+        <p>${t('trailInstruction2')}</p>
         <div style="text-align: center; margin: 30px 0;">
           <span style="display: inline-block; margin: 10px; padding: 20px; border: 3px solid #4CAF50; border-radius: 50%; width: 50px; height: 50px; line-height: 50px; font-weight: bold;">1</span>
           <span style="margin: 0 20px; font-size: 30px;">→</span>
@@ -14,11 +15,11 @@ export class TrailMakingTask extends BaseTask {
           <span style="margin: 0 20px; font-size: 30px;">→</span>
           <span style="display: inline-block; margin: 10px; padding: 20px; border: 3px solid #333; border-radius: 50%; width: 50px; height: 50px; line-height: 50px; font-weight: bold;">3</span>
         </div>
-        <p>${window.translationService.t('trailNote')}</p>
+        <p>${t('trailNote')}</p>
         <ul style="text-align: left; max-width: 400px; margin: 0 auto;">
-          <li>${window.translationService.t('trailNote1')}</li>
-          <li>${window.translationService.t('trailNote2')}</li>
-          <li>${window.translationService.t('trailNote3')}</li>
+          <li>${t('trailNote1')}</li>
+          <li>${t('trailNote2')}</li>
+          <li>${t('trailNote3')}</li>
         </ul>
       `
     };
@@ -175,12 +176,13 @@ export class TrailMakingTask extends BaseTask {
     p.textAlign(p.LEFT, p.CENTER);
     p.textSize(24);
     
+    const t = window.translationService?.t || ((key) => key);
     // 다음 숫자
-    p.text(window.translationService.t('nextNumber', { number: state.currentNode }), 30, 30);
+    p.text(t('nextNumber', { number: state.currentNode }), 30, 30);
     
     // 오류
     p.fill(state.errors > 0 ? [255, 0, 0] : [0, 0, 0]);
-    p.text(window.translationService.t('errors', { count: state.errors }), 30, 60);
+    p.text(t('errors', { count: state.errors }), 30, 60);
     
     // 시간
     p.fill(0);
@@ -188,11 +190,11 @@ export class TrailMakingTask extends BaseTask {
     const elapsedTime = Math.floor((p.millis() - state.startTime) / 1000);
     const minutes = Math.floor(elapsedTime / 60);
     const seconds = elapsedTime % 60;
-    p.text(window.translationService.t('time', { time: `${minutes}:${seconds.toString().padStart(2, '0')}` }), p.width - 30, 30);
+    p.text(t('time', { time: `${minutes}:${seconds.toString().padStart(2, '0')}` }), p.width - 30, 30);
     
     // 진행률
     const progress = ((state.currentNode - 1) / state.nodeCount) * 100;
-    p.text(window.translationService.t('progressPercent', { percent: Math.round(progress) }), p.width - 30, 60);
+    p.text(t('progressPercent', { percent: Math.round(progress) }), p.width - 30, 60);
     
     p.pop();
   }

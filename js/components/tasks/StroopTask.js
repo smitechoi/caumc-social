@@ -2,16 +2,17 @@ import { BaseTask } from './BaseTask.js';
 
 export class StroopTask extends BaseTask {
   getTutorial() {
+    const t = window.translationService?.t || ((key) => key);
     return {
-      title: window.translationService.t('stroopTitle'),
+      title: t('stroopTitle'),
       content: `
-        <p>${window.translationService.t('stroopInstruction1')}</p>
-        <p>${window.translationService.t('stroopInstruction2')}</p>
+        <p>${t('stroopInstruction1')}</p>
+        <p>${t('stroopInstruction2')}</p>
         <div style="text-align: center; margin: 30px 0;">
-          <span style="font-size: 48px; color: red;">${window.translationService.t('blue')}</span>
+          <span style="font-size: 48px; color: red;">${t('blue')}</span>
         </div>
-        <p style="text-align: center;">${window.translationService.t('stroopExample')}</p>
-        <p>${window.translationService.t('stroopInstruction3')}</p>
+        <p style="text-align: center;">${t('stroopExample')}</p>
+        <p>${t('stroopInstruction3')}</p>
       `
     };
   }
@@ -21,7 +22,8 @@ export class StroopTask extends BaseTask {
   }
 
   initializeState(state, p) {
-    state.colors = [window.translationService.t('red'), window.translationService.t('blue'), window.translationService.t('green'), window.translationService.t('yellow')];
+    const t = window.translationService?.t || ((key) => key);
+    state.colors = [t('red'), t('blue'), t('green'), t('yellow')];
     state.colorValues = ['red', 'blue', 'green', 'yellow'];
     state.currentTrial = 0;
     state.maxTrials = 20;

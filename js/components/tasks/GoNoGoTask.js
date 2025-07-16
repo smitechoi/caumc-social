@@ -2,22 +2,23 @@ import { BaseTask } from './BaseTask.js';
 
 export class GoNoGoTask extends BaseTask {
   getTutorial() {
+    const t = window.translationService?.t || ((key) => key);
     return {
-      title: window.translationService.t('goNoGoTitle'),
+      title: t('goNoGoTitle'),
       content: `
-        <p>${window.translationService.t('goNoGoInstruction1')}</p>
+        <p>${t('goNoGoInstruction1')}</p>
         <div style="margin: 30px 0; font-size: 20px;">
           <div style="margin: 15px; padding: 15px; background: #e8f5e9; border-radius: 8px;">
             <span style="color: green; font-size: 36px; font-weight: bold;">4</span> 
-            <span style="margin-left: 20px;">→ ${window.translationService.t('goNoGoEven')}</span>
+            <span style="margin-left: 20px;">→ ${t('goNoGoEven')}</span>
           </div>
           <div style="margin: 15px; padding: 15px; background: #ffebee; border-radius: 8px;">
             <span style="color: red; font-size: 36px; font-weight: bold;">7</span> 
-            <span style="margin-left: 20px;">→ ${window.translationService.t('goNoGoOdd')}</span>
+            <span style="margin-left: 20px;">→ ${t('goNoGoOdd')}</span>
           </div>
         </div>
-        <p>${window.translationService.t('goNoGoImportant')}</p>
-        <p>${window.translationService.t('goNoGoInstruction2')}</p>
+        <p>${t('goNoGoImportant')}</p>
+        <p>${t('goNoGoInstruction2')}</p>
       `
     };
   }

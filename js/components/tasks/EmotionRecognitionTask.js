@@ -2,19 +2,20 @@ import { BaseTask } from './BaseTask.js';
 
 export class EmotionRecognitionTask extends BaseTask {
   getTutorial() {
+    const t = window.translationService?.t || ((key) => key);
     return {
-      title: window.translationService.t('emotionTitle'),
+      title: t('emotionTitle'),
       content: `
-        <p>${window.translationService.t('emotionInstruction1')}</p>
-        <p>${window.translationService.t('emotionInstruction2')}</p>
+        <p>${t('emotionInstruction1')}</p>
+        <p>${t('emotionInstruction2')}</p>
         <div style="text-align: center; margin: 30px 0;">
           <div style="display: inline-block; width: 200px; height: 200px; background: #f0f0f0; border-radius: 10px; line-height: 200px; font-size: 60px;">
             😊
           </div>
         </div>
-        <p>${window.translationService.t('emotionInstruction3')}</p>
-        <p style="color: #666; font-size: 14px;">${window.translationService.t('emotionInstruction4')}</p>
-        <p style="color: #2196F3; font-size: 14px;">${window.translationService.t('emotionIntensityNote')}</p>
+        <p>${t('emotionInstruction3')}</p>
+        <p style="color: #666; font-size: 14px;">${t('emotionInstruction4')}</p>
+        <p style="color: #2196F3; font-size: 14px;">${t('emotionIntensityNote')}</p>
       `
     };
   }
@@ -172,12 +173,13 @@ export class EmotionRecognitionTask extends BaseTask {
       this.drawEmotionButtons(state, p);
       
       // 남은 시간 표시
+      const t = window.translationService?.t || ((key) => key);
       const remainingTime = Math.ceil((state.presentationTime - timeSinceOnset) / 1000);
       p.push();
       p.textAlign(p.CENTER);
       p.textSize(24);
       p.fill(100);
-      p.text(window.translationService.t('remainingTime', { seconds: remainingTime }), p.width/2, p.height * 0.9);
+      p.text(t('remainingTime', { seconds: remainingTime }), p.width/2, p.height * 0.9);
       p.pop();
     }
     // 시간 초과
