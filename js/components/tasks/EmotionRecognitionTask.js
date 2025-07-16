@@ -2,7 +2,21 @@ import { BaseTask } from './BaseTask.js';
 
 export class EmotionRecognitionTask extends BaseTask {
   getTutorial() {
-    const t = window.translationService?.t || ((key) => key);
+    const t = (key, params) => {
+      if (window.translationService && window.translationService.t) {
+        return window.translationService.t(key, params);
+      }
+      // 기본 한국어 번역
+      const fallback = {
+        emotionTitle: '표정 인식 검사 연습',
+        emotionInstruction1: '화면에 사람의 얼굴 사진이 나타납니다.',
+        emotionInstruction2: '표정을 보고 <strong>어떤 감정</strong>인지 선택하세요.',
+        emotionInstruction3: '평가할 감정: <strong>행복, 슬픔, 중립, 화남</strong>',
+        emotionInstruction4: '각 표정을 주의 깊게 보고 가장 적절한 감정을 선택하세요.',
+        emotionIntensityNote: '표정의 강도는 다양할 수 있습니다 (강함, 중간, 약함)'
+      };
+      return fallback[key] || key;
+    };
     return {
       title: t('emotionTitle'),
       content: `

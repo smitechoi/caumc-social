@@ -2,7 +2,21 @@ import { BaseTask } from './BaseTask.js';
 
 export class GoNoGoTask extends BaseTask {
   getTutorial() {
-    const t = window.translationService?.t || ((key) => key);
+    const t = (key, params) => {
+      if (window.translationService && window.translationService.t) {
+        return window.translationService.t(key, params);
+      }
+      // 기본 한국어 번역
+      const fallback = {
+        goNoGoTitle: 'Go/No-Go 검사 연습',
+        goNoGoInstruction1: '화면에 숫자가 빠르게 나타납니다.',
+        goNoGoEven: '짝수: 화면을 터치하세요! (Go)',
+        goNoGoOdd: '홀수: 터치하지 마세요! (No-Go)',
+        goNoGoImportant: '<strong>중요:</strong> 빠르고 정확하게 반응해야 합니다.',
+        goNoGoInstruction2: '짝수일 때만 화면 아무 곳이나 터치하세요.'
+      };
+      return fallback[key] || key;
+    };
     return {
       title: t('goNoGoTitle'),
       content: `
