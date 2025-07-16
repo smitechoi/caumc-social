@@ -3,8 +3,12 @@ import { BaseTask } from './BaseTask.js';
 export class EmotionRecognitionTask extends BaseTask {
   getTutorial() {
     const t = (key, params) => {
-      if (window.translationService && window.translationService.t) {
-        return window.translationService.t(key, params);
+      if (window.translationService && typeof window.translationService.t === 'function') {
+        try {
+          return window.translationService.t(key, params);
+        } catch (e) {
+          return key;
+        }
       }
       // 기본 한국어 번역
       const fallback = {

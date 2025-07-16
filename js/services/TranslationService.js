@@ -19,25 +19,18 @@ export class TranslationService {
   }
 
   t(key, params = {}) {
-    // 안전성 검사
-    if (!this.translations || !this.currentLanguage) {
-      console.warn('TranslationService not properly initialized');
+    if (!this || !this.translations || !this.currentLanguage) {
       return key;
     }
-    
     const keys = key.split('.');
     let value = this.translations[this.currentLanguage];
-    
     if (!value) {
-      console.warn(`Language ${this.currentLanguage} not found in translations`);
       value = this.translations.ko;
     }
-    
     for (const k of keys) {
       if (value && typeof value === 'object') {
         value = value[k];
       } else {
-        // Fallback to Korean if translation not found
         value = this.translations.ko;
         for (const fallbackKey of keys) {
           if (value && typeof value === 'object') {
@@ -48,10 +41,8 @@ export class TranslationService {
       }
     }
     if (typeof value !== 'string') {
-      console.warn(`Translation not found for key: ${key}`);
       return key;
     }
-    // Replace parameters
     let result = value;
     for (const [param, val] of Object.entries(params)) {
       result = result.replace(new RegExp(`{${param}}`, 'g'), val);
