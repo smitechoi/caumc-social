@@ -162,6 +162,26 @@ export class EmotionRecognitionTask extends BaseTask {
   }
 
     render(state, p) {
+    const t = (key, params) => {
+      if (window.translationService && typeof window.translationService.t === 'function') {
+        try {
+          return window.translationService.t(key, params);
+        } catch (e) {
+          return key;
+        }
+      }
+      const fallback = {
+        remainingTime: '남은 시간: {seconds}초',
+        loadingImage: '이미지 준비 중...'
+      };
+      let result = fallback[key] || key;
+      if (params) {
+        Object.entries(params).forEach(([k, v]) => {
+          result = result.replace(`{${k}}`, v);
+        });
+      }
+      return result;
+    };
     if (state.currentTrial >= state.maxTrials) {
       this.completeTask();
       return;
@@ -191,7 +211,6 @@ export class EmotionRecognitionTask extends BaseTask {
       this.drawEmotionButtons(state, p);
       
       // 남은 시간 표시
-      const t = window.translationService?.t || ((key) => key);
       const remainingTime = Math.ceil((state.presentationTime - timeSinceOnset) / 1000);
       p.push();
       p.textAlign(p.CENTER);
@@ -237,6 +256,17 @@ export class EmotionRecognitionTask extends BaseTask {
   }
 
   drawFaceStimulus(state, p) {
+    const t = (key, params) => {
+      if (window.translationService && typeof window.translationService.t === 'function') {
+        try {
+          return window.translationService.t(key, params);
+        } catch (e) {
+          return key;
+        }
+      }
+      const fallback = { loadingImage: '이미지 준비 중...' };
+      return fallback[key] || key;
+    };
     const trial = state.currentTrialData;
     const img = state.images[trial.imageFile];
     
@@ -274,12 +304,25 @@ export class EmotionRecognitionTask extends BaseTask {
       p.noStroke();
       p.textAlign(p.CENTER, p.CENTER);
       p.textSize(20);
-      p.text('이미지 준비 중...', p.width/2, p.height * 0.35);
+      p.text(t('loadingImage'), p.width/2, p.height * 0.35);
       p.pop();
     }
   }
 
   drawEmotionButtons(state, p) {
+    const t = (key, params) => {
+      if (window.translationService && typeof window.translationService.t === 'function') {
+        try {
+          return window.translationService.t(key, params);
+        } catch (e) {
+          return key;
+        }
+      }
+      const fallback = {
+        happy: '행복', sad: '슬픔', neutral: '중립', anger: '화남'
+      };
+      return fallback[key] || key;
+    };
     const emotions = Object.entries(state.emotions);
     const buttonWidth = Math.min(160, (p.width - 80) / emotions.length);
     const buttonHeight = 90;
@@ -332,12 +375,31 @@ export class EmotionRecognitionTask extends BaseTask {
       p.textAlign(p.CENTER, p.CENTER);
       p.textSize(24);
       p.textStyle(p.BOLD);
-      p.text(emotion.ko, x + buttonWidth/2, buttonY + buttonHeight/2);
+      p.text(t(key), x + buttonWidth/2, buttonY + buttonHeight/2);
       p.pop();
     });
   }
 
   drawFeedback(state, p) {
+    const t = (key, params) => {
+      if (window.translationService && typeof window.translationService.t === 'function') {
+        try {
+          return window.translationService.t(key, params);
+        } catch (e) {
+          return key;
+        }
+      }
+      const fallback = {
+        correct: '정답! ✓', incorrect: '오답 ✗', correctAnswer: '정답: {answer}'
+      };
+      let result = fallback[key] || key;
+      if (params) {
+        Object.entries(params).forEach(([k, v]) => {
+          result = result.replace(`{${k}}`, v);
+        });
+      }
+      return result;
+    };
     if (!state.showFeedback) return;
     
     const isCorrect = state.lastResponseCorrect;
@@ -348,14 +410,14 @@ export class EmotionRecognitionTask extends BaseTask {
     
     if (isCorrect) {
       p.fill(76, 175, 80);
-      p.text('정답! ✓', p.width/2, p.height * 0.5);
+      p.text(t('correct'), p.width/2, p.height * 0.5);
     } else {
       p.fill(244, 67, 54);
-      p.text('오답 ✗', p.width/2, p.height * 0.5);
+      p.text(t('incorrect'), p.width/2, p.height * 0.5);
       
       // 정답 표시
       p.textSize(24);
-      p.text(`정답: ${state.emotions[state.currentTrialData.emotion].ko}`, 
+      p.text(t('correctAnswer', { answer: state.emotions[state.currentTrialData.emotion].ko }), 
              p.width/2, p.height * 0.55);
     }
     p.pop();
