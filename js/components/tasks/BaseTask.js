@@ -20,6 +20,21 @@ export class BaseTask {
     }
   
     showTutorial() {
+      const t = (key, params) => {
+        if (window.translationService && typeof window.translationService.t === 'function') {
+          try {
+            return window.translationService.t(key, params);
+          } catch (e) {
+            return key;
+          }
+        }
+        const fallback = {
+          startButton: '시작하기',
+          exitTest: '나가기',
+          exitTestConfirm: '검사를 종료하시겠습니까?'
+        };
+        return fallback[key] || key;
+      };
       const tutorial = this.getTutorial();
       
       this.container.innerHTML = `
@@ -28,10 +43,10 @@ export class BaseTask {
           ${tutorial.content}
           <div class="tutorial-buttons">
             <button onclick="window.currentTask.startActualTask()" class="tutorial-start-btn">
-              ${this.getTranslation('startButton', '시작하기')}
+              ${t('startButton')}
             </button>
             <button onclick="window.currentTask.exitTask()" class="tutorial-exit-btn">
-              ${this.getTranslation('exitTest', '나가기')}
+              ${t('exitTest')}
             </button>
           </div>
         </div>
@@ -177,6 +192,17 @@ export class BaseTask {
     }
   
     drawExitButton(p) {
+      const t = (key, params) => {
+        if (window.translationService && typeof window.translationService.t === 'function') {
+          try {
+            return window.translationService.t(key, params);
+          } catch (e) {
+            return key;
+          }
+        }
+        const fallback = { exitTest: '종료' };
+        return fallback[key] || key;
+      };
       p.push();
       p.fill(255, 0, 0);
       p.noStroke();
@@ -184,7 +210,7 @@ export class BaseTask {
       p.fill(255);
       p.textSize(16);
       p.textAlign(p.CENTER, p.CENTER);
-      p.text(this.getTranslation('exitTest', '종료'), p.width - 50, 35);
+      p.text(t('exitTest'), p.width - 50, 35);
       p.pop();
     }
   
@@ -255,8 +281,12 @@ export class BaseTask {
     }
     
     getTranslation(key, fallback) {
-      if (window.translationService && window.translationService.t) {
-        return window.translationService.t(key);
+      if (window.translationService && typeof window.translationService.t === 'function') {
+        try {
+          return window.translationService.t(key);
+        } catch (e) {
+          return fallback;
+        }
       }
       return fallback;
     }

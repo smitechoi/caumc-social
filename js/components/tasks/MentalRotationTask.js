@@ -3,8 +3,12 @@ import { BaseTask } from './BaseTask.js';
 export class MentalRotationTask extends BaseTask {
   getTutorial() {
     const t = (key, params) => {
-      if (window.translationService && window.translationService.t) {
-        return window.translationService.t(key, params);
+      if (window.translationService && typeof window.translationService.t === 'function') {
+        try {
+          return window.translationService.t(key, params);
+        } catch (e) {
+          return key;
+        }
       }
       // 기본 한국어 번역
       const fallback = {
@@ -431,7 +435,17 @@ export class MentalRotationTask extends BaseTask {
       this.drawResponseButtons(state, p);
       
       // 진행률 표시
-      const t = window.translationService?.t || ((key) => key);
+      const t = (key, params) => {
+        if (window.translationService && typeof window.translationService.t === 'function') {
+          try {
+            return window.translationService.t(key, params);
+          } catch (e) {
+            return key;
+          }
+        }
+        const fallback = { progress: '진행률' };
+        return fallback[key] || key;
+      };
       p.push();
       p.textAlign(p.LEFT);
       p.textSize(18);
@@ -681,7 +695,17 @@ export class MentalRotationTask extends BaseTask {
       p.rect(popupX, popupY, popupWidth, popupHeight, 20);
       
           // 단순한 다음 문제 안내
-    const t = window.translationService?.t || ((key) => key);
+    const t = (key, params) => {
+      if (window.translationService && typeof window.translationService.t === 'function') {
+        try {
+          return window.translationService.t(key, params);
+        } catch (e) {
+          return key;
+        }
+      }
+      const fallback = { nextQuestionMessage: '다음 문제' };
+      return fallback[key] || key;
+    };
     const iconColor = [76, 175, 80]; // 초록색
     const message = t('nextQuestionMessage');
       const icon = "→";

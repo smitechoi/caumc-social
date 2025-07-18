@@ -2,7 +2,25 @@ import { BaseTask } from './BaseTask.js';
 
 export class TrailMakingTask extends BaseTask {
   getTutorial() {
-    const t = window.translationService?.t || ((key) => key);
+    const t = (key, params) => {
+      if (window.translationService && typeof window.translationService.t === 'function') {
+        try {
+          return window.translationService.t(key, params);
+        } catch (e) {
+          return key;
+        }
+      }
+      const fallback = {
+        trailTitle: '선로 잇기 검사 연습',
+        trailInstruction1: '화면에 숫자가 흩어져 나타납니다.',
+        trailInstruction2: '<strong>1부터 순서대로</strong> 터치하여 연결하세요.',
+        trailNote: '<strong>주의사항:</strong>',
+        trailNote1: '잘못된 숫자를 터치하면 오류로 기록됩니다',
+        trailNote2: '가능한 빠르게 연결하세요',
+        trailNote3: '다음 연결할 숫자는 노란색으로 강조됩니다'
+      };
+      return fallback[key] || key;
+    };
     return {
       title: t('trailTitle'),
       content: `
@@ -176,7 +194,28 @@ export class TrailMakingTask extends BaseTask {
     p.textAlign(p.LEFT, p.CENTER);
     p.textSize(24);
     
-    const t = window.translationService?.t || ((key) => key);
+    const t = (key, params) => {
+      if (window.translationService && typeof window.translationService.t === 'function') {
+        try {
+          return window.translationService.t(key, params);
+        } catch (e) {
+          return key;
+        }
+      }
+      const fallback = {
+        nextNumber: '다음: {number}',
+        errors: '오류: {count}',
+        time: '시간: {time}',
+        progressPercent: '진행: {percent}%'
+      };
+      let result = fallback[key] || key;
+      if (params) {
+        Object.entries(params).forEach(([k, v]) => {
+          result = result.replace(`{${k}}`, v);
+        });
+      }
+      return result;
+    };
     // 다음 숫자
     p.text(t('nextNumber', { number: state.currentNode }), 30, 30);
     

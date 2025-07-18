@@ -2,7 +2,24 @@ import { BaseTask } from './BaseTask.js';
 
 export class StroopTask extends BaseTask {
   getTutorial() {
-    const t = window.translationService?.t || ((key) => key);
+    const t = (key, params) => {
+      if (window.translationService && typeof window.translationService.t === 'function') {
+        try {
+          return window.translationService.t(key, params);
+        } catch (e) {
+          return key;
+        }
+      }
+      const fallback = {
+        stroopTitle: '스트룹 검사 연습',
+        stroopInstruction1: '화면에 색깔 단어가 나타납니다.',
+        stroopInstruction2: '단어의 <strong>의미</strong>가 아닌 <strong>색깔</strong>을 선택하세요.',
+        stroopExample: "위 예시에서는 '빨강'을 터치해야 합니다.",
+        stroopInstruction3: '화면 하단의 색깔 버튼을 터치하세요.',
+        red: '빨강', blue: '파랑', green: '초록', yellow: '노랑'
+      };
+      return fallback[key] || key;
+    };
     return {
       title: t('stroopTitle'),
       content: `
@@ -22,7 +39,19 @@ export class StroopTask extends BaseTask {
   }
 
   initializeState(state, p) {
-    const t = window.translationService?.t || ((key) => key);
+    const t = (key, params) => {
+      if (window.translationService && typeof window.translationService.t === 'function') {
+        try {
+          return window.translationService.t(key, params);
+        } catch (e) {
+          return key;
+        }
+      }
+      const fallback = {
+        red: '빨강', blue: '파랑', green: '초록', yellow: '노랑'
+      };
+      return fallback[key] || key;
+    };
     state.colors = [t('red'), t('blue'), t('green'), t('yellow')];
     state.colorValues = ['red', 'blue', 'green', 'yellow'];
     state.currentTrial = 0;
@@ -34,12 +63,38 @@ export class StroopTask extends BaseTask {
   }
 
   generateTrial(state) {
+    const t = (key, params) => {
+      if (window.translationService && typeof window.translationService.t === 'function') {
+        try {
+          return window.translationService.t(key, params);
+        } catch (e) {
+          return key;
+        }
+      }
+      const fallback = {
+        red: '빨강', blue: '파랑', green: '초록', yellow: '노랑'
+      };
+      return fallback[key] || key;
+    };
     state.wordIndex = Math.floor(Math.random() * state.colors.length);
     state.colorIndex = Math.floor(Math.random() * state.colors.length);
     state.isCongruent = state.wordIndex === state.colorIndex;
   }
 
   render(state, p) {
+    const t = (key, params) => {
+      if (window.translationService && typeof window.translationService.t === 'function') {
+        try {
+          return window.translationService.t(key, params);
+        } catch (e) {
+          return key;
+        }
+      }
+      const fallback = {
+        red: '빨강', blue: '파랑', green: '초록', yellow: '노랑'
+      };
+      return fallback[key] || key;
+    };
     if (state.currentTrial >= state.maxTrials) {
       this.completeTask();
       return;
