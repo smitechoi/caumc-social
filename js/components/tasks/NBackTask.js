@@ -1,6 +1,11 @@
 import { BaseTask } from './BaseTask.js';
 
 export class NBackTask extends BaseTask {
+  constructor(container, patientData, onComplete, onExit, nLevel = 1) {
+    super(container, patientData, onComplete, onExit);
+    this.nLevel = nLevel;
+  }
+
   getTutorial() {
     const t = (key, params) => {
       if (window.translationService && window.translationService.t) {
@@ -18,20 +23,36 @@ export class NBackTask extends BaseTask {
       };
       return fallback[key] || key;
     };
-    const nLevel = 1; // 또는 this.nLevel로 설정 가능
+    const nLevel = this.nLevel || 1; // 실제 nLevel 값 사용
     return {
       title: t('nBackTitle', { nLevel: nLevel }),
       content: `
         <p>${t('nBackInstruction1')}</p>
         <p>${t('nBackInstruction2', { nLevel: nLevel })}</p>
         <div style="text-align: center; margin: 30px 0; font-size: 24px;">
-          ${nLevel === 1 ? `
-            <div style="margin: 10px;">3 → <span style="color: red; font-weight: bold;">3</span> (${t('nBackSame')})</div>
-            <div style="margin: 10px;">7 → <span style="color: blue; font-weight: bold;">2</span> (${t('nBackDifferent')})</div>
-          ` : `
-            <div style="margin: 10px;">3 → 5 → <span style="color: red; font-weight: bold;">3</span> (${t('nBackSame')})</div>
-            <div style="margin: 10px;">7 → 2 → <span style="color: blue; font-weight: bold;">9</span> (${t('nBackDifferent')})</div>
-          `}
+          ${(() => {
+            if (nLevel === 1) {
+              return `
+                <div style="margin: 10px;">3 → <span style="color: red; font-weight: bold;">3</span> (${t('nBackSame')})</div>
+                <div style="margin: 10px;">7 → <span style="color: blue; font-weight: bold;">2</span> (${t('nBackDifferent')})</div>
+              `;
+            } else if (nLevel === 2) {
+              return `
+                <div style="margin: 10px;">3 → 5 → <span style="color: red; font-weight: bold;">3</span> (${t('nBackSame')})</div>
+                <div style="margin: 10px;">7 → 2 → <span style="color: blue; font-weight: bold;">9</span> (${t('nBackDifferent')})</div>
+              `;
+            } else {
+              // nLevel이 3 이상일 때의 일반적인 예시
+              const sequence = Array.from({length: nLevel + 1}, (_, i) => i < nLevel ? Math.floor(Math.random() * 9) + 1 : 3);
+              const matchExample = sequence.slice(0, -1).join(' → ') + ` → <span style="color: red; font-weight: bold;">3</span> (${t('nBackSame')})`;
+              const diffSequence = Array.from({length: nLevel + 1}, (_, i) => i < nLevel ? Math.floor(Math.random() * 9) + 1 : 9);
+              const diffExample = diffSequence.slice(0, -1).join(' → ') + ` → <span style="color: blue; font-weight: bold;">9</span> (${t('nBackDifferent')})`;
+              return `
+                <div style="margin: 10px;">${matchExample}</div>
+                <div style="margin: 10px;">${diffExample}</div>
+              `;
+            }
+          })()}
         </div>
         <p>${t('nBackInstruction3')}</p>
         <p>${t('nBackInstruction4', { nLevel: nLevel })}</p>
@@ -51,7 +72,7 @@ export class NBackTask extends BaseTask {
     state.stimulusOnset = p.millis();
     state.stimulusDuration = 2000; // 2초 표시
     state.interStimulusInterval = 500; // 0.5초 간격
-    state.nLevel = 1; // 1-back
+    state.nLevel = this.nLevel; // 실제 nLevel 값 사용
     state.responded = false;
 
     // 시퀀스 생성 (1-9 숫자, 일부는 n-back 일치하도록)

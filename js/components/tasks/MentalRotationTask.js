@@ -775,14 +775,14 @@ export class MentalRotationTask extends BaseTask {
         
         this.taskData.responses.push({
           trial: state.currentTrial,
-          patternComplexity: state.basePattern.length,
-          rotation: state.targetRotation,
-          isMirrored: state.isMirrored,
-          isSame: state.isSame,
-          response: button.response,
-          correct: button.response === state.isSame,
-          rt: rt,
-          difficulty: state.trialDifficulty
+          patternComplexity: state.basePattern ? state.basePattern.length : 0,
+          rotation: state.targetRotation || {x: 0, y: 0, z: 0},
+          isMirrored: false, // 거울상은 사용하지 않으므로 false로 설정
+          isSame: state.isSame || false,
+          response: button.response || null,
+          correct: (button.response || null) === (state.isSame || false),
+          rt: rt || 0,
+          difficulty: state.trialDifficulty || 1
         });
         
         state.responded = true;
@@ -805,8 +805,8 @@ export class MentalRotationTask extends BaseTask {
           
           // 정답 여부 기록 (베이킹된 난이도 시스템에서는 단순 기록만)
           state.performance.total++;
-          state.performance.recentCorrect.push(button.response === state.isSame ? 1 : 0);
-          if (button.response === state.isSame) {
+          state.performance.recentCorrect.push(button.response === (state.isSame || false) ? 1 : 0);
+          if (button.response === (state.isSame || false)) {
             state.performance.correct++;
           }
           
@@ -898,7 +898,7 @@ export class MentalRotationTask extends BaseTask {
     if (responses.length === 0) return 0;
     
     // 정확도
-    const correct = responses.filter(r => r.correct).length;
+    const correct = responses.filter(r => r.correct === true).length;
     const accuracy = (correct / responses.length) * 100;
     
     // 베이킹된 난이도 시스템에 따른 점수 계산
@@ -921,12 +921,12 @@ export class MentalRotationTask extends BaseTask {
         difficultyWeight = 2.5; // 난이도 4
       }
       
-      if (response.correct) {
+      if (response.correct === true) {
         // 회전 복잡도에 따른 추가 점수
-        const rotationComplexity = 
+        const rotationComplexity = response.rotation ? 
           (response.rotation.x !== 0 ? 1 : 0) +
           (response.rotation.y !== 0 ? 1 : 0) +
-          (response.rotation.z !== 0 ? 1 : 0);
+          (response.rotation.z !== 0 ? 1 : 0) : 0;
         const complexityBonus = rotationComplexity * 0.2;
         totalScore += difficultyWeight * (1 + complexityBonus);
       }
@@ -936,9 +936,9 @@ export class MentalRotationTask extends BaseTask {
     const difficultyScore = (totalScore / maxPossibleScore) * 100;
     
     // 반응시간 보너스
-    const correctResponses = responses.filter(r => r.correct);
+    const correctResponses = responses.filter(r => r.correct === true);
     const avgRT = correctResponses.length > 0
-      ? correctResponses.reduce((sum, r) => sum + r.rt, 0) / correctResponses.length
+      ? correctResponses.reduce((sum, r) => sum + (r.rt || 0), 0) / correctResponses.length
       : 0;
     
     const speedBonus = Math.max(0, 10 - (avgRT / 1000));

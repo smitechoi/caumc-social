@@ -145,12 +145,24 @@ export class CNTTask {
     
     // 태스크 인스턴스 생성
     const TaskClass = config.class;
-    this.currentTaskInstance = new TaskClass(
-      fullscreenContainer,
-      this.patientData,
-      (taskData) => this.onTaskComplete(taskData),
-      () => this.onTaskExit()
-    );
+    
+    // NBackTask의 경우 nLevel 파라미터 추가
+    if (TaskClass === NBackTask) {
+      this.currentTaskInstance = new TaskClass(
+        fullscreenContainer,
+        this.patientData,
+        (taskData) => this.onTaskComplete(taskData),
+        () => this.onTaskExit(),
+        1 // nLevel = 1
+      );
+    } else {
+      this.currentTaskInstance = new TaskClass(
+        fullscreenContainer,
+        this.patientData,
+        (taskData) => this.onTaskComplete(taskData),
+        () => this.onTaskExit()
+      );
+    }
     
     // 태스크 시작
     this.currentTaskInstance.start();
