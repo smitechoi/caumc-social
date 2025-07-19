@@ -8,9 +8,9 @@ export class NBackTask extends BaseTask {
       }
       // 기본 한국어 번역
       const fallback = {
-        nBackTitle: 'N-Back 검사 연습',
+        nBackTitle: '{nLevel}-Back 검사 연습',
         nBackInstruction1: '화면에 숫자가 하나씩 나타납니다.',
-        nBackInstruction2: '현재 숫자가 <strong>2개 전</strong> 숫자와 같은지 판단하세요.',
+        nBackInstruction2: '현재 숫자가 <strong>{nLevel}개 전</strong> 숫자와 같은지 판단하세요.',
         nBackSame: '같음',
         nBackDifferent: '다름',
         nBackInstruction3: '화면 하단의 <strong>\'같음\'</strong> 또는 <strong>\'다름\'</strong> 버튼을 터치하세요.',
@@ -51,7 +51,7 @@ export class NBackTask extends BaseTask {
     state.stimulusOnset = p.millis();
     state.stimulusDuration = 2000; // 2초 표시
     state.interStimulusInterval = 500; // 0.5초 간격
-    state.nLevel = 1; // 2-back
+    state.nLevel = 1; // 1-back
     state.responded = false;
 
     // 시퀀스 생성 (1-9 숫자, 일부는 n-back 일치하도록)
