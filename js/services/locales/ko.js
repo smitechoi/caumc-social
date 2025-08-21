@@ -329,6 +329,28 @@ const ko = {
   recommendations: '권장사항',
   detailedEvalRecommended: '상세한 평가를 권장합니다',
   allTestsNormalRange: '모든 검사가 정상 범위 내에 있습니다',
-  incompleteTestsRecommended: '모든 검사를 완료하여 더 정확한 평가를 받으시기 바랍니다'
+  incompleteTestsRecommended: '모든 검사를 완료하여 더 정확한 평가를 받으시기 바랍니다',
+  // 성과 수준 번역 키 추가
+  good: '양호',
+  average: '보통',
+  below: '평균 이하',
+  poor: '미흡',
+  // 해설 부분 상세 설명 추가
+  cesdcNormal: '우울 증상이 거의 없습니다',
+  cesdcMild: '경미한 우울 증상이 있습니다',
+  cesdcModerate: '중등도의 우울 증상이 있습니다',
+  cesdcSevere: '중증의 우울 증상이 있습니다',
+  baiNormal: '불안이 거의 없습니다',
+  baiMild: '경미한 불안이 있습니다',
+  baiModerate: '중등도의 불안이 있습니다',
+  baiSevere: '중증의 불안이 있습니다',
+  kaqLow: '공격성이 평균 이하입니다',
+  kaqAverage: '일반적인 수준입니다',
+  kaqHigh: '공격성이 평균 이상입니다',
+  kaqVeryHigh: '전문가 상담을 권장합니다',
+  karsNormal: 'ADHD 가능성이 낮습니다',
+  karsMild: 'ADHD가 의심됩니다. 추가 평가가 필요합니다',
+  karsModerate: 'ADHD 가능성이 높습니다',
+  karsSevere: '중증의 ADHD 증상이 있습니다'
 };
 export default ko; 

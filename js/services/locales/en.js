@@ -191,6 +191,29 @@ const en = {
   emotionTask: 'Emotion Recognition Test',
   emotionTaskDesc: 'Emotion Recognition Ability',
   rotationTask: '3D Rotation Test',
-  rotationTaskDesc: 'Spatial Perception Ability'
+  rotationTaskDesc: 'Spatial Perception Ability',
+  // Performance level translation keys
+  excellent: 'Excellent',
+  good: 'Good',
+  average: 'Average',
+  below: 'Below Average',
+  poor: 'Poor',
+  // Detailed interpretation descriptions
+  cesdcNormal: 'Depressive symptoms are minimal',
+  cesdcMild: 'Mild depressive symptoms are present',
+  cesdcModerate: 'Moderate depressive symptoms are present',
+  cesdcSevere: 'Severe depressive symptoms are present',
+  baiNormal: 'Anxiety is minimal',
+  baiMild: 'Mild anxiety is present',
+  baiModerate: 'Moderate anxiety is present',
+  baiSevere: 'Severe anxiety is present',
+  kaqLow: 'Aggression is below average',
+  kaqAverage: 'At typical level',
+  kaqHigh: 'Aggression is above average',
+  kaqVeryHigh: 'Professional consultation is recommended',
+  karsNormal: 'Low probability of ADHD',
+  karsMild: 'ADHD is suspected. Additional evaluation needed',
+  karsModerate: 'High probability of ADHD',
+  karsSevere: 'Severe ADHD symptoms are present'
 };
 export default en; 

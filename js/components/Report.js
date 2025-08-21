@@ -161,10 +161,13 @@ export class Report {
     Object.entries(this.patientData.cnt).forEach(([key, value]) => {
       if (value.isDone) {
         const performance = this.getPerformanceLevel(key, value.score);
+        const taskName = this.getTaskName(key);
+        
+
         
         html += `
           <tr>
-            <td>${this.getTaskName(key)}</td>
+            <td>${taskName}</td>
             <td>${value.score}</td>
             <td class="performance-${performance.toLowerCase().replace(' ', '-')}">
               ${performance}
@@ -499,7 +502,7 @@ export class Report {
       task2: [ // N-Back
         { min: 80, level: t('excellent') },
         { min: 60, level: t('good') },
-        { min: 40, level: t('average') },
+        { min: 50, level: t('average') },
         { min: 20, level: t('below') },
         { min: 0, level: t('poor') }
       ],
@@ -595,6 +598,7 @@ export class Report {
 
   getScaleName(key) {
     const t = (key) => translationService.t(key);
+    
     const names = {
       scale1: t('cesdc'),
       scale2: t('bai'),
@@ -606,6 +610,7 @@ export class Report {
 
   getTaskName(key) {
     const t = (key) => translationService.t(key);
+    
     const names = {
       task1: `${t('cardSortingTask')} (${t('cardSortingTaskDesc')})`,
       task2: `${t('nBackTask')} (${t('nBackTaskDesc')})`,
@@ -613,6 +618,9 @@ export class Report {
       task4: `${t('emotionTask')} (${t('emotionTaskDesc')})`,
       task5: `${t('rotationTask')} (${t('rotationTaskDesc')})`
     };
+    
+
+    
     return names[key] || key;
   }
 
@@ -634,6 +642,15 @@ export class Report {
       
       const reportElement = document.getElementById('report-content');
       const { jsPDF } = window.jspdf;
+      
+      // PDF 생성 전에 CNT 테이블을 강제로 다시 렌더링하여 최신 상태로 만듦
+      const cntSection = reportElement.querySelector('.cnt-results');
+      if (cntSection) {
+        const cntDetails = cntSection.querySelector('.results-table');
+        if (cntDetails) {
+          cntDetails.outerHTML = this.renderCNTDetails();
+        }
+      }
       
       // 고정 버튼들을 임시로 숨김
       const fixedActions = document.querySelector('.report-actions-fixed');
