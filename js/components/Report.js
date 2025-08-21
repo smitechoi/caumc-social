@@ -210,9 +210,9 @@ export class Report {
     if (exceededScales.length > 0) {
       html += `<p>${t('exceededClinicalCutoff')}</p>`;
       html += '<ul>';
-      exceededScales.forEach(scale => {
-        html += `<li>${scale.name}: ${scale.score}점 (${t('criterion')} ${scale.cutoff}점)</li>`;
-      });
+              exceededScales.forEach(scale => {
+          html += `<li>${scale.name}: ${scale.score}${t('points')} (${t('criterion')} ${scale.cutoff}${t('points')})</li>`;
+        });
       html += '</ul>';
     } else if (surveyDone > 0) {
       html += `<p>${t('allScalesNormal')}</p>`;
@@ -234,6 +234,26 @@ export class Report {
         html += `<li>${task}</li>`;
       });
       html += '</ul>';
+    }
+    
+    // 인지 기능 검사 평균 점수
+    if (cntDone > 0) {
+      const totalScore = Object.values(this.patientData.cnt)
+        .filter(task => task.isDone)
+        .reduce((sum, task) => sum + task.score, 0);
+      const averageScore = Math.round(totalScore / cntDone);
+      
+      html += `<h3>${t('cognitiveSummary')}</h3>`;
+      html += `<p>${t('averageScore', { score: averageScore })}</p>`;
+      
+      // 평균 점수에 따른 평가
+      if (averageScore >= 80) {
+        html += `<p>${t('excellentCognitive')}</p>`;
+      } else if (averageScore >= 60) {
+        html += `<p>${t('averageCognitive')}</p>`;
+      } else {
+        html += `<p>${t('difficultyCognitive')}</p>`;
+      }
     }
     
     // 3. 권고사항
@@ -523,41 +543,41 @@ export class Report {
     const interpretations = {
       scale1: { // CES-DC
         ranges: [
-          { max: 15, level: 'normal', label: '정상', description: '우울 증상이 거의 없습니다.' },
-          { max: 20, level: 'mild', label: '경미한 우울', description: '가벼운 우울 증상이 있습니다.' },
-          { max: 24, level: 'moderate', label: '중등도 우울', description: '중간 정도의 우울 증상이 있습니다.' },
-          { max: 60, level: 'severe', label: '심한 우울', description: '심각한 우울 증상이 있습니다.' }
+          { max: 15, level: 'normal', label: t('normal'), description: t('cesdcNormal') },
+          { max: 20, level: 'mild', label: t('mild'), description: t('cesdcMild') },
+          { max: 24, level: 'moderate', label: t('moderate'), description: t('cesdcModerate') },
+          { max: 60, level: 'severe', label: t('severe'), description: t('cesdcSevere') }
         ]
       },
       scale2: { // BAI
         ranges: [
-          { max: 7, level: 'minimal', label: '정상', description: '불안이 거의 없습니다.' },
-          { max: 15, level: 'mild', label: '경미한 불안', description: '가벼운 불안이 있습니다.' },
-          { max: 25, level: 'moderate', label: '중등도 불안', description: '중간 정도의 불안이 있습니다.' },
-          { max: 63, level: 'severe', label: '심한 불안', description: '심각한 불안이 있습니다.' }
+          { max: 7, level: 'minimal', label: t('minimal'), description: t('baiNormal') },
+          { max: 15, level: 'mild', label: t('mild'), description: t('baiMild') },
+          { max: 25, level: 'moderate', label: t('moderate'), description: t('baiModerate') },
+          { max: 63, level: 'severe', label: t('severe'), description: t('baiSevere') }
         ]
       },
       scale3: { // K-AQ
         ranges: [
-          { max: 68, level: 'low', label: '낮은 공격성', description: '공격성이 평균보다 낮습니다.' },
-          { max: 81, level: 'average', label: '평균 공격성', description: '일반적인 수준입니다.' },
-          { max: 108, level: 'high', label: '높은 공격성', description: '평균 이상의 공격성입니다.' },
-          { max: 135, level: 'very_high', label: '매우 높은 공격성', description: '전문가 상담을 권장합니다.' }
+          { max: 68, level: 'low', label: t('low'), description: t('kaqLow') },
+          { max: 81, level: 'average', label: t('average'), description: t('kaqAverage') },
+          { max: 108, level: 'high', label: t('high'), description: t('kaqHigh') },
+          { max: 135, level: 'very_high', label: t('veryHigh'), description: t('kaqVeryHigh') }
         ]
       },
       scale4: { // K-ARS
         ranges: [
-          { max: 18, level: 'normal', label: '정상', description: 'ADHD 가능성이 낮습니다.' },
-          { max: 28, level: 'mild', label: '경도', description: 'ADHD가 의심됩니다. 추가 평가가 필요합니다.' },
-          { max: 41, level: 'moderate', label: '중등도', description: 'ADHD 가능성이 높습니다.' },
-          { max: 54, level: 'severe', label: '중증', description: '심각한 ADHD 증상입니다.' }
+          { max: 18, level: 'normal', label: t('normal'), description: t('karsNormal') },
+          { max: 28, level: 'mild', label: t('mildLevel'), description: t('karsMild') },
+          { max: 41, level: 'moderate', label: t('moderateLevel'), description: t('karsModerate') },
+          { max: 54, level: 'severe', label: t('severeLevel'), description: t('karsSevere') }
         ]
       }
     };
     
     const scaleRanges = interpretations[scale]?.ranges;
     if (!scaleRanges) {
-      return { level: 'unknown', label: '평가 불가', description: '해석 정보가 없습니다.' };
+      return { level: 'unknown', label: t('unknown'), description: t('noInterpretation') };
     }
     
     for (const range of scaleRanges) {

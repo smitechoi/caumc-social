@@ -55,6 +55,9 @@ async renderSurvey() {
         <button id="submit-scale" class="submit-btn" onclick="window.surveyInstance.submitScale()">
           ${this.getSubmitButtonText()}
         </button>
+        <button class="back-btn" onclick="window.surveyInstance.goBack()">
+          ← 설문 취소
+        </button>
       </div>
     </div>
   `;
@@ -284,3 +287,33 @@ async renderSurvey() {
     });
   }
 }
+
+// CSS 스타일 추가
+const style = document.createElement('style');
+style.textContent = `
+  .back-btn {
+    padding: 12px 24px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+    display: block;
+    margin: 15px auto 0 auto;
+    min-width: 140px;
+    font-weight: 500;
+  }
+  
+  .back-btn:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);
+  }
+  
+  .back-btn:active {
+    transform: translateY(0);
+  }
+`;
+document.head.appendChild(style);

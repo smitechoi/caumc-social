@@ -408,13 +408,13 @@ export class CardSortingTask extends BaseTask {
     if (state.selectedCard !== null) {
       p.fill(33, 150, 243);
       p.textSize(14);
-      p.text('카드를 놓을 위치를', sidebarX, sidebarY + 25);
-      p.text('선택하세요', sidebarX, sidebarY + 45);
+      p.text(t('placeCardHere'), sidebarX, sidebarY + 25);
+      p.text(t('selectHere'), sidebarX, sidebarY + 45);
     } else {
       // 기본 안내문구
       p.fill(100);
       p.textSize(14);
-      p.text('맨 위 카드를 클릭하여', sidebarX, sidebarY + 25);
+      p.text(t('clickTopCard'), sidebarX, sidebarY + 25);
       p.text(t('moveCard'), sidebarX, sidebarY + 45);
     }
     

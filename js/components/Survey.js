@@ -13,6 +13,10 @@ export class Survey {
     this.manager.submitScale();
   }
   
+  goBack() {
+    this.manager.goBack();
+  }
+  
   scrollToQuestion(index) {
     this.manager.scrollToQuestion(index);
   }

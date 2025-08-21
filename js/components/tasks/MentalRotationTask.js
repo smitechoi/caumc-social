@@ -356,6 +356,23 @@ export class MentalRotationTask extends BaseTask {
   }
 
   render(state, p) {
+    const t = (key, params) => {
+      if (window.translationService && typeof window.translationService.t === 'function') {
+        try {
+          return window.translationService.t(key, params);
+        } catch (e) {
+          return key;
+        }
+      }
+      // 기본 한국어 번역
+      const fallback = {
+        original: '원본',
+        comparison: '비교',
+        progress: '진행률'
+      };
+      return fallback[key] || key;
+    };
+    
     if (state.currentTrial >= state.maxTrials) {
       this.completeTask();
       return;
@@ -385,7 +402,7 @@ export class MentalRotationTask extends BaseTask {
       p.textAlign(p.CENTER);
       p.textSize(20);
       p.fill(100);
-      p.text('원본', p.width/2 - viewWidth/2 - spacing/2, p.height * 0.6);
+      p.text(t('original'), p.width/2 - viewWidth/2 - spacing/2, p.height * 0.6);
       p.pop();
       
       // 화살표
@@ -413,7 +430,7 @@ export class MentalRotationTask extends BaseTask {
       p.textAlign(p.CENTER);
       p.textSize(20);
       p.fill(100);
-      p.text('비교', p.width/2 + viewWidth/2 + spacing/2, p.height * 0.6);
+      p.text(t('comparison'), p.width/2 + viewWidth/2 + spacing/2, p.height * 0.6);
       p.pop();
       
       // 자동 회전 - Y축과 X축을 동시에 회전
@@ -432,20 +449,9 @@ export class MentalRotationTask extends BaseTask {
       }
       
       // 응답 버튼
-      this.drawResponseButtons(state, p);
+      this.drawResponseButtons(state, p, t);
       
       // 진행률 표시
-      const t = (key, params) => {
-        if (window.translationService && typeof window.translationService.t === 'function') {
-          try {
-            return window.translationService.t(key, params);
-          } catch (e) {
-            return key;
-          }
-        }
-        const fallback = { progress: '진행률' };
-        return fallback[key] || key;
-      };
       p.push();
       p.textAlign(p.LEFT);
       p.textSize(18);
@@ -604,7 +610,7 @@ export class MentalRotationTask extends BaseTask {
     p.pop();
   }
 
-  drawResponseButtons(state, p) {
+  drawResponseButtons(state, p, t) {
     const buttonWidth = 200;
     const buttonHeight = 100;
     const buttonY = p.height * 0.75;
@@ -636,7 +642,7 @@ export class MentalRotationTask extends BaseTask {
     p.textSize(32);
     p.textAlign(p.CENTER, p.CENTER);
     p.textStyle(p.BOLD);
-    p.text('같음', sameX + buttonWidth/2, buttonY + buttonHeight/2);
+    p.text(t('same'), sameX + buttonWidth/2, buttonY + buttonHeight/2);
     p.pop();
     
     // "다름" 버튼
@@ -663,7 +669,7 @@ export class MentalRotationTask extends BaseTask {
     p.textSize(32);
     p.textAlign(p.CENTER, p.CENTER);
     p.textStyle(p.BOLD);
-    p.text('다름', diffX + buttonWidth/2, buttonY + buttonHeight/2);
+    p.text(t('different'), diffX + buttonWidth/2, buttonY + buttonHeight/2);
     p.pop();
   }
 
