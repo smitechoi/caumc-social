@@ -607,11 +607,11 @@ export class Report {
   getTaskName(key) {
     const t = (key) => translationService.t(key);
     const names = {
-      task1: t('cardSortingTask'),
-      task2: t('nBackTask'),
-      task3: t('goNoGoTask'),
-      task4: t('emotionTask'),
-      task5: t('rotationTask')
+      task1: `${t('cardSortingTask')} (${t('cardSortingTaskDesc')})`,
+      task2: `${t('nBackTask')} (${t('nBackTaskDesc')})`,
+      task3: `${t('goNoGoTask')} (${t('goNoGoTaskDesc')})`,
+      task4: `${t('emotionTask')} (${t('emotionTaskDesc')})`,
+      task5: `${t('rotationTask')} (${t('rotationTaskDesc')})`
     };
     return names[key] || key;
   }

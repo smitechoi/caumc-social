@@ -98,12 +98,23 @@ export class SurveyManager {
   }
 
   goBack() {
+    const t = (key) => {
+      if (window.translationService && window.translationService.t) {
+        return window.translationService.t(key);
+      }
+      // 기본 한국어 번역
+      const fallback = {
+        surveyInProgress: '진행 중인 설문이 있습니다. 정말로 나가시겠습니까? (응답이 저장되지 않습니다)'
+      };
+      return fallback[key] || key;
+    };
+    
     // 진행 중인 응답이 있는지 확인
     const hasResponses = this.currentResponses.some(response => response !== undefined);
     
     if (hasResponses) {
       // 확인 대화상자 표시
-      if (confirm('진행 중인 설문이 있습니다. 정말로 나가시겠습니까? (응답이 저장되지 않습니다)')) {
+      if (confirm(t('surveyInProgress'))) {
         this.confirmGoBack();
       }
     } else {

@@ -277,8 +277,8 @@ export class CardSortingTask extends BaseTask {
     p.fill(0);
     p.textAlign(p.LEFT);
     p.textSize(16);
-    p.text(`문제: ${state.currentProblem + 1} / ${state.maxProblems}`, 20, 25);
-    p.text(`난이도: ${'★'.repeat(state.currentDifficulty)}`, 20, 45);
+    p.text(`${state.currentProblem + 1} / ${state.maxProblems}`, 20, 25);
+    p.text(`${'★'.repeat(state.currentDifficulty)}`, 20, 45);
     
     // 진행률 바
     const progressWidth = (state.currentProblem / state.maxProblems) * 200;

@@ -194,10 +194,19 @@ const ko = {
   generating: 'PDF 생성 중...',
   downloadComplete: 'PDF 저장 완료',
   pdfError: 'PDF 생성 중 오류가 발생했습니다.',
+  // Survey goBack 추가 번역
+  surveyInProgress: '진행 중인 설문이 있습니다. 정말로 나가시겠습니까? (응답이 저장되지 않습니다)',
+  // 보고서용 태스크 이름과 설명
   cardSortingTask: '카드 정렬 검사',
+  cardSortingTaskDesc: '문제 해결 능력',
   nBackTask: 'N-Back 검사',
+  nBackTaskDesc: '작업 기억력',
   goNoGoTask: 'Go/No-Go 검사',
+  goNoGoTaskDesc: '충동 억제 능력',
   emotionTask: '표정 인식 검사',
+  emotionTaskDesc: '감정 인식 능력',
+  rotationTask: '3D 회전 검사',
+  rotationTaskDesc: '공간 지각 능력',
   // 카드 정렬 검사
   cardSortingTitle: '카드 정렬 검사',
   cardSortingInstruction1: '화면에 카드들이 나타납니다.',
